@@ -1,16 +1,27 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route} from 'react-router-dom';
 import Home from '../pages/Home';
-import Register from '../pages/Register';
-import Login from '../pages/Login';
+import Layout from '../components/Layout/LayoutRegistration';
+import LayoutEmailVerification from '../components/Layout/LayoutEmailVerification';
+import RegistrationForm from '../features/registration/RegistrationForm';
+import EmailVerification from '../features/registration/EmailVerification';
+import Login from '../features/auth/Login';
+import ForgotPassword from '../features/auth/ForgotPassword';
+import ResetPassword from '../features/auth/ResetPassword';
 import NotFound from '../pages/NotFound';
-import PrivateRoute from './PrivateRoute';
+import StaffDashboard from '../features/staff/dashboard/StaffDashboard';
+import AdminDashboard from '../features/admin/AdminDashboard'; // Assuming you have an admin dashboard component
 
 const AppRoutes = () => (
   <Routes>
     <Route path="/" element={<Home />} />
-    <Route path="/register" element={<Register />} />
+    <Route path="/register" element={<Layout><RegistrationForm /></Layout>} />
+    <Route path="/verify-email" element={<LayoutEmailVerification><EmailVerification /></LayoutEmailVerification>} />
     <Route path="/login" element={<Login />} />
+    <Route path="/forgot-password" element={<ForgotPassword />} />
+    <Route path="/reset-password" element={<ResetPassword />} />
+    <Route path="/staff/dashboard" element={<StaffDashboard />} />
+    <Route path='/admin/dashboard' element={<AdminDashboard />} />
     {/* Add more routes here */}
     <Route path="*" element={<NotFound />} />
   </Routes>
