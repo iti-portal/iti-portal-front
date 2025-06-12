@@ -12,8 +12,10 @@ import NotFound from '../pages/NotFound';
 import StaffDashboard from '../features/staff/dashboard/StaffDashboard';
 import AdminDashboard from '../features/admin/AdminDashboard'; // Assuming you have an admin dashboard component
 import Services from '../features/services/Services'; // Assuming you have a services component
-
-const AppRoutes = () => (
+import PrivateRoute from './PrivateRoute';
+import ProfilePage from'../features/student/profile/ProfilePage'
+import EditProfilePage from '../features/student/profile/EditProfilePage';
+const AppRoutes = ({ isAuthenticated }) => (
   <Routes>
     <Route path="/" element={<Home />} />
     <Route path="/register" element={<Layout><RegistrationForm /></Layout>} />
@@ -25,6 +27,23 @@ const AppRoutes = () => (
     <Route path='/admin/dashboard' element={<AdminDashboard />} />
     <Route path='/services' element={<Services/>} />
     {/* Add more routes here */}
+    <Route
+      path="/student/profile"
+      element={
+        
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <ProfilePage />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/student/profile/edit" 
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <EditProfilePage /> 
+        </PrivateRoute>
+      }
+    />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
