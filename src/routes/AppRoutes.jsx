@@ -11,6 +11,7 @@ import ResetPassword from '../features/auth/ResetPassword';
 import NotFound from '../pages/NotFound';
 import StaffDashboard from '../features/staff/dashboard/StaffDashboard';
 import AdminDashboard from '../features/admin/AdminDashboard'; // Assuming you have an admin dashboard component
+import Services from '../features/services/Services'; // Assuming you have a services component
 
 const AppRoutes = () => (
   <Routes>
@@ -22,6 +23,7 @@ const AppRoutes = () => (
     <Route path="/reset-password" element={<ResetPassword />} />
     <Route path="/staff/dashboard" element={<StaffDashboard />} />
     <Route path='/admin/dashboard' element={<AdminDashboard />} />
+    <Route path='/services' element={<Services/>} />
     {/* Add more routes here */}
     <Route path="*" element={<NotFound />} />
   </Routes>
