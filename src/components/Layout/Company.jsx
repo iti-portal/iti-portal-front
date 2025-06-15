@@ -1,28 +1,24 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  Briefcase, 
-  FileText, 
-  Wrench,
-  CheckCircle,
-  Building,
-  UserCheck
+import {
+  User,
+  Briefcase,
+  List,
+  Users,
+  BarChart3,
+  MessageSquare
 } from 'lucide-react';
 
 const sidebarItems = [
-  { icon: LayoutDashboard, label: 'Analytics', path: '/analytics' },
-  { icon: Users, label: 'Users', path: '/users' },
-  { icon: UserCheck, label: 'Staff', path: '/staff' },
-  { icon: Building, label: 'Company', path: '/company' },
-  { icon: Briefcase, label: 'Jobs', path: '/jobs' },
-  { icon: FileText, label: 'Articles', path: '/articles' },
-  { icon: Wrench, label: 'Services', path: '/services' },
-  { icon: CheckCircle, label: 'Approvals', path: '/approvals' },
+  { icon: User, label: 'My Profile', path: '/profile' },
+  { icon: Briefcase, label: 'Post Job', path: '/post-job' },
+  { icon: List, label: 'Manage Jobs', path: '/manage-jobs' },
+  { icon: Users, label: 'Applicants', path: '/applicants' },
+  { icon: BarChart3, label: 'Analytics', path: '/analytics' },
+  { icon: MessageSquare, label: 'Messages', path: '/messages' },
 ];
 
-const AdminLayout = () => {
+const JobPortalLayout = () => {
   const location = useLocation();
 
   return (
@@ -55,11 +51,11 @@ const AdminLayout = () => {
         <div className="p-6 border-t border-gray-200">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold">
-              J
+              C
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">Jane Doe</p>
-              <p className="text-xs text-gray-500 truncate">Admin</p>
+              <p className="text-sm font-medium text-gray-900 truncate">Tech Solutions</p>
+              <p className="text-xs text-gray-500 truncate">Company</p>
             </div>
           </div>
         </div>
@@ -73,4 +69,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default JobPortalLayout;

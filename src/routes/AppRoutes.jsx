@@ -1,10 +1,10 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home';
 import Register from '../pages/Register';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
-import PrivateRoute from './PrivateRoute';
+import Profile from '../features/company/profile/Profile'
 
 const AppRoutes = () => (
   <Routes>
@@ -12,6 +12,7 @@ const AppRoutes = () => (
     <Route path="/register" element={<Register />} />
     <Route path="/login" element={<Login />} />
     {/* Add more routes here */}
+    <Route path="/company/profile" element={<Profile />} />
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
