@@ -2,35 +2,39 @@ import React from 'react';
 import { Routes, Route} from 'react-router-dom';
 import Home from '../pages/Home';
 import Layout from '../components/Layout/LayoutRegistration';
-import LayoutEmailVerification from '../components/Layout/LayoutEmailVerification';
-import RegistrationForm from '../features/registration/RegistrationForm';
-import EmailVerification from '../features/registration/EmailVerification';
-import Login from '../features/auth/Login';
-import ForgotPassword from '../features/auth/ForgotPassword';
-import ResetPassword from '../features/auth/ResetPassword';
+import { RegistrationPage, EmailVerificationPage } from '../features/registration';
+import { LoginPage, ForgotPasswordPage, ResetPasswordPage } from '../features/auth';
 import NotFound from '../pages/NotFound';
-import StaffDashboard from '../features/staff/dashboard/StaffDashboard';
-import AdminDashboard from '../features/admin/AdminDashboard'; // Assuming you have an admin dashboard component
-import Services from '../features/services/Services'; // Assuming you have a services component
+import AdminDashboardPage from '../pages/AdminDashboardPage';
+import UsersManagementPage from '../pages/UsersManagementPage';
+import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
 import ProfilePage from'../features/student/profile/ProfilePage'
 import EditProfilePage from '../features/student/profile/EditProfilePage';
+import { CreateAchievement, ViewAchievements } from '../features/achievements';
+
 const AppRoutes = ({ isAuthenticated }) => (
   <Routes>
     <Route path="/" element={<Home />} />
-    <Route path="/register" element={<Layout><RegistrationForm /></Layout>} />
-    <Route path="/verify-email" element={<LayoutEmailVerification><EmailVerification /></LayoutEmailVerification>} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset-password" element={<ResetPassword />} />
-    <Route path="/staff/dashboard" element={<StaffDashboard />} />
-    <Route path='/admin/dashboard' element={<AdminDashboard />} />
-    <Route path='/services' element={<Services/>} />
-    {/* Add more routes here */}
+    {/* Registration routes */}
+    <Route path="/register" element={<Layout><RegistrationPage /></Layout>} />
+    <Route path="/verify-email" element={<EmailVerificationPage />} />
+    
+    {/* Auth routes */}
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <Route path="/reset-password" element={<ResetPasswordPage />} />
+    
+    {/* Admin routes */}
+    <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+    <Route path="/admin/staff" element={<StaffManagementPage />} />
+    <Route path="/admin/users" element={<UsersManagementPage />} />
+    <Route path="/admin/services" element={<ServiceManagementPage />} />
+    
+    {/* Student profile routes */}
     <Route
       path="/student/profile"
       element={
-        
         <PrivateRoute isAuthenticated={isAuthenticated}>
           <ProfilePage />
         </PrivateRoute>
@@ -41,6 +45,24 @@ const AppRoutes = ({ isAuthenticated }) => (
       element={
         <PrivateRoute isAuthenticated={isAuthenticated}>
           <EditProfilePage /> 
+        </PrivateRoute>
+      }
+    />
+    
+    {/* Achievements Routes */}
+    <Route
+      path="/achievements"
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <ViewAchievements />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/achievements/create"
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <CreateAchievement />
         </PrivateRoute>
       }
     />

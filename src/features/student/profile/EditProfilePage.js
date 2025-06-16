@@ -1,6 +1,6 @@
 // src/features/Student/Profile/EditProfilePage.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dummyProfileData from './profileData'; 
 

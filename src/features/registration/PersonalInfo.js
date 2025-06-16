@@ -41,20 +41,19 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
     }
   };
 
-  return (
-    <motion.form
+  return (    <motion.form
       onSubmit={handleSubmit}
-      className="bg-white rounded-xl shadow-lg p-8 border border-gray-100"
+      className="bg-white rounded-md shadow-md p-6 border border-gray-100"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold text-[#901b20] mb-6 text-center tracking-wide">
+        <h2 className="text-xl font-bold text-[#901b20] mb-4 text-center tracking-wide">
           Personal Information
         </h2>
       </motion.div>
-      <motion.div className="space-y-5" variants={containerVariants}>
+      <motion.div className="space-y-4" variants={containerVariants}>
         {formData.role === 'student' && (
           <>
             <motion.div variants={itemVariants}>
@@ -63,7 +62,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="First Name"
                 value={formData.firstName || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.firstName && <span className="text-red-500 text-sm">{errors.firstName}</span>}
@@ -74,7 +73,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Last Name"
                 value={formData.lastName || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.lastName && <span className="text-red-500 text-sm">{errors.lastName}</span>}
@@ -85,7 +84,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Phone"
                 value={formData.phone || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
@@ -96,7 +95,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Governorate"
                 value={formData.governorate || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.governorate && <span className="text-red-500 text-sm">{errors.governorate}</span>}
@@ -107,35 +106,23 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Track (optional)"
                 value={formData.track || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
-            </motion.div>
-            <motion.div variants={itemVariants}>
+            </motion.div>            <motion.div variants={itemVariants}>
               <input
                 name="intake"
                 placeholder="Intake (optional)"
                 value={formData.intake || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <input
-                name="graduation_date"
-                type="date"
-                placeholder="Graduation Date (optional)"
-                value={formData.graduation_date || ''}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
-              />
-              {errors.graduation_date && <span className="text-red-500 text-sm">{errors.graduation_date}</span>}
             </motion.div>
             <motion.div variants={itemVariants}>
               <select
                 name="student_status"
                 value={formData.student_status || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               >
                 <option value="">Student Status (optional)</option>
                 <option value="current">Current</option>
@@ -153,7 +140,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="First Name"
                 value={formData.firstName || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.firstName && <span className="text-red-500 text-sm">{errors.firstName}</span>}
@@ -164,7 +151,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Last Name"
                 value={formData.lastName || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.lastName && <span className="text-red-500 text-sm">{errors.lastName}</span>}
@@ -175,7 +162,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Phone"
                 value={formData.phone || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
@@ -186,7 +173,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Governorate"
                 value={formData.governorate || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.governorate && <span className="text-red-500 text-sm">{errors.governorate}</span>}
@@ -198,7 +185,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Graduation Date"
                 value={formData.graduation_date || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               <span className="text-gray-500 text-xs block mt-1">
@@ -216,7 +203,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Company Name"
                 value={formData.company_name || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.company_name && <span className="text-red-500 text-sm">{errors.company_name}</span>}
@@ -227,7 +214,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Description"
                 value={formData.description || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition resize-none"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition resize-none"
                 required
                 rows={3}
               />
@@ -239,7 +226,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Location"
                 value={formData.location || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
               />
               {errors.location && <span className="text-red-500 text-sm">{errors.location}</span>}
@@ -250,7 +237,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Industry"
                 value={formData.industry || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
               {errors.industry && <span className="text-red-500 text-sm">{errors.industry}</span>}
             </motion.div>
@@ -260,7 +247,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Company Size"
                 value={formData.company_size || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
               {errors.company_size && <span className="text-red-500 text-sm">{errors.company_size}</span>}
             </motion.div>
@@ -270,7 +257,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Website (optional)"
                 value={formData.website || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
               {errors.website && <span className="text-red-500 text-sm">{errors.website}</span>}
             </motion.div>
@@ -281,7 +268,7 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 placeholder="Established At (optional)"
                 value={formData.established_at || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
               <span className="text-gray-500 text-xs block mt-1">
                 Please enter your company creation or establishment date.
@@ -290,18 +277,17 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
             </motion.div>
           </>
         )}
-      </motion.div>
-      <motion.div className="flex justify-between mt-8" variants={itemVariants}>
+      </motion.div>      <motion.div className="flex justify-between mt-6" variants={itemVariants}>
         <button
           type="button"
           onClick={prevStep}
-          className="px-6 py-2 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+          className="px-4 py-2 rounded-md font-medium text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
         >
           Back
         </button>
         <button
           type="submit"
-          className="px-6 py-2 rounded-lg font-semibold text-white shadow-md"
+          className="px-4 py-2 rounded-md font-medium text-sm text-white shadow-sm"
           style={{ backgroundColor: '#901b20' }}
         >
           Next Step

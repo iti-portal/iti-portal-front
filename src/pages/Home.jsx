@@ -1,5 +1,11 @@
 import React from 'react';
+import Navbar from '../components/Layout/Navbar';
 
-const Home = () => <div>Welcome to ITI Portal</div>;
+const Home = () => (
+  <>
+    <Navbar />
+    <div>Welcome to ITI Portal</div>
+  </>
+);
 
 export default Home;
