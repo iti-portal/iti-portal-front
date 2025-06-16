@@ -42,63 +42,61 @@ const AccountType = ({ formData, handleChange, nextStep }) => {
     }
   };
 
-  return (
-    <motion.form
+  return (    <motion.form
       onSubmit={handleSubmit}
-      className="bg-white rounded-xl shadow-lg p-8 border border-gray-100"
+      className="bg-white rounded-lg shadow-md p-6 border border-gray-100"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold text-[#901b20] mb-6 text-center tracking-wide">Account Information</h2>
+        <h2 className="text-xl font-bold text-[#901b20] mb-4 text-center tracking-wide">Account Information</h2>
       </motion.div>
-      <motion.div className="space-y-6" variants={containerVariants}>
-        <motion.div variants={itemVariants}>
-          <label className="block text-gray-700 mb-2 font-semibold" htmlFor="email">Email</label>
+      <motion.div className="space-y-4" variants={containerVariants}>        <motion.div variants={itemVariants}>
+          <label className="block text-gray-700 mb-1 font-medium text-sm" htmlFor="email">Email</label>
           <input
             id="email"
             name="email"
             type="email"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition text-sm"
             value={formData.email || ''}
             onChange={handleChange}
             required
           />
-          {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
+          {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
         </motion.div>
         <motion.div variants={itemVariants}>
-          <label className="block text-gray-700 mb-2 font-semibold" htmlFor="password">Password</label>
+          <label className="block text-gray-700 mb-1 font-medium text-sm" htmlFor="password">Password</label>
           <input
             id="password"
             name="password"
             type="password"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition text-sm"
             value={formData.password || ''}
             onChange={handleChange}
             required
           />
-          {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
+          {errors.password && <span className="text-red-500 text-xs mt-1 block">{errors.password}</span>}
         </motion.div>
         <motion.div variants={itemVariants}>
-          <label className="block text-gray-700 mb-2 font-semibold" htmlFor="confirmPassword">Confirm Password</label>
+          <label className="block text-gray-700 mb-1 font-medium text-sm" htmlFor="confirmPassword">Confirm Password</label>
           <input
             id="confirmPassword"
             name="confirmPassword"
             type="password"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition text-sm"
             value={formData.confirmPassword || ''}
             onChange={handleChange}
             required
           />
-          {errors.confirmPassword && <span className="text-red-500 text-sm">{errors.confirmPassword}</span>}
+          {errors.confirmPassword && <span className="text-red-500 text-xs mt-1 block">{errors.confirmPassword}</span>}
         </motion.div>
         <motion.div variants={itemVariants}>
-          <label className="block text-gray-700 mb-2 font-semibold" htmlFor="role">Role</label>
+          <label className="block text-gray-700 mb-1 font-medium text-sm" htmlFor="role">Role</label>
           <select
             id="role"
             name="role"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition text-sm"
             value={formData.role || ''}
             onChange={handleChange}
             required
@@ -108,13 +106,12 @@ const AccountType = ({ formData, handleChange, nextStep }) => {
             <option value="alumni">Alumni</option>
             <option value="company">Company</option>
           </select>
-          {errors.role && <span className="text-red-500 text-sm">{errors.role}</span>}
+          {errors.role && <span className="text-red-500 text-xs mt-1 block">{errors.role}</span>}
         </motion.div>
-      </motion.div>
-      <motion.div className="mt-10" variants={itemVariants}>
+      </motion.div>      <motion.div className="mt-6" variants={itemVariants}>
         <button
           type="submit"
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-bold text-white transition hover:scale-105"
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white transition hover:scale-105"
           style={{ backgroundColor: '#901b20' }}
         >
           Next Step

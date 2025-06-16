@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { submitRegistration } from '../../api/register';
+import { submitRegistration } from '../services/registrationAPI';
 
 const containerVariants = {
   visible: {
@@ -22,33 +22,44 @@ const Review = ({ formData, prevStep }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    submitRegistration({ formData, setError, navigate, setIsSubmitting });
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await submitRegistration(formData);
+      navigate('/verify-email', { 
+        state: { email: formData.email }
+      });
+    } catch (err) {
+      setError(err.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return (
-    <motion.form
+  return (    <motion.form
       onSubmit={handleSubmit}
-      className="bg-white rounded-xl shadow-lg p-8 border border-gray-100"
+      className="bg-white rounded-lg shadow-md p-6 border border-gray-100"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold text-[#901b20] mb-6 text-center tracking-wide">Review Your Information</h2>
+        <h2 className="text-xl font-bold text-[#901b20] mb-4 text-center tracking-wide">Review Your Information</h2>
       </motion.div>
       
-      {error && (
-        <motion.div 
+      {error && (        <motion.div 
           variants={itemVariants}
-          className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+          className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md"
         >
-          <p className="text-red-700 text-sm">{error}</p>
+          <p className="text-red-700 text-xs">{error}</p>
         </motion.div>
       )}
       
-      <motion.ul className="mb-8 space-y-3 text-base" variants={containerVariants}>
+      <motion.ul className="mb-6 space-y-2 text-sm" variants={containerVariants}>
         {formData.role !== 'company' && (
           <>
             <motion.li variants={itemVariants}>
@@ -75,19 +86,18 @@ const Review = ({ formData, prevStep }) => {
         </motion.li>
       </motion.ul>
       
-      <motion.div className="flex justify-between" variants={itemVariants}>
-        <button
+      <motion.div className="flex justify-between" variants={itemVariants}>        <button
           type="button"
           onClick={prevStep}
           disabled={isSubmitting}
-          className="px-6 py-2 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition disabled:opacity-50"
+          className="px-4 py-2 rounded-md font-medium text-sm bg-gray-200 text-gray-700 hover:bg-gray-300 transition disabled:opacity-50"
         >
           Back
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-6 py-2 rounded-lg font-semibold text-white shadow-md transition disabled:opacity-50"
+          className="px-4 py-2 rounded-md font-medium text-sm text-white shadow-sm transition disabled:opacity-50"
           style={{ backgroundColor: '#901b20' }}
         >
           {isSubmitting ? 'Submitting...' : 'Submit'}

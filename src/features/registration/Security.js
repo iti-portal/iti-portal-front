@@ -24,24 +24,22 @@ const Security = ({ formData, handleFileChange, nextStep, prevStep }) => {
     nextStep();
   };
 
-  return (
-    <motion.form
+  return (    <motion.form
       onSubmit={handleSubmit}
-      className="bg-white rounded-xl shadow-lg p-8 border border-gray-100"
+      className="bg-white rounded-lg shadow-md p-4 border border-gray-100"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
     >
       <motion.div variants={itemVariants}>
-        <h2 className="text-2xl font-bold text-[#901b20] mb-6 text-center tracking-wide">Security</h2>
+        <h2 className="text-xl font-bold text-[#901b20] mb-4 text-center tracking-wide">Security</h2>
       </motion.div>
-      <motion.div className="space-y-5" variants={containerVariants}>
-        {/* ID Photo Upload - Front */}
-        <motion.div variants={itemVariants}>
-          <label className="block text-gray-700 mb-2 font-semibold" htmlFor="idPhotoFront">
+      <motion.div className="space-y-4" variants={containerVariants}>
+        {/* ID Photo Upload - Front */}        <motion.div variants={itemVariants}>
+          <label className="block text-gray-700 mb-1 font-medium text-xs" htmlFor="idPhotoFront">
             Upload ID Photo (Front)
           </label>
-          <div className="flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-[#901b20] rounded-xl p-6 transition hover:border-[#c53030] hover:bg-gray-100">
+          <div className="flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-[#901b20] rounded-lg p-4 transition hover:border-[#c53030] hover:bg-gray-100">
             <input
               id="idPhotoFront"
               name="idPhotoFront"
@@ -55,12 +53,12 @@ const Security = ({ formData, handleFileChange, nextStep, prevStep }) => {
               htmlFor="idPhotoFront"
               className="cursor-pointer flex flex-col items-center"
             >
-              <svg className="w-12 h-12 text-[#901b20] mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 48 48">
+              <svg className="w-10 h-10 text-[#901b20] mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 48 48">
                 <rect x="8" y="12" width="32" height="24" rx="4" fill="#fff" stroke="#901b20" />
                 <path d="M16 28l6-6 6 6" stroke="#901b20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="24" cy="20" r="2" fill="#901b20" />
               </svg>
-              <span className="text-[#901b20] font-medium text-sm">
+              <span className="text-[#901b20] font-medium text-xs">
                 Click to select or drag & drop
               </span>
               <span className="text-gray-400 text-xs mt-1">
@@ -86,7 +84,7 @@ const Security = ({ formData, handleFileChange, nextStep, prevStep }) => {
           <label className="block text-gray-700 mb-2 font-semibold" htmlFor="idPhotoBack">
             Upload ID Photo (Back)
           </label>
-          <div className="flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-[#901b20] rounded-xl p-6 transition hover:border-[#c53030] hover:bg-gray-100">
+          <div className="flex flex-col items-center justify-center bg-gray-50 border-2 border-dashed border-[#901b20] rounded-lg p-4 transition hover:border-[#c53030] hover:bg-gray-100">
             <input
               id="idPhotoBack"
               name="idPhotoBack"
@@ -100,12 +98,12 @@ const Security = ({ formData, handleFileChange, nextStep, prevStep }) => {
               htmlFor="idPhotoBack"
               className="cursor-pointer flex flex-col items-center"
             >
-              <svg className="w-12 h-12 text-[#901b20] mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 48 48">
+              <svg className="w-10 h-10 text-[#901b20] mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 48 48">
                 <rect x="8" y="12" width="32" height="24" rx="4" fill="#fff" stroke="#901b20" />
                 <path d="M16 28l6-6 6 6" stroke="#901b20" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 <circle cx="24" cy="20" r="2" fill="#901b20" />
               </svg>
-              <span className="text-[#901b20] font-medium text-sm">
+              <span className="text-[#901b20] font-medium text-xs">
                 Click to select or drag & drop
               </span>
               <span className="text-gray-400 text-xs mt-1">
@@ -126,18 +124,17 @@ const Security = ({ formData, handleFileChange, nextStep, prevStep }) => {
             )}
           </div>
         </motion.div>
-      </motion.div>
-      <motion.div className="flex justify-between mt-8" variants={itemVariants}>
+      </motion.div>      <motion.div className="flex justify-between mt-6" variants={itemVariants}>
         <button
           type="button"
           onClick={prevStep}
-          className="px-6 py-2 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+          className="px-4 py-2 rounded-md font-medium text-xs bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
         >
           Back
         </button>
         <button
           type="submit"
-          className="px-6 py-2 rounded-lg font-semibold text-white shadow-md"
+          className="px-4 py-2 rounded-md font-medium text-xs text-white shadow-xs"
           style={{ backgroundColor: '#901b20' }}
         >
           Next Step

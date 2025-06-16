@@ -1,12 +1,6 @@
 // src/features/Student/Profile/components/edit/PersonalInfoForm.js
 
 import React, { useState, useEffect } from 'react';
-import { useFormik } from 'formik'; 
-import * as Yup from 'yup'; 
-
-// دالة لإنشاء ID فريد مؤقت (لو هنحتاج نضيف صور متعددة مثلاً)
-const generateUniqueId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
-
 
 function PersonalInfoForm({ data, onUpdateAll }) {
   const [personalInfo, setPersonalInfo] = useState({
@@ -19,7 +13,7 @@ function PersonalInfoForm({ data, onUpdateAll }) {
     governorate: data.governorate, // Location
   });
 
-  // مزامنة البيانات من الـ props (data) مع الحالة الداخلية عند التغيير الخارجي
+
   useEffect(() => {
     setPersonalInfo({
       firstName: data.firstName,
@@ -49,7 +43,7 @@ function PersonalInfoForm({ data, onUpdateAll }) {
         setPersonalInfo(updatedInfo);
         onUpdateAll(updatedInfo); 
       };
-      reader.readAsDataURL(file); // لقراءة الصورة كـ Base64 لغرض العرض الفوري
+      reader.readAsDataURL(file); 
     }
   };
 
@@ -80,7 +74,7 @@ function PersonalInfoForm({ data, onUpdateAll }) {
                 type="file"
                 className="sr-only" 
                 onChange={handleProfilePictureChange}
-                accept="image/*" // يقبل ملفات الصور فقط
+                accept="image/*" 
               />
             </label>
             <p className="text-xs text-gray-500 mt-1">JPG or PNG, max 2MB. For best results, use a square image.</p>
