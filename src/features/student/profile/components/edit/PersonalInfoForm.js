@@ -1,6 +1,7 @@
 // src/features/Student/Profile/components/edit/PersonalInfoForm.js
 
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 function PersonalInfoForm({ data, onUpdateAll }) {
   const [personalInfo, setPersonalInfo] = useState({
@@ -9,10 +10,8 @@ function PersonalInfoForm({ data, onUpdateAll }) {
     title: data.title,
     company: data.company,
     summary: data.summary, // About Me
-    profilePicture: data.profilePicture,
     governorate: data.governorate, // Location
   });
-
 
   useEffect(() => {
     setPersonalInfo({
@@ -21,11 +20,9 @@ function PersonalInfoForm({ data, onUpdateAll }) {
       title: data.title,
       company: data.company,
       summary: data.summary,
-      profilePicture: data.profilePicture,
       governorate: data.governorate,
     });
   }, [data]);
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,108 +31,167 @@ function PersonalInfoForm({ data, onUpdateAll }) {
     onUpdateAll(updatedInfo); 
   };
 
-  const handleProfilePictureChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const updatedInfo = { ...personalInfo, profilePicture: reader.result };
-        setPersonalInfo(updatedInfo);
-        onUpdateAll(updatedInfo); 
-      };
-      reader.readAsDataURL(file); 
-    }
-  };
-
-
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-8"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       {/* Personal Information */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Personal Information</h2>
-        <p className="text-gray-600 text-sm mb-4">Update your profile details and preferences.</p>
+      <motion.div 
+        className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300"
+        whileHover={{ scale: 1.01 }}
+        transition={{ duration: 0.2 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-gray-800 mb-2 bg-gradient-to-r from-[#901b20] to-red-700 bg-clip-text text-transparent"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          Personal Information
+        </motion.h2>
+        <motion.p 
+          className="text-gray-600 text-sm mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          Update your profile details and preferences.
+        </motion.p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
-          {/* Profile Picture */}
-          <div className="md:col-span-1 flex flex-col items-center justify-center space-y-3">
-            <img
-              src={personalInfo.profilePicture}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover border-2 border-red-500 shadow-md"
-            />
-            <label htmlFor="profilePictureInput" className="cursor-pointer">
-              <span className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                <svg className="-ml-1 mr-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd"></path></svg>
-                Upload New Photo
-              </span>
-              <input
-                id="profilePictureInput"
-                name="profilePictureInput"
-                type="file"
-                className="sr-only" 
-                onChange={handleProfilePictureChange}
-                accept="image/*" 
-              />
-            </label>
-            <p className="text-xs text-gray-500 mt-1">JPG or PNG, max 2MB. For best results, use a square image.</p>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
           {/* Full Name */}
-          <div className="md:col-span-1">
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">Full Name *</label>
-            <input
-              type="text" name="firstName" id="firstName" value={personalInfo.firstName} onChange={handleChange}
-              placeholder="First Name"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-            <input
-              type="text" name="lastName" id="lastName" value={personalInfo.lastName} onChange={handleChange}
-              placeholder="Last Name"
-              className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
+          <motion.div 
+            className="md:col-span-1 space-y-4"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700 mb-2">First Name *</label>
+              <motion.input
+                type="text" 
+                name="firstName" 
+                id="firstName" 
+                value={personalInfo.firstName} 
+                onChange={handleChange}
+                placeholder="Enter your first name"
+                className="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] sm:text-sm transition-all duration-200 hover:border-gray-400"
+                whileFocus={{ scale: 1.02 }}
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700 mb-2">Last Name *</label>
+              <motion.input
+                type="text" 
+                name="lastName" 
+                id="lastName" 
+                value={personalInfo.lastName} 
+                onChange={handleChange}
+                placeholder="Enter your last name"
+                className="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] sm:text-sm transition-all duration-200 hover:border-gray-400"
+                whileFocus={{ scale: 1.02 }}
+              />
+            </div>
+          </motion.div>
 
           {/* Current Job Title */}
-          <div className="md:col-span-2">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">Current Job Title *</label>
-            <input
-              type="text" name="title" id="title" value={personalInfo.title} onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          <motion.div 
+            className="md:col-span-1"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">Current Job Title *</label>
+            <motion.input
+              type="text" 
+              name="title" 
+              id="title" 
+              value={personalInfo.title} 
+              onChange={handleChange}
+              placeholder="e.g., Frontend Developer, Software Engineer"
+              className="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] sm:text-sm transition-all duration-200 hover:border-gray-400"
+              whileFocus={{ scale: 1.01 }}
             />
-          </div>
+          </motion.div>
 
           {/* Location */}
-          <div className="md:col-span-2">
-            <label htmlFor="governorate" className="block text-sm font-medium text-gray-700">Location</label>
-            {/* ممكن نستخدم dropdown للـ governorates في المستقبل */}
-            <input
-              type="text" name="governorate" id="governorate" value={personalInfo.governorate} onChange={handleChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="e.g., San Francisco, CA"
+          <motion.div 
+            className="md:col-span-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <label htmlFor="governorate" className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+            <motion.input
+              type="text" 
+              name="governorate" 
+              id="governorate" 
+              value={personalInfo.governorate} 
+              onChange={handleChange}
+              className="block w-full border border-gray-300 rounded-lg shadow-sm py-3 px-4 focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] sm:text-sm transition-all duration-200 hover:border-gray-400"
+              placeholder="e.g., Cairo, Alexandria, Giza"
+              whileFocus={{ scale: 1.01 }}
             />
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* About Me (Short Bio) */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">About Me (Short Bio)</h2>
-        <p className="text-gray-600 text-sm mb-4">Passionate about building intuitive and performant web applications.</p>
-        <textarea
-          name="summary"
-          id="summary"
-          rows="5"
-          value={personalInfo.summary}
-          onChange={handleChange}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y"
-          placeholder="Craft a compelling bio that highlights your skills, experience, and aspirations."
-          maxLength={300} 
-        ></textarea>
-        <div className="text-right text-xs text-gray-500 mt-2">
-          {personalInfo.summary.length} / 300 characters
-        </div>
-      </div>
-    </div>
+      <motion.div 
+        className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+        whileHover={{ scale: 1.01 }}
+      >
+        <motion.h2 
+          className="text-2xl font-bold text-gray-800 mb-2 bg-gradient-to-r from-[#901b20] to-red-700 bg-clip-text text-transparent"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          About Me (Short Bio)
+        </motion.h2>
+        <motion.p 
+          className="text-gray-600 text-sm mb-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
+          Craft a compelling bio that highlights your skills, experience, and aspirations.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
+          <motion.textarea
+            name="summary"
+            id="summary"
+            rows="6"
+            value={personalInfo.summary}
+            onChange={handleChange}
+            className="block w-full border border-gray-300 rounded-lg shadow-sm py-4 px-4 focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] sm:text-sm resize-y transition-all duration-200 hover:border-gray-400"
+            placeholder="Tell us about yourself, your passions, experience, and what drives you in your career..."
+            maxLength={300}
+            whileFocus={{ scale: 1.01 }}
+          ></motion.textarea>
+          <motion.div 
+            className="text-right text-xs text-gray-500 mt-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: 0.7 }}
+          >
+            <span className={personalInfo.summary.length > 250 ? 'text-red-500 font-medium' : ''}>
+              {personalInfo.summary.length}
+            </span> / 300 characters
+          </motion.div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 

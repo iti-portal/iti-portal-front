@@ -96,14 +96,14 @@ const PersonalInfoForm = ({
       />
 
       <FormField
-        label="Governorate"
+        label="Branch"
         name="governorate"
         type="select"
         value={formData.governorate}
         onChange={onChange}
         error={errors.governorate}
         options={governorateOptions}
-        placeholder="Select your governorate"
+        placeholder="Select your Branch"
         required
       />
 
@@ -113,7 +113,7 @@ const PersonalInfoForm = ({
           value={formData.track}
           onChange={onChange}
           error={errors.track}
-          placeholder="e.g., Web Development"
+          placeholder="e.g., Open Source"
           helpText="Your specialization track"
         />
         <FormField
@@ -122,7 +122,7 @@ const PersonalInfoForm = ({
           value={formData.intake}
           onChange={onChange}
           error={errors.intake}
-          placeholder="e.g., 2024"
+          placeholder="e.g., 45"
           helpText="Your intake year"
         />
       </div>      <FormField

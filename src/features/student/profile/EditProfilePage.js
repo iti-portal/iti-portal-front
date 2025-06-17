@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import Navbar from '../../../components/Layout/Navbar';
 import dummyProfileData from './profileData'; 
 
 import PersonalInfoForm from './components/edit/PersonalInfoForm';
 import ContactInfoForm from './components/edit/ContactInfoForm';
 import SkillsAndCertificatesForm from './components/edit/SkillsAndCertificatesForm';
 import ProjectsAndPortfolioForm from './components/edit/ProjectsAndPortfolioForm';
-import EducationAndExperienceForm from './components/edit/EducationAndExperienceForm'; 
+import EducationAndExperienceForm from './components/edit/EducationAndExperienceForm';
 function EditProfilePage() {
   const navigate = useNavigate();
 
@@ -52,6 +54,45 @@ function EditProfilePage() {
     }));
   };
 
+  // Animation variants
+  const pageVariants = {
+    initial: { opacity: 0, y: 20 },
+    animate: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const tabContentVariants = {
+    hidden: { 
+      opacity: 0, 
+      x: 20,
+      scale: 0.95 
+    },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      x: -20,
+      scale: 0.95,
+      transition: {
+        duration: 0.3,
+        ease: "easeIn"
+      }
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Final Data to Save (Dummy):', profileDataToEdit);
@@ -61,119 +102,217 @@ function EditProfilePage() {
 
     alert('Profile updated successfully (dummy data)!');
     navigate('/student/profile'); // العودة لصفحة البروفايل بعد الحفظ
-  };
-
-  return (
-    <div className="bg-gray-100 min-h-screen py-8">
+  };  return (
+    <>
+      <Navbar />
+      <motion.div 
+        className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-8"
+        variants={pageVariants}
+        initial="initial"
+        animate="animate"
+      >
       <div className="container mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-xl p-6 mb-6 max-w-5xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Edit Profile</h1>
+        <motion.div 
+          className="bg-white rounded-2xl shadow-2xl p-8 mb-6 max-w-5xl mx-auto border border-gray-200"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >          <motion.h1 
+            className="text-4xl font-bold text-gray-900 mb-8 text-center bg-gradient-to-r from-[#901b20] to-red-700 bg-clip-text text-transparent"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Edit Profile
+          </motion.h1>
 
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200 mb-8">
-            <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-              {tabs.map((tab) => (
-                <button
+          <motion.div 
+            className="border-b border-gray-200 mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <nav className="-mb-px flex flex-wrap justify-center gap-2 lg:gap-8" aria-label="Tabs">
+              {tabs.map((tab, index) => (
+                <motion.button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
+                  onClick={() => setActiveTab(tab.id)}                  className={`relative px-4 py-3 border-b-2 font-medium text-sm transition-all duration-300 ease-in-out whitespace-nowrap
                     ${activeTab === tab.id
-                      ? 'border-red-500 text-red-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-[#901b20] border-[#901b20] bg-red-50'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'
                     }
-                    whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ease-in-out
+                    rounded-t-lg
                   `}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.4 + (index * 0.1) }}
                 >
-                  {tab.name}
-                </button>
+                  {activeTab === tab.id && (
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-red-50 to-red-100 rounded-t-lg"
+                      layoutId="activeEditTab"
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.name}</span>
+                </motion.button>
               ))}
             </nav>
-          </div>
+          </motion.div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <motion.form 
+            onSubmit={handleSubmit} 
+            className="space-y-8"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
             {/* عرض المكون الفرعي بناءً على الـ activeTab */}
-            {activeTab === 'personal' && (
-              <PersonalInfoForm
-                data={profileDataToEdit}
-                onUpdateAll={(newData) => {
-                    setProfileDataToEdit(prevData => ({
-                        ...prevData,
-                        firstName: newData.firstName,
-                        lastName: newData.lastName,
-                        title: newData.title,
-                        company: newData.company, 
-                        summary: newData.summary,
-                        profilePicture: newData.profilePicture,
-                        governorate: newData.governorate, // Location
-                    }));
-                }}
-              />
-            )}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                variants={tabContentVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                {activeTab === 'personal' && (
+                  <motion.div
+                    className="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                    whileHover={{ scale: 1.005 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <PersonalInfoForm
+                      data={profileDataToEdit}
+                      onUpdateAll={(newData) => {
+                          setProfileDataToEdit(prevData => ({
+                              ...prevData,
+                              firstName: newData.firstName,
+                              lastName: newData.lastName,
+                              title: newData.title,
+                              company: newData.company, 
+                              summary: newData.summary,
+                              profilePicture: newData.profilePicture,
+                              governorate: newData.governorate, // Location
+                          }));
+                      }}
+                    />
+                  </motion.div>
+                )}
 
-            {activeTab === 'contact' && (
-              <ContactInfoForm
-                data={profileDataToEdit}
-                onUpdateAll={(newData) => {
-                    setProfileDataToEdit(prevData => ({
-                        ...prevData,
-                        email: newData.email,
-                        phone: newData.phone,
-                        whatsapp: newData.whatsapp,
-                        linkedin: newData.linkedin,
-                        github: newData.github,
-                        portfolioUrl: newData.portfolioUrl,
-                        availableForFreelance: newData.availableForFreelance, 
-                    }));
-                }}
-              />
-            )}
+                {activeTab === 'contact' && (
+                  <motion.div
+                    className="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                    whileHover={{ scale: 1.005 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ContactInfoForm
+                      data={profileDataToEdit}
+                      onUpdateAll={(newData) => {
+                          setProfileDataToEdit(prevData => ({
+                              ...prevData,
+                              email: newData.email,
+                              phone: newData.phone,
+                              whatsapp: newData.whatsapp,
+                              linkedin: newData.linkedin,
+                              github: newData.github,
+                              portfolioUrl: newData.portfolioUrl,
+                              availableForFreelance: newData.availableForFreelance, 
+                          }));
+                      }}
+                    />
+                  </motion.div>
+                )}
 
-            {activeTab === 'education-experience' && ( 
-              <EducationAndExperienceForm
-                educations={profileDataToEdit.educations}
-                workExperiences={profileDataToEdit.workExperiences}
-                onUpdateEducations={(newEducations) => handleProfileDataChange('educations', newEducations)}
-                onUpdateWorkExperiences={(newWorkExperiences) => handleProfileDataChange('workExperiences', newWorkExperiences)}
-              />
-            )}
+                {activeTab === 'education-experience' && ( 
+                  <motion.div
+                    className="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                    whileHover={{ scale: 1.005 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <EducationAndExperienceForm
+                      educations={profileDataToEdit.educations}
+                      workExperiences={profileDataToEdit.workExperiences}
+                      onUpdateEducations={(newEducations) => handleProfileDataChange('educations', newEducations)}
+                      onUpdateWorkExperiences={(newWorkExperiences) => handleProfileDataChange('workExperiences', newWorkExperiences)}
+                    />
+                  </motion.div>
+                )}
 
-            {activeTab === 'skills-certs' && (
-              <SkillsAndCertificatesForm
-                skills={profileDataToEdit.skills}
-                achievements={profileDataToEdit.achievements}
-                onUpdateSkills={(newSkills) => handleProfileDataChange('skills', newSkills)}
-                onUpdateAchievements={(newAchievements) => handleProfileDataChange('achievements', newAchievements)}
-              />
-            )}
+                {activeTab === 'skills-certs' && (
+                  <motion.div
+                    className="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                    whileHover={{ scale: 1.005 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <SkillsAndCertificatesForm
+                      skills={profileDataToEdit.skills}
+                      achievements={profileDataToEdit.achievements}
+                      onUpdateSkills={(newSkills) => handleProfileDataChange('skills', newSkills)}
+                      onUpdateAchievements={(newAchievements) => handleProfileDataChange('achievements', newAchievements)}
+                    />
+                  </motion.div>
+                )}
 
-            {activeTab === 'projects-portfolio' && (
-              <ProjectsAndPortfolioForm
-                projects={profileDataToEdit.projects}
-                onUpdateProjects={(newProjects) => handleProfileDataChange('projects', newProjects)}
-              />
-            )}
-
+                {activeTab === 'projects-portfolio' && (
+                  <motion.div
+                    className="bg-gray-50 rounded-xl p-6 border border-gray-200"
+                    whileHover={{ scale: 1.005 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ProjectsAndPortfolioForm
+                      projects={profileDataToEdit.projects}
+                      onUpdateProjects={(newProjects) => handleProfileDataChange('projects', newProjects)}
+                    />
+                  </motion.div>
+                )}
+              </motion.div>
+            </AnimatePresence>
 
             {/* Submit & Cancel Buttons (تبقى في المكون الأب) */}
-            <div className="pt-4 flex justify-end space-x-3">
-              <button
+            <motion.div 
+              className="pt-6 flex justify-end space-x-4 border-t border-gray-200"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6 }}
+            >
+              <motion.button
                 type="button"
                 onClick={() => navigate('/student/profile')}
-                className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex justify-center py-3 px-6 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
+                whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)" }}
+                whileTap={{ scale: 0.98 }}
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>              <motion.button
                 type="submit"
-                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                className="inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[#901b20] to-red-700 hover:from-[#7a1619] hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20] transition-all duration-200"whileHover={{ 
+                  scale: 1.02, 
+                  boxShadow: "0 8px 20px rgba(220, 38, 38, 0.3)" 
+                }}
+                whileTap={{ scale: 0.98 }}
               >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  Save Changes
+                </motion.span>
+              </motion.button>
+            </motion.div>
+          </motion.form>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
+    </>
   );
 }
 

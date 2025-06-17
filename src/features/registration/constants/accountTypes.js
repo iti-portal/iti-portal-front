@@ -13,7 +13,6 @@ export const ACCOUNT_TYPE_OPTIONS = [
     description: 'Current or prospective ITI student',
     icon: '🎓',
     features: [
-      'Access to courses and materials',
       'Connect with classmates',
       'Job opportunities',
       'Achievement tracking'
@@ -21,13 +20,12 @@ export const ACCOUNT_TYPE_OPTIONS = [
   },
   {
     value: ACCOUNT_TYPES.ALUMNI,
-    label: 'Alumni',
+    label: 'Graduate',
     description: 'ITI graduate and alumni network member',
     icon: '👨‍💼',
     features: [
       'Alumni network access',
       'Mentorship opportunities',
-      'Job postings',
       'Professional networking'
     ]
   },
