@@ -30,10 +30,12 @@ const AppRoutes = ({ isAuthenticated }) => (
     <Route path="/reset-password" element={<ResetPassword />} />
     <Route path="/staff/dashboard" element={<StaffDashboard />} />
     <Route path='/admin/dashboard' element={<AdminDashboard />} />
+
     <Route path='/admin/analytics' element={<Analytics />} />
     <Route path='/admin/approvals' element={<Approvals />} />
     <Route path='/admin/articles' element={<Articles />} />
     <Route path='/admin/users' element={<Users />} />
+    
     <Route path='/services' element={<Services/>} />
     {/* Add more routes here */}
     <Route
