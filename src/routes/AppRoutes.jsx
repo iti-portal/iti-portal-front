@@ -20,6 +20,11 @@ import Analytics from '../features/admin/analytics/Analytics';
 import Approvals from '../features/admin/approvals/Approvals';
 import Articles from '../features/admin/articles/Articles';
 import Users from '../features/admin/users/Users';
+
+import Profile from './../features/company/profile/Profile';
+import Applicants from './../features/company/applicants/Applicants';
+import PostJob from '../features/company/postJob/PostJob';
+
 const AppRoutes = ({ isAuthenticated }) => (
   <Routes>
     <Route path="/" element={<Home />} />
@@ -35,7 +40,11 @@ const AppRoutes = ({ isAuthenticated }) => (
     <Route path='/admin/approvals' element={<Approvals />} />
     <Route path='/admin/articles' element={<Articles />} />
     <Route path='/admin/users' element={<Users />} />
-    
+
+    <Route path='/company/applicants' element={<Applicants />} />
+    <Route path='/company/post-job' element={<PostJob />} />
+    <Route path='/company/profile' element={<Profile />} />
+
     <Route path='/services' element={<Services/>} />
     {/* Add more routes here */}
     <Route

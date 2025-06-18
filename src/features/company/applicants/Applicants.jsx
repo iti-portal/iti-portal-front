@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ChevronLeft, ChevronRight, UserCheck, UserX, Star, Download } from 'lucide-react';
 
-const ApplicantManagement = () => {
+const Applicants = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedJob, setSelectedJob] = useState('All Jobs');
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
@@ -456,4 +456,4 @@ const ApplicantManagement = () => {
   );
 };
 
-export default ApplicantManagement;
+export default Applicants;

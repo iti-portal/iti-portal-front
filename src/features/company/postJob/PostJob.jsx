@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Calendar, ChevronDown } from 'lucide-react';
 
-export default function JobPostingForm() {
+export default function PostJob() {
   const [formData, setFormData] = useState({
     jobTitle: '',
     jobDescription: '',
