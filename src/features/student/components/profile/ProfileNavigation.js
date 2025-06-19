@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/ProfileNavigation.js
+// src/features/student/components/profile/ProfileNavigation.js
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -29,9 +29,8 @@ function ProfileNavigation({ activeTab, onTabChange }) {
               }`}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-          >            {activeTab === tab.name && (
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-[#901b20] to-red-700 rounded-lg"
+          >            {activeTab === tab.name && (              <motion.div
+                className="absolute inset-0 bg-iti-gradient rounded-lg"
                 layoutId="activeTab"
                 transition={{
                   type: "spring",

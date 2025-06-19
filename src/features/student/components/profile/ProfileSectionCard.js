@@ -1,4 +1,3 @@
-// src/features/Student/Profile/components/ProfileSectionCard.js
 import React from 'react';
 import { motion } from 'framer-motion';
 
@@ -24,7 +23,7 @@ function ProfileSectionCard({ title, children, className = '' }) {
           <span className="relative">
             {title}
             <motion.div
-              className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-red-600 to-red-400"
+              className="absolute bottom-0 left-0 h-0.5 bg-iti-gradient"
               initial={{ width: 0 }}
               animate={{ width: "60px" }}
               transition={{ duration: 0.8, delay: 0.3 }}

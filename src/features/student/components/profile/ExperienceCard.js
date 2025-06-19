@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/ExperienceCard.js
+// src/features/student/components/profile/ExperienceCard.js
 import React from 'react';
 import { FaBuilding, FaCalendarAlt } from 'react-icons/fa';
 

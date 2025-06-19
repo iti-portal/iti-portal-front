@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/SkillItem.js
+// src/features/student/components/profile/SkillItem.js
 import React from 'react';
 import { motion } from 'framer-motion';
 

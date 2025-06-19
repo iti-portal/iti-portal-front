@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/EducationCard.js
+// src/features/student/components/profile/EducationCard.js
 import React from 'react';
 import { FaGraduationCap, FaCalendarAlt, FaBookOpen } from 'react-icons/fa';
 

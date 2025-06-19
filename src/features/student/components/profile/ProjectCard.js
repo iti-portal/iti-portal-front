@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/ProjectCard.js
+// src/features/student/components/profile/ProjectCard.js
 import React from 'react';
 import { FaGithub, FaLink } from 'react-icons/fa';
 

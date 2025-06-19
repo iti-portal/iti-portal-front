@@ -1,16 +1,17 @@
-// src/features/Student/Profile/EditProfilePage.js
+// src/features/student/pages/EditProfilePage.js
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../components/Layout/Navbar';
-import dummyProfileData from './profileData'; 
+import dummyProfileData from '../data/profileData'; 
 
-import PersonalInfoForm from './components/edit/PersonalInfoForm';
-import ContactInfoForm from './components/edit/ContactInfoForm';
-import SkillsAndCertificatesForm from './components/edit/SkillsAndCertificatesForm';
-import ProjectsAndPortfolioForm from './components/edit/ProjectsAndPortfolioForm';
-import EducationAndExperienceForm from './components/edit/EducationAndExperienceForm';
+import PersonalInfoForm from '../components/profile/edit/PersonalInfoForm';
+import ContactInfoForm from '../components/profile/edit/ContactInfoForm';
+import SkillsAndCertificatesForm from '../components/profile/edit/SkillsAndCertificatesForm';
+import ProjectsAndPortfolioForm from '../components/profile/edit/ProjectsAndPortfolioForm';
+import EducationAndExperienceForm from '../components/profile/edit/EducationAndExperienceForm';
+
 function EditProfilePage() {
   const navigate = useNavigate();
 
@@ -22,7 +23,7 @@ function EditProfilePage() {
     { id: 'projects-portfolio', name: 'Projects & Portfolio' },
   ];
 
-  const [activeTab, setActiveTab] = useState(tabs[0].id); // أول تاب هو النشط افتراضيًا
+  const [activeTab, setActiveTab] = useState(tabs[0].id); 
   // بيانات البروفايل التي سيتم تحريرها
   const [profileDataToEdit, setProfileDataToEdit] = useState({
     firstName: dummyProfileData.firstName || '',
@@ -97,12 +98,13 @@ function EditProfilePage() {
     e.preventDefault();
     console.log('Final Data to Save (Dummy):', profileDataToEdit);
 
-    // في المستقبل، هنا سيتم إرسال profileDataToEdit إلى الـ API
-    // على سبيل المثال: dispatch(updateFullProfile(profileDataToEdit));
+   
 
     alert('Profile updated successfully (dummy data)!');
-    navigate('/student/profile'); // العودة لصفحة البروفايل بعد الحفظ
-  };  return (
+    navigate('/student/profile'); 
+  };  
+  
+  return (
     <>
       <Navbar />
       <motion.div 
@@ -117,8 +119,9 @@ function EditProfilePage() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-        >          <motion.h1 
-            className="text-4xl font-bold text-gray-900 mb-8 text-center bg-gradient-to-r from-[#901b20] to-red-700 bg-clip-text text-transparent"
+        >          
+          <motion.h1 
+            className="text-4xl font-bold text-gray-900 mb-8 text-center bg-iti-gradient-text"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -137,7 +140,8 @@ function EditProfilePage() {
               {tabs.map((tab, index) => (
                 <motion.button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}                  className={`relative px-4 py-3 border-b-2 font-medium text-sm transition-all duration-300 ease-in-out whitespace-nowrap
+                  onClick={() => setActiveTab(tab.id)}                  
+                  className={`relative px-4 py-3 border-b-2 font-medium text-sm transition-all duration-300 ease-in-out whitespace-nowrap
                     ${activeTab === tab.id
                       ? 'text-[#901b20] border-[#901b20] bg-red-50'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:bg-gray-50'
@@ -152,7 +156,7 @@ function EditProfilePage() {
                 >
                   {activeTab === tab.id && (
                     <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-red-50 to-red-100 rounded-t-lg"
+                      className="absolute inset-0 bg-iti-gradient-light rounded-t-lg"
                       layoutId="activeEditTab"
                       transition={{
                         type: "spring",
@@ -276,7 +280,7 @@ function EditProfilePage() {
               </motion.div>
             </AnimatePresence>
 
-            {/* Submit & Cancel Buttons (تبقى في المكون الأب) */}
+            
             <motion.div 
               className="pt-6 flex justify-end space-x-4 border-t border-gray-200"
               initial={{ opacity: 0, y: 20 }}
@@ -291,9 +295,11 @@ function EditProfilePage() {
                 whileTap={{ scale: 0.98 }}
               >
                 Cancel
-              </motion.button>              <motion.button
+              </motion.button>              
+              <motion.button
                 type="submit"
-                className="inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-[#901b20] to-red-700 hover:from-[#7a1619] hover:to-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20] transition-all duration-200"whileHover={{ 
+                className="inline-flex justify-center py-3 px-8 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-iti-gradient hover:bg-iti-gradient-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iti-primary transition-all duration-200"
+                whileHover={{ 
                   scale: 1.02, 
                   boxShadow: "0 8px 20px rgba(220, 38, 38, 0.3)" 
                 }}

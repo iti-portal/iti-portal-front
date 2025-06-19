@@ -9,8 +9,7 @@ import AdminDashboardPage from '../pages/AdminDashboardPage';
 import UsersManagementPage from '../pages/UsersManagementPage';
 import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
-import ProfilePage from'../features/student/profile/ProfilePage'
-import EditProfilePage from '../features/student/profile/EditProfilePage';
+import { ProfilePage, EditProfilePage } from '../features/student';
 import { CreateAchievement, ViewAchievements } from '../features/achievements';
 
 const AppRoutes = ({ isAuthenticated }) => (

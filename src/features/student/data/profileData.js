@@ -1,4 +1,4 @@
-// src/features/Student/Profile/profileData.js
+// src/features/student/data/profileData.js
 
 const dummyProfileData = {
   // Data from users, user_profiles, and student_details
@@ -97,53 +97,62 @@ const dummyProfileData = {
       title: 'React.js Masterclass',
       organization: 'Udemy',
       achievedAt: '2024-03-15',
-      certificateUrl: 'https://www.udemy.com/certificate/react-masterclass-example',
-      image: 'https://via.placeholder.com/300x200?text=React+Cert', // Certificate image
+      description: 'Comprehensive course covering advanced React patterns, hooks, and performance optimization techniques.',
+      certificateUrl: 'https://udemy-certificate.s3.amazonaws.com/image/UC-123456.jpg',
+      verified: true,
     },
     {
       id: 2,
       type: 'certificate',
-      title: 'JavaScript Algorithms and Data Structures',
-      organization: 'FreeCodeCamp',
-      achievedAt: '2023-11-20',
-      certificateUrl: 'https://www.freecodecamp.org/certification/js-algorithms-example',
-      image: 'https://via.placeholder.com/300x200?text=JS+Cert',
+      title: 'Web Development Bootcamp',
+      organization: 'Coursera',
+      achievedAt: '2023-12-10',
+      description: 'Completed a comprehensive web development program covering front-end and back-end technologies.',
+      certificateUrl: 'https://coursera.org/verify/ABC123XYZ',
+      verified: true,
+    },
+    {
+      id: 3,
+      type: 'certificate',
+      title: 'Responsive Web Design',
+      organization: 'freeCodeCamp',
+      achievedAt: '2023-08-20',
+      description: 'Completed certification in responsive web design principles and implementation.',
+      certificateUrl: 'https://freecodecamp.org/certification/user123/responsive-web-design',
+      verified: true,
     },
   ],
 
-  // Data from projects
+  // Data from projects (student projects)
   projects: [
     {
       id: 1,
-      title: 'ITI Portal (Final Graduation Project)',
-      description: 'A comprehensive ITI portal project to facilitate communication between students, alumni, companies, and staff. I focused on developing the front-end user interface and user experience.',
-      technologiesUsed: 'React.js, Tailwind CSS, Node.js, Express.js, MongoDB',
-      projectUrl: 'https://iti-portal-demo.netlify.app',
-      githubUrl: 'https://github.com/iti-portal-team/iti-portal-front',
-      startDate: '2024-09-01',
-      endDate: null,
-      isFeatured: true,
-      images: [
-        { id: 1, imagePath: 'https://via.placeholder.com/600x400?text=Project+1+Image+1', altText: 'ITI Portal Dashboard' },
-        { id: 2, imagePath: 'https://via.placeholder.com/600x400?text=Project+1+Image+2', altText: 'ITI Portal Profile' },
-      ]
+      title: 'E-commerce Website',
+      description: 'Developed a full-stack e-commerce platform with React, Node.js, and MongoDB. Implemented features like user authentication, product catalog, shopping cart, and payment integration.',
+      demoUrl: 'https://e-commerce-demo.netlify.app',
+      githubUrl: 'https://github.com/sarahmohamed-example/e-commerce',
+      imageUrl: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8ZSUyMGNvbW1lcmNlfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=800&q=60',
+      technologies: ['React.js', 'Node.js', 'Express.js', 'MongoDB', 'Redux', 'Stripe API'],
     },
     {
       id: 2,
-      title: 'E-commerce Store Front-end',
-      description: 'A front-end application for an e-commerce store with a shopping cart and user authentication system. Aims to provide a seamless shopping experience.',
-      technologiesUsed: 'React.js, Redux, Styled Components',
-      projectUrl: 'https://e-commerce-demo.netlify.app',
-      githubUrl: 'https://github.com/sarahmohamed-example/e-commerce-front',
-      startDate: '2023-10-01',
-      endDate: '2023-12-31',
-      isFeatured: false,
-      images: [
-        { id: 1, imagePath: 'https://via.placeholder.com/600x400?text=Project+2+Image+1', altText: 'E-commerce product page' },
-      ]
+      title: 'Weather App',
+      description: 'Created a weather application that displays current weather conditions and forecasts based on user location or search. Uses OpenWeatherMap API for data.',
+      demoUrl: 'https://weather-app-demo.netlify.app',
+      githubUrl: 'https://github.com/sarahmohamed-example/weather-app',
+      imageUrl: 'https://images.unsplash.com/photo-1534088568595-a066f410bcda?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8NXx8d2VhdGhlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60',
+      technologies: ['JavaScript', 'HTML5', 'CSS3', 'OpenWeatherMap API'],
+    },
+    {
+      id: 3,
+      title: 'Task Management System',
+      description: 'Built a task management application with drag-and-drop functionality, task categorization, due dates, and notifications. Implemented user authentication and data persistence.',
+      demoUrl: 'https://task-manager-demo.netlify.app',
+      githubUrl: 'https://github.com/sarahmohamed-example/task-manager',
+      imageUrl: 'https://images.unsplash.com/photo-1540350394557-8d14678e7f91?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8dGFzayUyMG1hbmFnZXJ8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60',
+      technologies: ['React.js', 'Firebase', 'Material-UI', 'Context API'],
     },
   ],
-
 };
 
 export default dummyProfileData;

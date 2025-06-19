@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --iti-primary: #901b20;
+  --iti-primary-dark: #7a1619;
+  --iti-primary-light: #c41c24;
+}
+
 /* Custom scrollbar styles */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
@@ -13,19 +19,19 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #901b20, #dc2626);
+  background: linear-gradient(180deg, var(--iti-primary), #dc2626);
   border-radius: 10px;
   transition: background 0.3s ease;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #7a1619, #b91c1c);
+  background: linear-gradient(180deg, var(--iti-primary-dark), #b91c1c);
 }
 
 /* Firefox scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #901b20 #f1f5f9;
+  scrollbar-color: var(--iti-primary) #f1f5f9;
 }
 
 body {
@@ -40,4 +46,83 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* ITI Brand Color Utilities */
+.bg-iti-primary {
+  background-color: var(--iti-primary);
+}
+.bg-iti-primary-dark {
+  background-color: var(--iti-primary-dark);
+}
+.bg-iti-primary-light {
+  background-color: var(--iti-primary-light);
+}
+.bg-iti-gradient {
+  background-image: linear-gradient(to right, var(--iti-primary), var(--iti-primary-light));
+}
+.bg-iti-gradient-light {
+  background-image: linear-gradient(to right, rgba(144, 27, 32, 0.1), rgba(196, 28, 36, 0.1));
+}
+.bg-iti-gradient-text {
+  background-image: linear-gradient(to right, var(--iti-primary), var(--iti-primary-light));
+  background-clip: text;
+  color: transparent;
+}
+.hover\:bg-iti-gradient:hover {
+  background-image: linear-gradient(to right, var(--iti-primary), var(--iti-primary-light));
+}
+.hover\:bg-iti-gradient-dark:hover {
+  background-image: linear-gradient(to right, var(--iti-primary-dark), var(--iti-primary));
+}
+.text-iti-primary {
+  color: var(--iti-primary);
+}
+.text-iti-primary-dark {
+  color: var(--iti-primary-dark);
+}
+.text-iti-primary-light {
+  color: var(--iti-primary-light);
+}
+.border-iti-primary {
+  border-color: var(--iti-primary);
+}
+.hover\:bg-iti-primary:hover {
+  background-color: var(--iti-primary);
+}
+.hover\:bg-iti-primary-dark:hover {
+  background-color: var(--iti-primary-dark);
+}
+.hover\:text-iti-primary:hover {
+  color: var(--iti-primary);
+}
+.focus\:ring-iti-primary:focus {  --tw-ring-color: var(--iti-primary);
+}
+.focus\:border-iti-primary:focus {
+  border-color: var(--iti-primary);
+}
+
+/* Modal overlay styles to ensure full screen coverage */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure modal content is properly centered */
+.modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  margin: auto;
+}
+
+/* Prevent body scroll when modal is open */
+.modal-open {
+  overflow: hidden !important;
 }

@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/ProfileHeader.js
+// src/features/student/components/profile/ProfileHeader.js
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
@@ -138,7 +138,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
             transition={{ duration: 0.5, delay: 0.6 }}
           >            <motion.button
               onClick={handleEditProfileClick}
-              className="bg-[#901b20] hover:bg-[#7a1619] text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out shadow-lg"
+              className="bg-iti-primary hover:bg-iti-primary-dark text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out shadow-lg"
               whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(144, 27, 32, 0.3)" }}
               whileTap={{ scale: 0.95 }}
             >
@@ -151,77 +151,99 @@ function ProfileHeader({ data, onUpdatePhoto }) {
             >
               View Resume
             </motion.button>
-          </motion.div>
-
-          {/* Social Media Links */}
+          </motion.div>          {/* Contact Information Bar */}
           <motion.div 
-            className="mt-4 border-t pt-4 flex flex-wrap gap-4 text-gray-600"
+            className="mt-6 border-t pt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.7 }}
           >
-            {data.linkedin && (
-              <motion.a 
-                href={data.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center hover:text-blue-700 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                <FaLinkedin className="text-xl mr-1" /> LinkedIn
-              </motion.a>
-            )}
-            {data.github && (
-              <motion.a 
-                href={data.github} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center hover:text-gray-900 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                <FaGithub className="text-xl mr-1" /> GitHub
-              </motion.a>
-            )}
-            {data.portfolioUrl && (
-              <motion.a 
-                href={data.portfolioUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center hover:text-purple-700 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                <FaGlobe className="text-xl mr-1" /> Portfolio
-              </motion.a>
-            )}
-             {data.whatsapp && (
-              <motion.a 
-                href={`https://wa.me/${data.whatsapp}`} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="flex items-center hover:text-green-600 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                <FaWhatsapp className="text-xl mr-1" /> WhatsApp
-              </motion.a>
-            )}
-            {data.email && (
-              <motion.a 
-                href={`mailto:${data.email}`} 
-                className="flex items-center hover:text-red-600 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                <FaEnvelope className="text-xl mr-1" /> {data.email}
-              </motion.a>
-            )}
-            {data.phone && (
-              <motion.a 
-                href={`tel:${data.phone}`} 
-                className="flex items-center hover:text-blue-500 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                <FaPhone className="text-xl mr-1" /> {data.phone}
-              </motion.a>
-            )}
+            <div className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200 shadow-sm">
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                {/* LinkedIn */}
+                {data.linkedin && (
+                  <motion.a 
+                    href={data.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center space-x-2 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-full border border-blue-200 hover:border-blue-300 transition-all duration-300 group"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FaLinkedin className="text-blue-600 text-lg group-hover:text-blue-700" />
+                    <span className="text-blue-700 font-medium text-sm group-hover:text-blue-800">LinkedIn</span>
+                  </motion.a>
+                )}
+
+                {/* GitHub */}
+                {data.github && (
+                  <motion.a 
+                    href={data.github} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-full border border-gray-300 hover:border-gray-400 transition-all duration-300 group"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FaGithub className="text-gray-700 text-lg group-hover:text-gray-900" />
+                    <span className="text-gray-700 font-medium text-sm group-hover:text-gray-900">GitHub</span>
+                  </motion.a>
+                )}
+
+                {/* Portfolio */}
+                {data.portfolioUrl && (
+                  <motion.a 
+                    href={data.portfolioUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center space-x-2 bg-purple-50 hover:bg-purple-100 px-3 py-2 rounded-full border border-purple-200 hover:border-purple-300 transition-all duration-300 group"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FaGlobe className="text-purple-600 text-lg group-hover:text-purple-700" />
+                    <span className="text-purple-700 font-medium text-sm group-hover:text-purple-800">Portfolio</span>
+                  </motion.a>
+                )}
+
+                {/* WhatsApp */}
+                {data.whatsapp && (
+                  <motion.a 
+                    href={`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="flex items-center space-x-2 bg-green-50 hover:bg-green-100 px-3 py-2 rounded-full border border-green-200 hover:border-green-300 transition-all duration-300 group"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <FaWhatsapp className="text-green-600 text-lg group-hover:text-green-700" />
+                    <span className="text-green-700 font-medium text-sm group-hover:text-green-800">WhatsApp</span>
+                  </motion.a>
+                )}
+
+                {/* Email */}
+                {data.email && (
+                  <motion.a 
+                    href={`mailto:${data.email}`} 
+                    className="flex items-center space-x-2 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-full border border-red-200 hover:border-red-300 transition-all duration-300 group"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >                    <FaEnvelope className="text-iti-primary text-lg group-hover:text-iti-primary-dark" />
+                    <span className="text-iti-primary font-medium text-sm group-hover:text-iti-primary-dark truncate max-w-[120px]">{data.email}</span>
+                  </motion.a>
+                )}
+
+                {/* Phone */}
+                {data.phone && (
+                  <motion.div 
+                    className="flex items-center space-x-2 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-full border border-blue-200 hover:border-blue-300 transition-all duration-300 group cursor-default"
+                    whileHover={{ scale: 1.05, y: -1 }}
+                  >
+                    <FaPhone className="text-blue-600 text-lg group-hover:text-blue-700" />
+                    <span className="text-blue-700 font-medium text-sm group-hover:text-blue-800">{data.phone}</span>
+                  </motion.div>
+                )}
+              </div>
+            </div>
           </motion.div>
         </div>
       </motion.div>
@@ -258,7 +280,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               <div className="space-y-4">
                 <label htmlFor="photoUpload" className="cursor-pointer">
                   <motion.div
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#901b20] transition-colors"
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-iti-primary transition-colors"
                     whileHover={{ scale: 1.02 }}
                   >
                     <FaCamera className="mx-auto text-3xl text-gray-400 mb-2" />

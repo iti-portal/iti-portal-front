@@ -1,4 +1,4 @@
-// src/features/Student/Profile/components/CertificateCard.js
+// src/features/student/components/profile/CertificateCard.js
 import React from 'react';
 import { FaAward, FaBuilding, FaCalendarAlt, FaExternalLinkAlt } from 'react-icons/fa';
 
