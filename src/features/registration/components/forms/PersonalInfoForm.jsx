@@ -4,7 +4,7 @@ import FormField from '../ui/FormField';
 import FormSection from '../ui/FormSection';
 import StepNavigation from '../ui/StepNavigation';
 import { useFormValidation } from '../../hooks/useFormValidation';
-import { GOVERNORATES, STUDENT_STATUS_OPTIONS, COMPANY_SIZE_OPTIONS, INDUSTRY_OPTIONS } from '../../types/registration.types';
+import { ITI_BRANCHES, ITI_PROGRAMS, COMPANY_SIZE_OPTIONS, INDUSTRY_OPTIONS } from '../../types/registration.types';
 
 const containerVariants = {
   visible: {
@@ -56,12 +56,14 @@ const PersonalInfoForm = ({
     handleSubmit();
   };
 
-  const governorateOptions = GOVERNORATES.map(gov => ({
-    value: gov,
-    label: gov
+  const branchOptions = ITI_BRANCHES.map(branch => ({
+    value: branch,
+    label: branch
   }));
 
-  const renderStudentFields = () => (
+  const programOptions = ITI_PROGRAMS;
+
+  const renderITIMemberFields = () => (
     <motion.div variants={itemVariants} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
@@ -85,6 +87,17 @@ const PersonalInfoForm = ({
       </div>
 
       <FormField
+        label="Username"
+        name="username"
+        value={formData.username}
+        onChange={onChange}
+        error={errors.username}
+        placeholder="e.g., john_doe123"
+        helpText="Choose a unique username (letters, numbers, and underscores only)"
+        required
+      />
+
+      <FormField
         label="Phone Number"
         name="phone"
         type="tel"
@@ -96,24 +109,38 @@ const PersonalInfoForm = ({
       />
 
       <FormField
-        label="Branch"
-        name="governorate"
+        label="ITI Branch"
+        name="branch"
         type="select"
-        value={formData.governorate}
+        value={formData.branch}
         onChange={onChange}
-        error={errors.governorate}
-        options={governorateOptions}
-        placeholder="Select your Branch"
+        error={errors.branch}
+        options={branchOptions}
+        placeholder="Select your ITI branch"
         required
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">        <FormField
+      <FormField
+        label="Program"
+        name="program"
+        type="select"
+        value={formData.program}
+        onChange={onChange}
+        error={errors.program}
+        options={programOptions}
+        placeholder="Select your program"
+        helpText="Choose your ITI program type"
+        required
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FormField
           label="Track"
           name="track"
           value={formData.track}
           onChange={onChange}
           error={errors.track}
-          placeholder="e.g., Open Source"
+          placeholder="e.g., Open Source, Web Development"
           helpText="Your specialization track"
         />
         <FormField
@@ -123,78 +150,9 @@ const PersonalInfoForm = ({
           onChange={onChange}
           error={errors.intake}
           placeholder="e.g., 45"
-          helpText="Your intake year"
-        />
-      </div>      <FormField
-        label="Student Status"
-        name="student_status"
-        type="select"
-        value={formData.student_status}
-        onChange={onChange}
-        error={errors.student_status}
-        options={STUDENT_STATUS_OPTIONS}
-        placeholder="Select your student status"
-        helpText="Are you currently studying or graduated?"
-      />      {/* Remove graduation date for students */}
-    </motion.div>
-  );
-
-  const renderAlumniFields = () => (
-    <motion.div variants={itemVariants} className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          label="First Name"
-          name="firstName"
-          value={formData.firstName}
-          onChange={onChange}
-          error={errors.firstName}
-          placeholder="Enter your first name"
-          required
-        />
-        <FormField
-          label="Last Name"
-          name="lastName"
-          value={formData.lastName}
-          onChange={onChange}
-          error={errors.lastName}
-          placeholder="Enter your last name"
-          required
+          helpText="Your intake number"
         />
       </div>
-
-      <FormField
-        label="Phone Number"
-        name="phone"
-        type="tel"
-        value={formData.phone}
-        onChange={onChange}
-        error={errors.phone}
-        placeholder="Enter your phone number"
-        required
-      />
-
-      <FormField
-        label="Governorate"
-        name="governorate"
-        type="select"
-        value={formData.governorate}
-        onChange={onChange}
-        error={errors.governorate}
-        options={governorateOptions}
-        placeholder="Select your governorate"
-        required
-      />
-
-      <FormField
-        label="Graduation Date"
-        name="graduation_date"
-        type="date"
-        value={formData.graduation_date}
-        onChange={onChange}
-        error={errors.graduation_date}
-        placeholder="When did you graduate?"
-        required
-      />
     </motion.div>
   );
 
@@ -284,13 +242,13 @@ const PersonalInfoForm = ({
         return {
           title: 'Student Information',
           description: 'Please provide your student details and academic information',
-          fields: renderStudentFields()
+          fields: renderITIMemberFields()
         };
       case 'alumni':
         return {
           title: 'Alumni Information',
-          description: 'Please provide your personal details and graduation information',
-          fields: renderAlumniFields()
+          description: 'Please provide your alumni details and graduation information',
+          fields: renderITIMemberFields()
         };
       case 'company':
         return {

@@ -11,22 +11,27 @@ export function validatePersonalInfo(formData) {
     } else if (formData.lastName.length > 255) {
       errs.lastName = 'Last name must be less than 256 characters';
     }
+    if (!formData.username) {
+      errs.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      errs.username = 'Username must be at least 3 characters';
+    } else if (formData.username.length > 50) {
+      errs.username = 'Username must be less than 51 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      errs.username = 'Username can only contain letters, numbers, and underscores';
+    }
     if (!formData.phone) {
       errs.phone = 'Phone is required';
     } else if (formData.phone.length > 20) {
       errs.phone = 'Phone must be less than 21 characters';
     }
-    if (!formData.governorate) {
-      errs.governorate = 'Governorate is required';
+    if (!formData.branch) {
+      errs.branch = 'ITI branch is required';
     }
-    if (formData.graduation_date && isNaN(Date.parse(formData.graduation_date))) {
-      errs.graduation_date = 'Graduation date must be a valid date';
-    }
-    if (
-      formData.student_status &&
-      !['current', 'graduate'].includes(formData.student_status)
-    ) {
-      errs.student_status = 'Student status must be current or graduate';
+    if (!formData.program) {
+      errs.program = 'Program is required';
+    } else if (!['ptp', 'itp'].includes(formData.program)) {
+      errs.program = 'Program must be ptp or itp';
     }
   } else if (formData.role === 'alumni') {
     if (!formData.firstName) {
@@ -39,18 +44,27 @@ export function validatePersonalInfo(formData) {
     } else if (formData.lastName.length > 255) {
       errs.lastName = 'Last name must be less than 256 characters';
     }
+    if (!formData.username) {
+      errs.username = 'Username is required';
+    } else if (formData.username.length < 3) {
+      errs.username = 'Username must be at least 3 characters';
+    } else if (formData.username.length > 50) {
+      errs.username = 'Username must be less than 51 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      errs.username = 'Username can only contain letters, numbers, and underscores';
+    }
     if (!formData.phone) {
       errs.phone = 'Phone is required';
     } else if (formData.phone.length > 20) {
       errs.phone = 'Phone must be less than 21 characters';
     }
-    if (!formData.governorate) {
-      errs.governorate = 'Governorate is required';
+    if (!formData.branch) {
+      errs.branch = 'ITI branch is required';
     }
-    if (!formData.graduation_date) {
-      errs.graduation_date = 'Graduation date is required';
-    } else if (isNaN(Date.parse(formData.graduation_date))) {
-      errs.graduation_date = 'Graduation date must be a valid date';
+    if (!formData.program) {
+      errs.program = 'Program is required';
+    } else if (!['ptp', 'itp'].includes(formData.program)) {
+      errs.program = 'Program must be ptp or itp';
     }
   } else if (formData.role === 'company') {
     if (!formData.company_name) {
@@ -72,7 +86,7 @@ export function validatePersonalInfo(formData) {
     if (formData.company_size && formData.company_size.length > 50) {
       errs.company_size = 'Company size must be less than 51 characters';
     }
-    if (formData.website && !/^https?:\/\/.+\..+/.test(formData.website)) {
+    if (formData.website && !/^https?:\/\/.+/.test(formData.website)) {
       errs.website = 'Website must be a valid URL';
     }
     if (formData.established_at && isNaN(Date.parse(formData.established_at))) {

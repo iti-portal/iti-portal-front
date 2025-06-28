@@ -90,15 +90,51 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
               {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
             </motion.div>
             <motion.div variants={itemVariants}>
-              <input
-                name="governorate"
-                placeholder="Governorate"
-                value={formData.governorate || ''}
+              <select
+                name="branch"
+                value={formData.branch || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
-              />
-              {errors.governorate && <span className="text-red-500 text-sm">{errors.governorate}</span>}
+              >
+                <option value="">Select ITI Branch</option>
+                <option value="Qena">Qena</option>
+                <option value="Sohag">Sohag</option>
+                <option value="Tanta">Tanta</option>
+                <option value="Zagazig">Zagazig</option>
+                <option value="New Valley">New Valley</option>
+                <option value="Damanhor">Damanhor</option>
+                <option value="Al Arish">Al Arish</option>
+                <option value="Banha">Banha</option>
+                <option value="Port Said">Port Said</option>
+                <option value="Smart Village">Smart Village</option>
+                <option value="New Capital">New Capital</option>
+                <option value="Cairo University">Cairo University</option>
+                <option value="Alexandria">Alexandria</option>
+                <option value="Assiut">Assiut</option>
+                <option value="Aswan">Aswan</option>
+                <option value="Beni Suef">Beni Suef</option>
+                <option value="Fayoum">Fayoum</option>
+                <option value="Ismailia">Ismailia</option>
+                <option value="Mansoura">Mansoura</option>
+                <option value="Menofia">Menofia</option>
+                <option value="Minya">Minya</option>
+              </select>
+              {errors.branch && <span className="text-red-500 text-sm">{errors.branch}</span>}
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <select
+                name="program"
+                value={formData.program || ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                required
+              >
+                <option value="">Select Program</option>
+                <option value="PTP">PTP (Professional Training Program)</option>
+                <option value="ITP">ITP (Intensive Training Program)</option>
+              </select>
+              {errors.program && <span className="text-red-500 text-sm">{errors.program}</span>}
             </motion.div>
             <motion.div variants={itemVariants}>
               <input
@@ -108,7 +144,8 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
-            </motion.div>            <motion.div variants={itemVariants}>
+            </motion.div>
+            <motion.div variants={itemVariants}>
               <input
                 name="intake"
                 placeholder="Intake (optional)"
@@ -116,19 +153,6 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
               />
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <select
-                name="student_status"
-                value={formData.student_status || ''}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
-              >
-                <option value="">Student Status (optional)</option>
-                <option value="current">Current</option>
-                <option value="graduate">Graduate</option>
-              </select>
-              {errors.student_status && <span className="text-red-500 text-sm">{errors.student_status}</span>}
             </motion.div>
           </>
         )}
@@ -168,30 +192,69 @@ const PersonalInfo = ({ formData, handleChange, nextStep, prevStep }) => {
               {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
             </motion.div>
             <motion.div variants={itemVariants}>
-              <input
-                name="governorate"
-                placeholder="Governorate"
-                value={formData.governorate || ''}
+              <select
+                name="branch"
+                value={formData.branch || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
                 required
-              />
-              {errors.governorate && <span className="text-red-500 text-sm">{errors.governorate}</span>}
+              >
+                <option value="">Select ITI Branch</option>
+                <option value="Qena">Qena</option>
+                <option value="Sohag">Sohag</option>
+                <option value="Tanta">Tanta</option>
+                <option value="Zagazig">Zagazig</option>
+                <option value="New Valley">New Valley</option>
+                <option value="Damanhor">Damanhor</option>
+                <option value="Al Arish">Al Arish</option>
+                <option value="Banha">Banha</option>
+                <option value="Port Said">Port Said</option>
+                <option value="Smart Village">Smart Village</option>
+                <option value="New Capital">New Capital</option>
+                <option value="Cairo University">Cairo University</option>
+                <option value="Alexandria">Alexandria</option>
+                <option value="Assiut">Assiut</option>
+                <option value="Aswan">Aswan</option>
+                <option value="Beni Suef">Beni Suef</option>
+                <option value="Fayoum">Fayoum</option>
+                <option value="Ismailia">Ismailia</option>
+                <option value="Mansoura">Mansoura</option>
+                <option value="Menofia">Menofia</option>
+                <option value="Minya">Minya</option>
+              </select>
+              {errors.branch && <span className="text-red-500 text-sm">{errors.branch}</span>}
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <select
+                name="program"
+                value={formData.program || ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+                required
+              >
+                <option value="">Select Program</option>
+                <option value="ptp">PTP (Professional Training Program)</option>
+                <option value="itp">ITP (Intensive Training Program)</option>
+              </select>
+              {errors.program && <span className="text-red-500 text-sm">{errors.program}</span>}
             </motion.div>
             <motion.div variants={itemVariants}>
               <input
-                name="graduation_date"
-                type="date"
-                placeholder="Graduation Date"
-                value={formData.graduation_date || ''}
+                name="track"
+                placeholder="Track (optional)"
+                value={formData.track || ''}
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
-                required
               />
-              <span className="text-gray-500 text-xs block mt-1">
-                Please enter your graduation date as an alumni.
-              </span>
-              {errors.graduation_date && <span className="text-red-500 text-sm">{errors.graduation_date}</span>}
+            </motion.div>
+            <motion.div variants={itemVariants}>
+              <input
+                name="intake"
+                placeholder="Intake (optional)"
+                value={formData.intake || ''}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] transition"
+              />
             </motion.div>
           </>
         )}

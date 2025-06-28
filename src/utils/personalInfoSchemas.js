@@ -3,18 +3,19 @@ import * as Yup from 'yup';
 export const studentSchema = Yup.object().shape({
   firstName: Yup.string().required('First name is required').max(255, 'First name must be less than 256 characters'),
   lastName: Yup.string().required('Last name is required').max(255, 'Last name must be less than 256 characters'),
+  username: Yup.string().required('Username is required').min(3, 'Username must be at least 3 characters').max(50, 'Username must be less than 51 characters').matches(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
   phone: Yup.string().required('Phone is required').max(20, 'Phone must be less than 21 characters'),
-  governorate: Yup.string().required('Governorate is required'),
-  graduation_date: Yup.date().typeError('Graduation date must be a valid date'),
-  student_status: Yup.string().oneOf(['current', 'graduate'], 'Student status must be current or graduate'),
+  branch: Yup.string().required('ITI branch is required'),
+  program: Yup.string().required('Program is required').oneOf(['ptp', 'itp'], 'Program must be ptp or itp'),
 });
 
 export const alumniSchema = Yup.object().shape({
   firstName: Yup.string().required('First name is required').max(255, 'First name must be less than 256 characters'),
   lastName: Yup.string().required('Last name is required').max(255, 'Last name must be less than 256 characters'),
+  username: Yup.string().required('Username is required').min(3, 'Username must be at least 3 characters').max(50, 'Username must be less than 51 characters').matches(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
   phone: Yup.string().required('Phone is required').max(20, 'Phone must be less than 21 characters'),
-  governorate: Yup.string().required('Governorate is required'),
-  graduation_date: Yup.date().required('Graduation date is required').typeError('Graduation date must be a valid date'),
+  branch: Yup.string().required('ITI branch is required'),
+  program: Yup.string().required('Program is required').oneOf(['ptp', 'itp'], 'Program must be ptp or itp'),
 });
 
 export const companySchema = Yup.object().shape({

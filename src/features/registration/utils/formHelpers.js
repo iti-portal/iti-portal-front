@@ -32,8 +32,7 @@ export const transformFormDataForAPI = (formData) => {
       ...(formData.description && { description: formData.description }),      ...(formData.industry && { industry: formData.industry }),
       ...(formData.company_size && { company_size: formData.company_size }),
       ...(formData.established_at && { established_at: formData.established_at }),
-      ...(formData.company_logo && { company_logo: formData.company_logo }),
-      ...(formData.additional_info && { additional_info: formData.additional_info })
+      ...(formData.company_logo && { company_logo: formData.company_logo })
     };  } else {
     // Student or Alumni
     const username = formData.username || 
@@ -47,12 +46,12 @@ export const transformFormDataForAPI = (formData) => {
       password: formData.password,
       password_confirmation: formData.confirmPassword,
       phone: formData.phone,
-      governorate: formData.governorate,      username: username,
+      branch: formData.branch,
+      governorate: formData.branch, // Temporary: map branch to governorate for backend compatibility
+      program: formData.program,
+      username: username,
       ...(formData.intake && { intake: formData.intake }),
-      ...(formData.track && { track: formData.track }),
-      ...(formData.role === 'alumni' && formData.graduation_date && { graduation_date: formData.graduation_date }),
-      ...(formData.student_status && { student_status: formData.student_status }),
-      ...(formData.additional_info && { additional_info: formData.additional_info })
+      ...(formData.track && { track: formData.track })
       // Note: Files (profile_picture, idPhotoFront, idPhotoBack) are handled separately in the API service
     };
   }
@@ -76,7 +75,7 @@ export const isStepCompleted = (formData, step, role) => {
       if (role === 'company') {
         return !!(formData.company_name && formData.description && formData.location);
       } else {
-        return !!(formData.firstName && formData.lastName && formData.phone && formData.governorate);
+        return !!(formData.firstName && formData.lastName && formData.username && formData.phone && formData.branch && formData.program);
       }
       case 3: // Security (skip for companies)
       if (role === 'company') return true;
@@ -117,22 +116,22 @@ export const getStepData = (formData, step, role) => {
         return {
           firstName: formData.firstName,
           lastName: formData.lastName,
+          username: formData.username,
           phone: formData.phone,
-          governorate: formData.governorate,
-          ...(formData.role === 'alumni' ? { graduation_date: formData.graduation_date } : {}),
-          student_status: formData.student_status
+          branch: formData.branch,
+          program: formData.program,
+          track: formData.track,
+          intake: formData.intake
         };
       }
       case 3:
       if (role === 'company') {
         return {
-          company_logo: formData.company_logo,
-          additional_info: formData.additional_info
+          company_logo: formData.company_logo
         };
       } else {
         return {
           profile_picture: formData.profile_picture,
-          additional_info: formData.additional_info,
           idPhotoFront: formData.idPhotoFront,
           idPhotoBack: formData.idPhotoBack
         };

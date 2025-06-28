@@ -112,19 +112,35 @@ const ReviewForm = ({
               <span className="text-sm font-medium text-gray-600">Name:</span>
               <span className="text-sm text-gray-900">{formData.firstName} {formData.lastName}</span>
             </div>
+            {formData.username && (
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-600">Username:</span>
+                <span className="text-sm text-gray-900">@{formData.username}</span>
+              </div>
+            )}
             {formData.phone && (
               <div className="flex justify-between">
                 <span className="text-sm font-medium text-gray-600">Phone:</span>
                 <span className="text-sm text-gray-900">{formData.phone}</span>
               </div>
             )}
-            {formData.governorate && (
+            {formData.branch && (
               <div className="flex justify-between">
-                <span className="text-sm font-medium text-gray-600">Governorate:</span>
-                <span className="text-sm text-gray-900">{formData.governorate}</span>
+                <span className="text-sm font-medium text-gray-600">ITI Branch:</span>
+                <span className="text-sm text-gray-900">{formData.branch}</span>
               </div>
             )}
-            {formData.role === 'student' && (
+            {formData.program && (
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-gray-600">Program:</span>
+                <span className="text-sm text-gray-900">
+                  {formData.program === 'ptp' ? 'PTP (Professional Training Program)' : 
+                   formData.program === 'itp' ? 'ITP (Intensive Training Program)' : 
+                   formData.program}
+                </span>
+              </div>
+            )}
+            {(formData.role === 'student' || formData.role === 'alumni') && (
               <>
                 {formData.track && (
                   <div className="flex justify-between">
@@ -138,21 +154,7 @@ const ReviewForm = ({
                     <span className="text-sm text-gray-900">{formData.intake}</span>
                   </div>
                 )}
-                {formData.student_status && (
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-600">Status:</span>
-                    <span className="text-sm text-gray-900 capitalize">{formData.student_status}</span>
-                  </div>
-                )}
               </>
-            )}
-            {formData.graduation_date && (
-              <div className="flex justify-between">
-                <span className="text-sm font-medium text-gray-600">Graduation Date:</span>
-                <span className="text-sm text-gray-900">
-                  {new Date(formData.graduation_date).toLocaleDateString()}
-                </span>
-              </div>
             )}
           </div>
         </div>
@@ -165,7 +167,7 @@ const ReviewForm = ({
     
     return (
       <div className="space-y-3">
-        <h4 className="font-medium text-gray-900">Additional Information</h4>
+        <h4 className="font-medium text-gray-900">Profile Information</h4>
         <div className="bg-gray-50 p-4 rounded-lg space-y-2">
           {formData.profile_picture && (
             <div className="flex justify-between">
@@ -173,14 +175,8 @@ const ReviewForm = ({
               <span className="text-sm text-gray-900">{formData.profile_picture.name}</span>
             </div>
           )}
-          {formData.additional_info && (
-            <div className="pt-2">
-              <span className="text-sm font-medium text-gray-600">Additional Information:</span>
-              <p className="text-sm text-gray-900 mt-1">{formData.additional_info}</p>
-            </div>
-          )}
-          {!formData.profile_picture && !formData.additional_info && (
-            <p className="text-sm text-gray-500 italic">No additional information provided</p>
+          {!formData.profile_picture && (
+            <p className="text-sm text-gray-500 italic">No profile picture uploaded</p>
           )}
         </div>
       </div>

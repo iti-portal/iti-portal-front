@@ -15,9 +15,8 @@ export const INITIAL_FORM_DATA = {
   lastName: '',
   phone: '',
   // Personal Info Step - Student/Alumni
-  governorate: '',
-  graduation_date: '',
-  student_status: '', // 'current' | 'graduate'
+  branch: '', // Changed from governorate to branch for ITI branches
+  program: '', // New field: PTP or ITP
   intake: '',
   track: '',
   username: '', // Optional, auto-generated if not provided
@@ -31,8 +30,6 @@ export const INITIAL_FORM_DATA = {
   website: '',
   established_at: '',  // Security Step - Common
   profile_picture: '', // Changed from null to empty string
-  additional_info: '',
-
   // Security Step - Student/Alumni ID Verification
   idPhotoFront: '', // Changed from null to empty string
   idPhotoBack: '', // Changed from null to empty string
@@ -51,9 +48,9 @@ export const FORM_ERROR_STRUCTURE = {
   role: '',
   firstName: '',
   lastName: '',
-  phone: '',  governorate: '',
-  graduation_date: '',
-  student_status: '',
+  phone: '',
+  branch: '', // ITI branch instead of governorate
+  program: '', // PTP or ITP program
   intake: '',
   track: '',
   username: '',
@@ -64,7 +61,6 @@ export const FORM_ERROR_STRUCTURE = {
   company_size: '',
   website: '',  established_at: '',
   profile_picture: '',
-  additional_info: '',
   idPhotoFront: '',
   idPhotoBack: '',
   company_logo: '',
@@ -94,43 +90,38 @@ export const FORM_SUBMISSION_STATE = {
 };
 
 /**
- * Available governorates for Egypt
+ * Available ITI branches based on the provided images
  */
-export const GOVERNORATES = [
-  'Cairo',
-  'Alexandria',
-  'Giza',
-  'Sharkia',
-  'Dakahlia',
-  'Beheira',
-  'Kafr El Sheikh',
-  'Gharbia',
-  'Monufia',
-  'Qalyubia',
-  'Ismailia',
-  'Suez',
-  'Port Said',
-  'North Sinai',
-  'South Sinai',
-  'Red Sea',
-  'Luxor',
-  'Aswan',
+export const ITI_BRANCHES = [
   'Qena',
-  'Sohag',
-  'Asyut',
-  'Minya',
+  'Sohag', 
+  'Tanta',
+  'Zagazig',
+  'New Valley',
+  'Damanhor',
+  'Al Arish',
+  'Banha',
+  'Port Said',
+  'Smart Village',
+  'New Capital',
+  'Cairo University',
+  'Alexandria',
+  'Assiut',
+  'Aswan',
   'Beni Suef',
   'Fayoum',
-  'New Valley',
-  'Matrouh'
+  'Ismailia',
+  'Mansoura',
+  'Menofia',
+  'Minya'
 ];
 
 /**
- * Student status options
+ * Available ITI programs
  */
-export const STUDENT_STATUS_OPTIONS = [
-  { value: 'current', label: 'Current Student' },
-  { value: 'graduate', label: 'Graduate' }
+export const ITI_PROGRAMS = [
+  { value: 'ptp', label: 'PTP (Professional Training Program)' },
+  { value: 'itp', label: 'ITP (Intensive Training Program)' }
 ];
 
 /**

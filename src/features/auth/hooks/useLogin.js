@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/authAPI';
-import { initializeLoginData, initializeAuthErrors, getDashboardRoute, formatAuthError } from '../utils/authHelpers';
+import { initializeLoginData, initializeAuthErrors, formatAuthError } from '../utils/authHelpers';
 
 /**
  * Login form hook
@@ -84,8 +84,6 @@ export const useLogin = () => {
           setTimeout(() => {
             navigate('/verify-email', { state: { email: formData.email } });
           }, 1500);
-        } else if (!data.data.isApproved) {
-          showAlert('warning', 'Your account is pending approval. Please wait until an admin approves your account.', true);
         } else {
           // For all non-admin users (student, alumni, company, staff), redirect to homepage
           showAlert('success', 'Login successful! Redirecting to home page...');

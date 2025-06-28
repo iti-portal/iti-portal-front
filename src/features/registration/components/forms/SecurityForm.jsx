@@ -205,13 +205,13 @@ const SecurityForm = ({
   const getRoleSpecificContent = () => {    switch (formData.role) {
       case 'student':
         return {
-          title: 'Additional Information',
+          title: 'Profile Information',
           description: 'Upload your profile picture and any optional verification documents',
           fields: renderStudentAlumniFields()
         };
       case 'alumni':
         return {
-          title: 'Additional Information', 
+          title: 'Profile Information', 
           description: 'Upload your profile picture and any optional verification documents',
           fields: renderStudentAlumniFields()
         };
@@ -223,7 +223,7 @@ const SecurityForm = ({
         };
       default:
         return {
-          title: 'Additional Information',
+          title: 'Profile Information',
           description: 'Please select an account type in the first step',
           fields: null
         };
@@ -247,20 +247,6 @@ const SecurityForm = ({
         <motion.div variants={containerVariants} className="space-y-6">
           {content.fields}
           
-          {/* Additional Information - For all user types */}
-          <motion.div variants={itemVariants}>
-            <FormField
-              label="Additional Information"
-              name="additional_info"
-              type="textarea"
-              value={formData.additional_info}
-              onChange={onChange}
-              error={errors.additional_info}
-              placeholder="Any additional information you'd like to share..."
-              helpText="Share any additional information about yourself or your background"
-              rows={4}
-            />
-          </motion.div>
             {formData.role !== 'company' && (
             <motion.div variants={itemVariants} className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex">
