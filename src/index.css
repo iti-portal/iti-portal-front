@@ -61,6 +61,34 @@
   scrollbar-color: var(--iti-primary) #f1f5f9;
 }
 
+/* ITI Gradient utilities */
+.bg-iti-gradient {
+  background: linear-gradient(135deg, var(--iti-primary) 0%, var(--iti-primary-light) 100%);
+}
+
+.bg-iti-gradient-dark {
+  background: linear-gradient(135deg, var(--iti-primary-dark) 0%, var(--iti-primary) 100%);
+}
+
+.bg-iti-gradient-light {
+  background: linear-gradient(135deg, #fef3c7 0%, #fef3c7 100%);
+}
+
+.bg-iti-gradient-text {
+  background: linear-gradient(135deg, var(--iti-primary) 0%, var(--iti-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hover\:bg-iti-gradient:hover {
+  background: linear-gradient(135deg, var(--iti-primary) 0%, var(--iti-primary-light) 100%);
+}
+
+.hover\:bg-iti-gradient-dark:hover {
+  background: linear-gradient(135deg, var(--iti-primary-dark) 0%, var(--iti-primary) 100%);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

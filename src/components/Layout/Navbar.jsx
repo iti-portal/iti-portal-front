@@ -1,9 +1,42 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Logo from '../Common/Logo';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Function to determine if a path is active
+  const isActivePath = (path) => {
+    if (path === '/') {
+      return location.pathname === '/';
+    }
+    // Handle profile paths
+    if (path === '/profile') {
+      return location.pathname.startsWith('/student/profile') || location.pathname.startsWith('/profile');
+    }
+    // Handle admin paths
+    if (path === '/admin') {
+      return location.pathname.startsWith('/admin');
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  // Function to get link classes based on active state
+  const getLinkClasses = (path, isDesktop = true) => {
+    const isActive = isActivePath(path);
+    
+    if (isDesktop) {
+      return isActive 
+        ? "text-[#901b20] border-b-2 border-[#901b20] pb-1 whitespace-nowrap font-semibold"
+        : "text-gray-700 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-200";
+    } else {
+      // Mobile sidebar styles
+      return isActive
+        ? "text-[#901b20] font-semibold py-3 px-4 hover:bg-gray-100 border-l-4 border-[#901b20] bg-red-50"
+        : "text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20] border-l-4 border-transparent";
+    }
+  };
 
   return (    <header className="w-full bg-white shadow-sm border-b px-2 sm:px-4 py-2 flex items-center justify-between relative">
       {/* Logo - Always visible on left */}
@@ -14,14 +47,14 @@ const Navbar = () => {
         {/* Desktop Navbar Content - Only for large screens (1024px+) */}
       <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-between ml-4 xl:ml-6">
         <nav className="flex items-center gap-2 xl:gap-4 text-xs xl:text-sm font-medium">
-          <Link to="/" className="text-[#901b20] border-b-2 border-[#901b20] pb-1 whitespace-nowrap">Home</Link>
-          <Link to="/profile" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Profile</Link>
-          <Link to="/jobs" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Jobs</Link>
-          <Link to="/company" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Company</Link>
-          <Link to="/admin" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Admin</Link>
-          <Link to="/network" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Network</Link>
-          <Link to="/achievements" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Achievements</Link>
-          <Link to="/articles" className="text-gray-700 hover:text-[#901b20] whitespace-nowrap">Articles</Link>
+          <Link to="/" className={getLinkClasses('/')}>Home</Link>
+          <Link to="/profile" className={getLinkClasses('/profile')}>Profile</Link>
+          <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
+          <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
+          <Link to="/admin" className={getLinkClasses('/admin')}>Admin</Link>
+          <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
+          <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
+          <Link to="/articles" className={getLinkClasses('/articles')}>Articles</Link>
         </nav>
         <div className="flex items-center gap-2 xl:gap-4">
           <input
@@ -96,34 +129,34 @@ const Navbar = () => {
             
             {/* Navigation Links */}
             <nav className="flex flex-col py-4 flex-1 overflow-y-auto">
-              <Link to="/" className="text-[#901b20] font-semibold py-3 px-4 hover:bg-gray-100 border-l-4 border-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/" className={getLinkClasses('/', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">home</span>
                 Home
               </Link>
-              <Link to="/profile" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">person</span>
                 Profile
               </Link>
-              <Link to="/jobs" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/jobs" className={getLinkClasses('/jobs', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">work</span>
                 Jobs
               </Link>
-              <Link to="/company" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/company" className={getLinkClasses('/company', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">business</span>
                 Company
               </Link>
-              <Link to="/admin" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/admin" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
                 Admin
               </Link>
-              <Link to="/network" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/network" className={getLinkClasses('/network', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">group</span>
                 Network
-              </Link>              <Link to="/achievements" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              </Link>              <Link to="/achievements" className={getLinkClasses('/achievements', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">emoji_events</span>
                 Achievements
               </Link>
-              <Link to="/articles" className="text-gray-700 py-3 px-4 hover:bg-gray-100 hover:text-[#901b20]" onClick={() => setMenuOpen(false)}>
+              <Link to="/articles" className={getLinkClasses('/articles', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">article</span>
                 Articles
               </Link>
