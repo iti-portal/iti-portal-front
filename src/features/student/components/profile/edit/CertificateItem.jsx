@@ -11,25 +11,25 @@ function CertificateItem({ certificate, onEdit, onDelete }) {
           <div className="flex items-center gap-2 mb-2">
             <FaCertificate className="text-iti-primary h-5 w-5" />
             <h3 className="text-lg font-bold text-gray-800">
-              {certificate.name || 'Untitled Certificate'}
+              {certificate.title || certificate.name || 'Untitled Certificate'}
             </h3>
           </div>
           
           <p className="text-md text-gray-700 mt-1">
-            {certificate.issuingBody || 'Unknown Issuer'}
+            {certificate.organization || certificate.issuingBody || 'Unknown Issuer'}
           </p>
           
           <div className="mt-2 text-sm text-gray-600">
-            {certificate.dateIssued && (
+            {(certificate.achieved_at || certificate.dateIssued) && (
               <p className="mt-1">
-                <span className="font-medium">Issued:</span> {new Date(certificate.dateIssued).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                <span className="font-medium">Issued:</span> {new Date(certificate.achieved_at || certificate.dateIssued).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             )}
             
-            {certificate.url && (
+            {(certificate.certificate_url || certificate.url) && (
               <div className="mt-2">
                 <a
-                  href={certificate.url}
+                  href={certificate.certificate_url || certificate.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-iti-primary hover:text-iti-primary-dark text-sm transition-colors duration-200"

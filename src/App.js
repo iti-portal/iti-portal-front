@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import AppRoutes from './routes/AppRoutes'; 
 
 function App() {
-  
-  const isAuthenticated = true; 
-
   return (
     <Router>
-      <AppRoutes isAuthenticated={isAuthenticated} />
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </Router>
   );
 }

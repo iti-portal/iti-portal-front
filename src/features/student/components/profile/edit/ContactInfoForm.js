@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { FaLinkedin, FaGithub, FaGlobe, FaWhatsapp, FaEnvelope, FaPhone } from 'react-icons/fa';
 
-function ContactInfoForm({ data, onUpdateAll }) {
+function ContactInfoForm({ data = {}, onUpdateAll }) {
   const [contactInfo, setContactInfo] = useState({
     email: data.email || '',
     phone: data.phone || '',
@@ -70,7 +70,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
                 name="email" 
                 id="email" 
                 required
-                value={contactInfo.email} 
+                value={contactInfo.email || ''} 
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="your.email@example.com"
@@ -85,7 +85,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
                 type="tel" 
                 name="phone" 
                 id="phone" 
-                value={contactInfo.phone} 
+                value={contactInfo.phone || ''} 
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="+20 10 1234 5678"
@@ -100,7 +100,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
                 type="tel" 
                 name="whatsapp" 
                 id="whatsapp" 
-                value={contactInfo.whatsapp} 
+                value={contactInfo.whatsapp || ''} 
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="+20 10 1234 5678"
@@ -118,7 +118,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
                 type="url" 
                 name="linkedin" 
                 id="linkedin" 
-                value={contactInfo.linkedin} 
+                value={contactInfo.linkedin || ''} 
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="https://linkedin.com/in/yourprofile"
@@ -133,7 +133,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
                 type="url" 
                 name="github" 
                 id="github" 
-                value={contactInfo.github} 
+                value={contactInfo.github || ''} 
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="https://github.com/yourusername"
@@ -148,7 +148,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
                 type="url" 
                 name="portfolioUrl" 
                 id="portfolioUrl" 
-                value={contactInfo.portfolioUrl} 
+                value={contactInfo.portfolioUrl || ''} 
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="https://yourportfolio.com"
@@ -162,7 +162,7 @@ function ContactInfoForm({ data, onUpdateAll }) {
             <input
               type="checkbox"
               name="availableForFreelance"
-              checked={contactInfo.availableForFreelance}
+              checked={contactInfo.availableForFreelance || false}
               onChange={handleChange}
               className="form-checkbox h-5 w-5 text-[#901b20] rounded border-gray-300 focus:ring-[#901b20]"
             />

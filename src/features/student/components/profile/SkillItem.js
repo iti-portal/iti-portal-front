@@ -44,7 +44,7 @@ function SkillItem({ skill }) {
         animate={{ opacity: 0.7 }}
         transition={{ delay: 0.2 }}
       >
-        ({skill.proficiency})
+        {skill.proficiency}
       </motion.span>
     </motion.span>
   );

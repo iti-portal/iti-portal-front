@@ -6,6 +6,76 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaLinkedin, FaGithub, FaGlobe, FaWhatsapp, FaEnvelope, FaPhone, FaCamera, FaTimes } from 'react-icons/fa'; // Social media icons
 import { IoLocationSharp } from 'react-icons/io5'; // Location icon
 import { BsFillCalendarFill } from "react-icons/bs"; // Calendar icon
+import { PLACEHOLDERS } from '../../../../utils/placeholders';
+
+// Custom ProfileImage component with fallback URLs
+const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
+  const [currentSrc, setCurrentSrc] = useState(src);
+  const [fallbackIndex, setFallbackIndex] = useState(0);
+
+  // Generate fallback URLs based on the original path
+  const generateFallbackUrls = (originalSrc) => {
+    if (!originalSrc || originalSrc.startsWith('data:image/svg+xml')) {
+      return [];
+    }
+
+    // Extract the relative path from the full URL
+    const url = new URL(originalSrc);
+    const path = url.pathname;
+    const baseUrl = 'http://127.0.0.1:8000';
+    
+    // Try different path patterns
+    if (path.includes('/storage/')) {
+      const relativePath = path.replace('/storage/', '');
+      return [
+        `${baseUrl}/storage/${relativePath}`,
+        `${baseUrl}/media/${relativePath}`,
+        `${baseUrl}/${relativePath}`
+      ];
+    } else if (path.includes('/media/')) {
+      const relativePath = path.replace('/media/', '');
+      return [
+        `${baseUrl}/media/${relativePath}`,
+        `${baseUrl}/storage/${relativePath}`,
+        `${baseUrl}/${relativePath}`
+      ];
+    } else {
+      const relativePath = path.substring(1); // Remove leading slash
+      return [
+        `${baseUrl}/storage/${relativePath}`,
+        `${baseUrl}/media/${relativePath}`,
+        `${baseUrl}/${relativePath}`
+      ];
+    }
+  };
+
+  const fallbackUrls = generateFallbackUrls(src);
+
+  const handleImageError = (e) => {
+    if (fallbackIndex < fallbackUrls.length - 1) {
+      const nextFallback = fallbackUrls[fallbackIndex + 1];
+      setCurrentSrc(nextFallback);
+      setFallbackIndex(fallbackIndex + 1);
+    } else {
+      setCurrentSrc(PLACEHOLDERS.AVATAR_USER);
+      if (onError) onError(e);
+    }
+  };
+
+  const handleImageLoad = (e) => {
+    if (onLoad) onLoad(e);
+  };
+
+  return (
+    <img
+      src={currentSrc || PLACEHOLDERS.AVATAR_USER}
+      alt={alt}
+      className={className}
+      onLoad={handleImageLoad}
+      onError={handleImageError}
+    />
+  );
+};
 
 function ProfileHeader({ data, onUpdatePhoto }) {
   const navigate = useNavigate(); 
@@ -31,14 +101,22 @@ function ProfileHeader({ data, onUpdatePhoto }) {
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (onUpdatePhoto) {
-          onUpdatePhoto(photoType, reader.result);
-        }
-        setShowPhotoModal(false);
-      };
-      reader.readAsDataURL(file);
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file.');
+        return;
+      }
+      
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        alert('File size must be less than 2MB.');
+        return;
+      }
+
+      if (onUpdatePhoto) {
+        onUpdatePhoto(photoType, file);
+      }
+      setShowPhotoModal(false);
     }
   };
 
@@ -52,12 +130,22 @@ function ProfileHeader({ data, onUpdatePhoto }) {
       >
         {/* Cover Photo */}
         <motion.div
-          className="relative w-full h-48 bg-cover bg-center cursor-pointer group"
-          style={{ backgroundImage: `url(${data.coverPhoto || 'https://via.placeholder.com/1200x300/901b20/FFFFFF?text=Cover+Photo'})` }}
+          className={`relative w-full h-48 cursor-pointer group ${
+            data?.profile?.cover_photo 
+              ? 'bg-cover bg-center' 
+              : 'bg-gradient-to-r from-[#901b20] to-[#b8252b] flex items-center justify-center'
+          }`}
+          style={data?.profile?.cover_photo ? { backgroundImage: `url(${data.profile.cover_photo})` } : {}}
           onClick={() => handlePhotoClick('cover')}
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.3 }}
         >
+          {!data?.profile?.cover_photo && (
+            <div className="text-white text-center">
+              <FaCamera className="text-4xl mb-2 mx-auto opacity-70" />
+              <p className="text-lg font-medium opacity-90">Add Cover Photo</p>
+            </div>
+          )}
           <motion.div
             className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             whileHover={{ opacity: 1 }}
@@ -82,9 +170,10 @@ function ProfileHeader({ data, onUpdatePhoto }) {
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.2 }}
           >
-            <img
-              src={data.profilePicture || 'https://via.placeholder.com/150/901b20/FFFFFF?text=User'}
-              alt={`${data.firstName} ${data.lastName}'s Profile`}
+            <ProfileImage
+              key={data?.profile?.profile_picture || 'default'}
+              src={data?.profile?.profile_picture}
+              alt={`${data?.profile?.first_name || 'User'} ${data?.profile?.last_name || ''}'s Profile`}
               className="w-32 h-32 rounded-full border-4 border-white absolute -top-16 left-6 shadow-md object-cover"
             />
             <motion.div
@@ -102,7 +191,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              {data.firstName} {data.lastName}
+              {data?.profile?.first_name} {data?.profile?.last_name}
             </motion.h1>
             <motion.p 
               className="text-xl text-gray-700 mt-1"
@@ -110,7 +199,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              {data.title} at {data.company}
+              {data?.profile?.job_profile || data?.profile?.track || 'Student'}
             </motion.p>
             <motion.p 
               className="text-gray-600 flex items-center mt-2"
@@ -118,7 +207,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <IoLocationSharp className="mr-1 text-gray-500" /> {data.governorate}
+              <IoLocationSharp className="mr-1 text-gray-500" /> <span className="font-bold">{data?.profile?.branch || 'ITI'} </span>&nbsp;<span> Branch </span>
             </motion.p>
             <motion.p 
               className="text-gray-600 flex items-center mt-1"
@@ -126,7 +215,10 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
-              <BsFillCalendarFill className="mr-1 text-gray-500 text-sm" /> ITI Intake: {data.intake} | Graduation: {formatDate(data.graduationDate)}
+              <BsFillCalendarFill className="mr-1 text-gray-500 text-sm" /> 
+              ITI Intake&nbsp;<span className="font-bold">{data?.profile?.intake || 'N/A'}</span> |&nbsp;
+              <span className="font-bold">{data?.profile?.program?.toUpperCase() || ''}&nbsp;</span>|
+              <span className="font-bold">{data?.profile?.student_status?.charAt(0)?.toUpperCase() + data?.profile?.student_status?.slice(1) || 'Student'}</span>
             </motion.p>
           </div>
 
@@ -161,9 +253,9 @@ function ProfileHeader({ data, onUpdatePhoto }) {
             <div className="bg-gradient-to-r from-gray-50 to-white rounded-xl p-4 border border-gray-200 shadow-sm">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                 {/* LinkedIn */}
-                {data.linkedin && (
+                {data?.profile?.linkedin && (
                   <motion.a 
-                    href={data.linkedin} 
+                    href={data.profile.linkedin} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center space-x-2 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-full border border-blue-200 hover:border-blue-300 transition-all duration-300 group"
@@ -176,9 +268,9 @@ function ProfileHeader({ data, onUpdatePhoto }) {
                 )}
 
                 {/* GitHub */}
-                {data.github && (
+                {data?.profile?.github && (
                   <motion.a 
-                    href={data.github} 
+                    href={data.profile.github} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-full border border-gray-300 hover:border-gray-400 transition-all duration-300 group"
@@ -191,9 +283,9 @@ function ProfileHeader({ data, onUpdatePhoto }) {
                 )}
 
                 {/* Portfolio */}
-                {data.portfolioUrl && (
+                {data?.profile?.portfolio_url && (
                   <motion.a 
-                    href={data.portfolioUrl} 
+                    href={data.profile.portfolio_url} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center space-x-2 bg-purple-50 hover:bg-purple-100 px-3 py-2 rounded-full border border-purple-200 hover:border-purple-300 transition-all duration-300 group"
@@ -206,9 +298,9 @@ function ProfileHeader({ data, onUpdatePhoto }) {
                 )}
 
                 {/* WhatsApp */}
-                {data.whatsapp && (
+                {data?.profile?.whatsapp && (
                   <motion.a 
-                    href={`https://wa.me/${data.whatsapp.replace(/\D/g, '')}`} 
+                    href={`https://wa.me/${data.profile.whatsapp.replace(/\D/g, '')}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="flex items-center space-x-2 bg-green-50 hover:bg-green-100 px-3 py-2 rounded-full border border-green-200 hover:border-green-300 transition-all duration-300 group"
@@ -221,25 +313,26 @@ function ProfileHeader({ data, onUpdatePhoto }) {
                 )}
 
                 {/* Email */}
-                {data.email && (
+                {data?.email && (
                   <motion.a 
                     href={`mailto:${data.email}`} 
                     className="flex items-center space-x-2 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-full border border-red-200 hover:border-red-300 transition-all duration-300 group"
                     whileHover={{ scale: 1.05, y: -1 }}
                     whileTap={{ scale: 0.95 }}
-                  >                    <FaEnvelope className="text-iti-primary text-lg group-hover:text-iti-primary-dark" />
+                  >
+                    <FaEnvelope className="text-iti-primary text-lg group-hover:text-iti-primary-dark" />
                     <span className="text-iti-primary font-medium text-sm group-hover:text-iti-primary-dark truncate max-w-[120px]">{data.email}</span>
                   </motion.a>
                 )}
 
                 {/* Phone */}
-                {data.phone && (
+                {data?.profile?.phone && (
                   <motion.div 
                     className="flex items-center space-x-2 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-full border border-blue-200 hover:border-blue-300 transition-all duration-300 group cursor-default"
                     whileHover={{ scale: 1.05, y: -1 }}
                   >
                     <FaPhone className="text-blue-600 text-lg group-hover:text-blue-700" />
-                    <span className="text-blue-700 font-medium text-sm group-hover:text-blue-800">{data.phone}</span>
+                    <span className="text-blue-700 font-medium text-sm group-hover:text-blue-800">{data.profile.phone}</span>
                   </motion.div>
                 )}
               </div>

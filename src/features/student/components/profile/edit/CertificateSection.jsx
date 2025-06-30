@@ -13,7 +13,7 @@ function CertificateSection({
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-xl font-semibold text-gray-800">Your Certificates & Awards</h3>
+        <h3 className="text-xl font-semibold text-gray-800">Your Certificates</h3>
         <button
           type="button"
           onClick={onAdd}
@@ -31,7 +31,7 @@ function CertificateSection({
             className="text-center py-10 text-gray-500"
           >
             <FaCertificate className="mx-auto h-10 w-10 text-gray-400 mb-3" />
-            <p>No certificates or awards yet. Click "Add Certificate" to get started.</p>
+            <p>No certificates yet. Click "Add Certificate" to get started.</p>
           </div>
         ) : (
           <div>

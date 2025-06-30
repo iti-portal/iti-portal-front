@@ -3,24 +3,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-function PersonalInfoForm({ data, onUpdateAll }) {
+function PersonalInfoForm({ data = {}, onUpdateAll }) {
   const [personalInfo, setPersonalInfo] = useState({
-    firstName: data.firstName,
-    lastName: data.lastName,
-    title: data.title,
-    company: data.company,
-    summary: data.summary, // About Me
-    governorate: data.governorate, // Location
+    firstName: data?.firstName || '',
+    lastName: data?.lastName || '',
+    username: data?.username || '',
+    summary: data?.summary || '', // About Me
   });
 
   useEffect(() => {
     setPersonalInfo({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      title: data.title,
-      company: data.company,
-      summary: data.summary,
-      governorate: data.governorate,
+      firstName: data?.firstName || '',
+      lastName: data?.lastName || '',
+      username: data?.username || '',
+      summary: data?.summary || '',
     });
   }, [data]);
 
@@ -52,7 +48,7 @@ function PersonalInfoForm({ data, onUpdateAll }) {
           Personal Information
         </motion.h2>
         
-        <p className="text-gray-600 mb-6">Update your personal details and professional headline.</p>
+        <p className="text-gray-600 mb-6">Update your basic personal information and username.</p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -64,7 +60,7 @@ function PersonalInfoForm({ data, onUpdateAll }) {
               name="firstName"
               id="firstName"
               required
-              value={personalInfo.firstName}
+              value={personalInfo.firstName || ''}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
             />
@@ -79,77 +75,30 @@ function PersonalInfoForm({ data, onUpdateAll }) {
               name="lastName"
               id="lastName"
               required
-              value={personalInfo.lastName}
+              value={personalInfo.lastName || ''}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
-            />
-          </div>
-        </div>
-        
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-              Professional Title
-            </label>
-            <input
-              type="text"
-              name="title"
-              id="title"
-              value={personalInfo.title}
-              onChange={handleChange}
-              placeholder="e.g. Full Stack Developer"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
-            />
-          </div>
-          
-          <div>
-            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-2">
-              Company/Organization
-            </label>
-            <input
-              type="text"
-              name="company"
-              id="company"
-              value={personalInfo.company}
-              onChange={handleChange}
-              placeholder="e.g. Tech Solutions"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
             />
           </div>
         </div>
         
         <div className="mt-6">
-          <label htmlFor="governorate" className="block text-sm font-medium text-gray-700 mb-2">
-            Location
+          <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+            Username*
           </label>
-          <select
-            name="governorate"
-            id="governorate"
-            value={personalInfo.governorate}
+          <input
+            type="text"
+            name="username"
+            id="username"
+            required
+            value={personalInfo.username || ''}
             onChange={handleChange}
+            placeholder="e.g. john_doe"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
-          >
-            <option value="">Select Governorate</option>
-            <option value="Cairo">Cairo</option>
-            <option value="Alexandria">Alexandria</option>
-            <option value="Giza">Giza</option>
-            <option value="Sharqia">Sharqia</option>
-            <option value="Dakahlia">Dakahlia</option>
-            <option value="Gharbia">Gharbia</option>
-            <option value="Beheira">Beheira</option>
-            <option value="Ismailia">Ismailia</option>
-            <option value="Port Said">Port Said</option>
-            <option value="Suez">Suez</option>
-            <option value="Fayoum">Fayoum</option>
-            <option value="Beni Suef">Beni Suef</option>
-            <option value="Minya">Minya</option>
-            <option value="Asyut">Asyut</option>
-            <option value="Sohag">Sohag</option>
-            <option value="Qena">Qena</option>
-            <option value="Luxor">Luxor</option>
-            <option value="Aswan">Aswan</option>
-            <option value="Other">Other</option>
-          </select>
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Choose a unique username that represents you professionally.
+          </p>
         </div>
       </motion.div>
       
@@ -175,7 +124,7 @@ function PersonalInfoForm({ data, onUpdateAll }) {
             name="summary"
             id="summary"
             rows="6"
-            value={personalInfo.summary}
+            value={personalInfo.summary || ''}
             onChange={handleChange}
             placeholder="Describe yourself, your experience, and what you're looking for..."
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"

@@ -1,10 +1,36 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { USER_ROLES } from '../../features/auth/types/auth.types';
 import Logo from '../Common/Logo';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      setLogoutLoading(true);
+      const result = await logout();
+      
+      if (result.success) {
+        navigate('/login');
+      } else {
+        // Even if logout API fails, redirect to login
+        navigate('/login');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Force redirect to login even on error
+      navigate('/login');
+    } finally {
+      setLogoutLoading(false);
+      setMenuOpen(false);
+    }
+  };
 
   // Function to determine if a path is active
   const isActivePath = (path) => {
@@ -48,10 +74,12 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-between ml-4 xl:ml-6">
         <nav className="flex items-center gap-2 xl:gap-4 text-xs xl:text-sm font-medium">
           <Link to="/" className={getLinkClasses('/')}>Home</Link>
-          <Link to="/profile" className={getLinkClasses('/profile')}>Profile</Link>
+          <Link to="/student/profile" className={getLinkClasses('/profile')}>Profile</Link>
           <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
           <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
-          <Link to="/admin" className={getLinkClasses('/admin')}>Admin</Link>
+          {user?.role === USER_ROLES.ADMIN && (
+            <Link to="/admin/dashboard" className={getLinkClasses('/admin')}>Admin</Link>
+          )}
           <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
           <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
           <Link to="/articles" className={getLinkClasses('/articles')}>Articles</Link>
@@ -67,11 +95,21 @@ const Navbar = () => {
           </button>
           <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">notifications_none</span>
           <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
-          <img
-            src="/avatar.png"
-            alt="User"
-            className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover"
-          />
+          <button
+            onClick={handleLogout}
+            disabled={logoutLoading}
+            className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg xl:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            title={logoutLoading ? 'Logging out...' : 'Logout'}
+          >
+            {logoutLoading ? 'hourglass_empty' : 'logout'}
+          </button>
+          <Link to="/student/profile">
+            <img
+              src="/avatar.png"
+              alt="User"
+              className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+            />
+          </Link>
         </div>
       </div>
 
@@ -83,21 +121,41 @@ const Navbar = () => {
           className="border border-[#901b20] rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-[#901b20] w-20"
         />
         <span className="material-icons text-gray-500 cursor-pointer text-lg">notifications_none</span>
-        <img
-          src="/avatar.png"
-          alt="User"
-          className="w-7 h-7 rounded-full border-2 border-[#901b20] object-cover"
-        />
+        <button
+          onClick={handleLogout}
+          disabled={logoutLoading}
+          className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title={logoutLoading ? 'Logging out...' : 'Logout'}
+        >
+          {logoutLoading ? 'hourglass_empty' : 'logout'}
+        </button>
+        <Link to="/student/profile">
+          <img
+            src="/avatar.png"
+            alt="User"
+            className="w-7 h-7 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+          />
+        </Link>
       </div>
 
       {/* Small Screen Content (640px-768px) */}
       <div className="hidden sm:flex md:hidden items-center gap-2 flex-1 justify-end">
         <span className="material-icons text-gray-500 cursor-pointer text-lg">notifications_none</span>
-        <img
-          src="/avatar.png"
-          alt="User"
-          className="w-6 h-6 rounded-full border-2 border-[#901b20] object-cover"
-        />
+        <button
+          onClick={handleLogout}
+          disabled={logoutLoading}
+          className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title={logoutLoading ? 'Logging out...' : 'Logout'}
+        >
+          {logoutLoading ? 'hourglass_empty' : 'logout'}
+        </button>
+        <Link to="/student/profile">
+          <img
+            src="/avatar.png"
+            alt="User"
+            className="w-6 h-6 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+          />
+        </Link>
       </div>
       
       {/* Hamburger for mobile and tablet screens */}
@@ -133,7 +191,7 @@ const Navbar = () => {
                 <span className="material-icons text-lg mr-3 align-middle">home</span>
                 Home
               </Link>
-              <Link to="/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
+              <Link to="/student/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">person</span>
                 Profile
               </Link>
@@ -145,10 +203,12 @@ const Navbar = () => {
                 <span className="material-icons text-lg mr-3 align-middle">business</span>
                 Company
               </Link>
-              <Link to="/admin" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
-                Admin
-              </Link>
+              {user?.role === USER_ROLES.ADMIN && (
+                <Link to="/admin/dashboard" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
+                  <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
+                  Admin
+                </Link>
+              )}
               <Link to="/network" className={getLinkClasses('/network', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">group</span>
                 Network
@@ -178,14 +238,22 @@ const Navbar = () => {
             {/* User Section */}
             <div className="p-4 border-t border-gray-200 bg-gray-50">
               <div className="flex items-center gap-3 mb-3">
-                <img
-                  src="/avatar.png"
-                  alt="User"
-                  className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover"
-                />
+                <Link to="/student/profile" onClick={() => setMenuOpen(false)}>
+                  <img
+                    src="/avatar.png"
+                    alt="User"
+                    className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+                  />
+                </Link>
                 <div className="flex-1">
-                  <div className="font-semibold text-gray-800 text-sm">John Doe</div>
-                  <div className="text-xs text-gray-500">john.doe@example.com</div>
+                  <div className="font-semibold text-gray-800 text-sm">
+                    {user?.first_name && user?.last_name 
+                      ? `${user.first_name} ${user.last_name}` 
+                      : user?.name || 'User'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {user?.email || 'user@example.com'}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-around pt-2 border-t border-gray-200">
@@ -197,9 +265,17 @@ const Navbar = () => {
                   <span className="material-icons text-gray-500">settings</span>
                   <span className="text-xs text-gray-600">Settings</span>
                 </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                  <span className="material-icons text-gray-500">logout</span>
-                  <span className="text-xs text-gray-600">Logout</span>
+                <button 
+                  onClick={handleLogout}
+                  disabled={logoutLoading}
+                  className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="material-icons text-gray-500">
+                    {logoutLoading ? 'hourglass_empty' : 'logout'}
+                  </span>
+                  <span className="text-xs text-gray-600">
+                    {logoutLoading ? 'Logging out...' : 'Logout'}
+                  </span>
                 </button>
               </div>
             </div>

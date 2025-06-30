@@ -5,10 +5,11 @@ import { FaCertificate } from 'react-icons/fa';
 
 function CertificateForm({ onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
-    name: initialData?.name || '',
-    issuingBody: initialData?.issuingBody || '',
-    dateIssued: initialData?.dateIssued || '',
-    url: initialData?.url || '',
+    title: initialData?.title || initialData?.name || '',
+    organization: initialData?.organization || initialData?.issuingBody || '',
+    achieved_at: initialData?.achieved_at || initialData?.dateIssued || '',
+    certificate_url: initialData?.certificate_url || initialData?.url || '',
+    description: initialData?.description || '',
   });
 
   const [errors, setErrors] = useState({});
@@ -32,23 +33,23 @@ function CertificateForm({ onSubmit, initialData = null }) {
   const validate = () => {
     const newErrors = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Certificate name is required';
+    if (!formData.title.trim()) {
+      newErrors.title = 'Certificate title is required';
     }
     
-    if (!formData.issuingBody.trim()) {
-      newErrors.issuingBody = 'Issuing body is required';
+    if (!formData.organization.trim()) {
+      newErrors.organization = 'Organization is required';
     }
     
-    if (!formData.dateIssued) {
-      newErrors.dateIssued = 'Date issued is required';
+    if (!formData.achieved_at) {
+      newErrors.achieved_at = 'Date achieved is required';
     }
 
     // Validate URL format if provided
-    if (formData.url && formData.url.trim()) {
+    if (formData.certificate_url && formData.certificate_url.trim()) {
       const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-      if (!urlPattern.test(formData.url.trim())) {
-        newErrors.url = 'Please enter a valid URL';
+      if (!urlPattern.test(formData.certificate_url.trim())) {
+        newErrors.certificate_url = 'Please enter a valid URL';
       }
     }
     
@@ -69,81 +70,96 @@ function CertificateForm({ onSubmit, initialData = null }) {
   return (
     <div className="space-y-6">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-          Certificate Name *
+        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+          Certificate Title *
         </label>
         <input
-          id="name"
-          name="name"
+          id="title"
+          name="title"
           type="text"
-          value={formData.name}
+          value={formData.title}
           onChange={handleChange}
           className={`block w-full px-3 py-2 border ${
-            errors.name ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
           } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
           placeholder="e.g., AWS Certified Solutions Architect"
         />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-600">{errors.name}</p>
+        {errors.title && (
+          <p className="mt-1 text-sm text-red-600">{errors.title}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="issuingBody" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="organization" className="block text-sm font-medium text-gray-700 mb-1">
           Issuing Organization *
         </label>
         <input
-          id="issuingBody"
-          name="issuingBody"
+          id="organization"
+          name="organization"
           type="text"
-          value={formData.issuingBody}
+          value={formData.organization}
           onChange={handleChange}
           className={`block w-full px-3 py-2 border ${
-            errors.issuingBody ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            errors.organization ? 'border-red-300 bg-red-50' : 'border-gray-300'
           } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
           placeholder="e.g., Amazon Web Services, Microsoft, Google"
         />
-        {errors.issuingBody && (
-          <p className="mt-1 text-sm text-red-600">{errors.issuingBody}</p>
+        {errors.organization && (
+          <p className="mt-1 text-sm text-red-600">{errors.organization}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="dateIssued" className="block text-sm font-medium text-gray-700 mb-1">
-          Date Issued *
+        <label htmlFor="achieved_at" className="block text-sm font-medium text-gray-700 mb-1">
+          Date Achieved *
         </label>
         <input
-          id="dateIssued"
-          name="dateIssued"
+          id="achieved_at"
+          name="achieved_at"
           type="date"
-          value={formData.dateIssued}
+          value={formData.achieved_at ? formData.achieved_at.split('T')[0] : ''}
           onChange={handleChange}
           className={`block w-full px-3 py-2 border ${
-            errors.dateIssued ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            errors.achieved_at ? 'border-red-300 bg-red-50' : 'border-gray-300'
           } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
         />
-        {errors.dateIssued && (
-          <p className="mt-1 text-sm text-red-600">{errors.dateIssued}</p>
+        {errors.achieved_at && (
+          <p className="mt-1 text-sm text-red-600">{errors.achieved_at}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-1">
-          Credential URL <span className="text-sm text-gray-500">(optional)</span>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+          Description <span className="text-sm text-gray-500">(optional)</span>
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          rows={3}
+          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm"
+          placeholder="Brief description of the certificate..."
+        />
+      </div>
+
+      <div>
+        <label htmlFor="certificate_url" className="block text-sm font-medium text-gray-700 mb-1">
+          Certificate URL <span className="text-sm text-gray-500">(optional)</span>
         </label>
         <input
-          id="url"
-          name="url"
+          id="certificate_url"
+          name="certificate_url"
           type="url"
-          value={formData.url}
+          value={formData.certificate_url}
           onChange={handleChange}
           className={`block w-full px-3 py-2 border ${
-            errors.url ? 'border-red-300 bg-red-50' : 'border-gray-300'
+            errors.certificate_url ? 'border-red-300 bg-red-50' : 'border-gray-300'
           } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
           placeholder="https://www.credly.com/badges/..."
         />
-        {errors.url && (
-          <p className="mt-1 text-sm text-red-600">{errors.url}</p>
+        {errors.certificate_url && (
+          <p className="mt-1 text-sm text-red-600">{errors.certificate_url}</p>
         )}
         <p className="mt-1 text-xs text-gray-500">
           Link to your digital badge or certificate verification page

@@ -9,6 +9,7 @@ import EducationSection from './EducationSection';
 import ExperienceSection from './ExperienceSection';
 import TabNavigation from './TabNavigation';
 import { generateUniqueId } from '../../../utils/idGenerator';
+import { addEducation, updateEducation, deleteEducation } from '../../../../../services/profileService';
 
 function EducationAndExperienceForm({ educations = [], workExperiences = [], onUpdateEducations, onUpdateWorkExperiences }) {
   const [activeTab, setActiveTab] = useState('education');
@@ -28,37 +29,120 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
     setIsEducationModalOpen(true);
   };
   
-  const handleAddEducation = (educationData) => {
-    const newEducation = {
-      id: generateUniqueId(),
-      ...educationData
-    };
-    
-    // Add to the beginning of the array (top of the list)
-    onUpdateEducations([newEducation, ...educations]);
-    setIsEducationModalOpen(false);
+  const handleAddEducation = async (educationData) => {
+    try {
+      // Prepare data for API call - map to backend field names
+      const apiData = {
+        institution: educationData.institution,
+        degree: educationData.degree,
+        field_of_study: educationData.fieldOfStudy,
+        start_date: educationData.startDate,
+        end_date: educationData.endDate,
+        description: educationData.description || ''
+      };
+
+      const result = await addEducation(apiData);
+      
+      if (result.success) {
+        // Add the new education with the API response data to local state
+        const newEducation = {
+          id: result.data.id,
+          institution: result.data.institution,
+          degree: result.data.degree,
+          fieldOfStudy: result.data.field_of_study,
+          startDate: result.data.start_date,
+          endDate: result.data.end_date,
+          description: result.data.description
+        };
+        
+        // Add to the beginning of the array (top of the list)
+        onUpdateEducations([newEducation, ...educations]);
+        setIsEducationModalOpen(false);
+        
+        // Show success message
+        alert('Education added successfully!');
+      } else {
+        throw new Error('Failed to add education');
+      }
+    } catch (error) {
+      console.error('Error adding education:', error);
+      alert(`Error adding education: ${error.message}`);
+    }
   };
   
-  const handleUpdateEducation = (educationData) => {
+  const handleUpdateEducation = async (educationData) => {
     if (!editingEducation) return;
     
-    const updatedEducation = {
-      ...editingEducation,
-      ...educationData
-    };
-    
-    const updatedEducations = educations.map(edu => 
-      edu.id === editingEducation.id ? updatedEducation : edu
-    );
-    
-    onUpdateEducations(updatedEducations);
-    setIsEducationModalOpen(false);
-    setEditingEducation(null);
+    try {
+      // Prepare data for API call - map to backend field names
+      const apiData = {
+        institution: educationData.institution,
+        degree: educationData.degree,
+        field_of_study: educationData.fieldOfStudy,
+        start_date: educationData.startDate,
+        end_date: educationData.endDate,
+        description: educationData.description || ''
+      };
+
+      const result = await updateEducation(editingEducation.id, apiData);
+      
+      if (result.success) {
+        // Update the education with the API response data
+        const updatedEducation = {
+          id: result.data.id,
+          institution: result.data.institution,
+          degree: result.data.degree,
+          fieldOfStudy: result.data.field_of_study,
+          startDate: result.data.start_date,
+          endDate: result.data.end_date,
+          description: result.data.description
+        };
+        
+        // Update the education in the list
+        const updatedEducations = educations.map(edu => 
+          edu.id === editingEducation.id ? updatedEducation : edu
+        );
+        
+        onUpdateEducations(updatedEducations);
+        setIsEducationModalOpen(false);
+        setEditingEducation(null);
+        
+        // Show success message
+        alert('Education updated successfully!');
+      } else {
+        throw new Error('Failed to update education');
+      }
+    } catch (error) {
+      console.error('Error updating education:', error);
+      alert(`Error updating education: ${error.message}`);
+    }
   };
   
-  const handleDeleteEducation = (id) => {
-    const updatedEducations = educations.filter(edu => edu.id !== id);
-    onUpdateEducations(updatedEducations);
+  const handleDeleteEducation = async (id) => {
+    // Show confirmation dialog
+    const confirmDelete = window.confirm('Are you sure you want to delete this education entry? This action cannot be undone.');
+    
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      const result = await deleteEducation(id);
+      
+      if (result.success) {
+        // Remove the education from local state
+        const updatedEducations = educations.filter(edu => edu.id !== id);
+        onUpdateEducations(updatedEducations);
+        
+        // Show success message
+        alert('Education deleted successfully!');
+      } else {
+        throw new Error('Failed to delete education');
+      }
+    } catch (error) {
+      console.error('Error deleting education:', error);
+      alert(`Error deleting education: ${error.message}`);
+    }
   };
   
   // Experience handlers

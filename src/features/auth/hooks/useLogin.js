@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginUser } from '../services/authAPI';
+import { useAuth } from '../../../contexts/AuthContext';
 import { initializeLoginData, initializeAuthErrors, formatAuthError } from '../utils/authHelpers';
 
 /**
@@ -9,6 +10,11 @@ import { initializeLoginData, initializeAuthErrors, formatAuthError } from '../u
  */
 export const useLogin = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+  
+  // Get the redirect path from location state or default to home
+  const from = location.state?.from?.pathname || '/';
   
   // Form state
   const [formData, setFormData] = useState(initializeLoginData());
@@ -72,8 +78,10 @@ export const useLogin = () => {
       const { ok, data } = await loginUser(formData);
       
       if (ok && data.success && data.data?.token) {
-        // Store token
-        localStorage.setItem('token', data.data.token);        // Handle different user states
+        // Use AuthContext login function to properly set authentication state
+        login(data.data.user || data.data, data.data.token);
+        
+        // Handle different user states
         if (data.data.role === 'admin') {
           showAlert('success', 'Login successful! Redirecting to admin dashboard...');
           setTimeout(() => {
@@ -85,10 +93,10 @@ export const useLogin = () => {
             navigate('/verify-email', { state: { email: formData.email } });
           }, 1500);
         } else {
-          // For all non-admin users (student, alumni, company, staff), redirect to homepage
-          showAlert('success', 'Login successful! Redirecting to home page...');
+          // For all non-admin users, redirect to where they came from or home
+          showAlert('success', 'Login successful! Redirecting...');
           setTimeout(() => {
-            navigate('/');
+            navigate(from, { replace: true });
           }, 1500);
         }
       } else {
