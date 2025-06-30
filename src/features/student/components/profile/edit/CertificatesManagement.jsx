@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../../../../components/UI/Modal';
 import CertificateSection from './CertificateSection.jsx';
 import CertificateForm from './CertificateForm.jsx';
-import { addCertificate, updateCertificate, deleteCertificate, updateCertificateImage } from '../../../../../services/profileService';
+import { addCertificate, updateCertificate, deleteCertificate, updateCertificateImage } from '../../../../../services/certificatesService';
 
 function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
   const [currentCertificates, setCurrentCertificates] = useState(certificates || []);

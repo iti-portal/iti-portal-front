@@ -47,7 +47,34 @@ export const handleApiResponse = async (response) => {
   const result = await response.json();
 
   if (!response.ok) {
-    throw new Error(result.message || 'API request failed');
+    // Handle validation errors (422) by showing all error details
+    if (response.status === 422 && result.errors) {
+      console.log('Validation errors from server:', result.errors);
+      
+      const errorMessages = [];
+      
+      // Collect all validation error messages
+      for (const field in result.errors) {
+        if (Array.isArray(result.errors[field])) {
+          result.errors[field].forEach(error => {
+            // Format field names to be more user-friendly
+            const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ');
+            errorMessages.push(`${fieldName}: ${error}`);
+          });
+        } else {
+          const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ');
+          errorMessages.push(`${fieldName}: ${result.errors[field]}`);
+        }
+      }
+      
+      const errorMessage = errorMessages.length > 0 
+        ? errorMessages.join('\n') 
+        : (result.message || 'Validation failed');
+      
+      throw new Error(errorMessage);
+    } else {
+      throw new Error(result.message || 'API request failed');
+    }
   }
 
   return {

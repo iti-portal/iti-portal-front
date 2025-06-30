@@ -68,7 +68,7 @@ export const updateUserProfile = async (profileData) => {
     }
 
     const response = await fetch(`${API_BASE_URL}/profile`, {
-      method: 'POST',
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

@@ -9,7 +9,8 @@ import EducationSection from './EducationSection';
 import ExperienceSection from './ExperienceSection';
 import TabNavigation from './TabNavigation';
 import { generateUniqueId } from '../../../utils/idGenerator';
-import { addEducation, updateEducation, deleteEducation, addWorkExperience, updateWorkExperience, deleteWorkExperience } from '../../../../../services/profileService';
+import { addEducation, updateEducation, deleteEducation } from '../../../../../services/educationService';
+import { addWorkExperience, updateWorkExperience, deleteWorkExperience } from '../../../../../services/workExperienceService';
 
 function EducationAndExperienceForm({ educations = [], workExperiences = [], onUpdateEducations, onUpdateWorkExperiences }) {
   const [activeTab, setActiveTab] = useState('education');

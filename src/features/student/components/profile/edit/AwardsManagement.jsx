@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../../../../components/UI/Modal';
 import AwardsSection from './AwardsSection.jsx';
 import AwardForm from './AwardForm.jsx';
-import { addAward, updateAward, deleteAward } from '../../../../../services/profileService';
+import { addAward, updateAward, deleteAward } from '../../../../../services/awardsService';
 
 function AwardsManagement({ awards = [], onUpdateAwards }) {
   const [currentAwards, setCurrentAwards] = useState(awards || []);

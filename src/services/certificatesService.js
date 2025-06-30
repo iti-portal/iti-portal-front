@@ -16,13 +16,32 @@ import {
  */
 export const addCertificate = async (certificateData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/certificates`, {
+    // Transform frontend data to match backend API
+    const apiData = {
+      title: certificateData.certificateName || certificateData.title,
+      description: certificateData.description,
+      organization: certificateData.issuer || certificateData.organization,
+      achieved_at: certificateData.issueDate || certificateData.achieved_at,
+      certificate_url: certificateData.certificateUrl || certificateData.certificate_url
+    };
+
+    // Remove undefined/null/empty values
+    Object.keys(apiData).forEach(key => {
+      if (apiData[key] === undefined || apiData[key] === null || apiData[key] === '') {
+        delete apiData[key];
+      }
+    });
+
+    console.log('Sending certificate data to API:', apiData);
+
+    const response = await fetch(`${API_BASE_URL}/certificates/add`, {
       method: 'POST',
       headers: getAuthHeaders(),
-      body: JSON.stringify(certificateData)
+      body: JSON.stringify(apiData)
     });
 
     const result = await response.json();
+    console.log('Add certificate API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to add certificate');
@@ -30,15 +49,15 @@ export const addCertificate = async (certificateData) => {
 
     // Transform the response data to match frontend expectations
     const transformedData = result.data ? {
-      ...result.data,
       id: result.data.id,
-      certificateName: result.data.certificate_name || result.data.certificateName,
-      issuer: result.data.issuer,
-      issueDate: result.data.issue_date || result.data.issueDate,
-      expiryDate: result.data.expiry_date || result.data.expiryDate,
+      certificateName: result.data.title,
+      issuer: result.data.organization,
+      issueDate: result.data.achieved_at,
       description: result.data.description,
-      certificateUrl: result.data.certificate_url || result.data.certificateUrl,
-      imageUrl: result.data.image_url ? constructCertificateImageUrl(result.data.image_url) : null
+      certificateUrl: result.data.certificate_url,
+      imageUrl: result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null,
+      // Keep original fields for compatibility
+      ...result.data
     } : null;
 
     return {
@@ -56,13 +75,32 @@ export const addCertificate = async (certificateData) => {
  */
 export const updateCertificate = async (certificateId, certificateData) => {
   try {
+    // Transform frontend data to match backend API
+    const apiData = {
+      title: certificateData.certificateName || certificateData.title,
+      description: certificateData.description,
+      organization: certificateData.issuer || certificateData.organization,
+      achieved_at: certificateData.issueDate || certificateData.achieved_at,
+      certificate_url: certificateData.certificateUrl || certificateData.certificate_url
+    };
+
+    // Remove undefined/null/empty values
+    Object.keys(apiData).forEach(key => {
+      if (apiData[key] === undefined || apiData[key] === null || apiData[key] === '') {
+        delete apiData[key];
+      }
+    });
+
+    console.log('Updating certificate data to API:', apiData);
+
     const response = await fetch(`${API_BASE_URL}/certificates/${certificateId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
-      body: JSON.stringify(certificateData)
+      body: JSON.stringify(apiData)
     });
 
     const result = await response.json();
+    console.log('Update certificate API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update certificate');
@@ -70,15 +108,15 @@ export const updateCertificate = async (certificateId, certificateData) => {
 
     // Transform the response data to match frontend expectations
     const transformedData = result.data ? {
-      ...result.data,
       id: result.data.id,
-      certificateName: result.data.certificate_name || result.data.certificateName,
-      issuer: result.data.issuer,
-      issueDate: result.data.issue_date || result.data.issueDate,
-      expiryDate: result.data.expiry_date || result.data.expiryDate,
+      certificateName: result.data.title,
+      issuer: result.data.organization,
+      issueDate: result.data.achieved_at,
       description: result.data.description,
-      certificateUrl: result.data.certificate_url || result.data.certificateUrl,
-      imageUrl: result.data.image_url ? constructCertificateImageUrl(result.data.image_url) : null
+      certificateUrl: result.data.certificate_url,
+      imageUrl: result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null,
+      // Keep original fields for compatibility
+      ...result.data
     } : null;
 
     return {
@@ -117,15 +155,15 @@ export const updateCertificateImage = async (certificateId, imageFile) => {
 
     // Transform the response data to match frontend expectations
     const transformedData = result.data ? {
-      ...result.data,
       id: result.data.id,
-      certificateName: result.data.certificate_name || result.data.certificateName,
-      issuer: result.data.issuer,
-      issueDate: result.data.issue_date || result.data.issueDate,
-      expiryDate: result.data.expiry_date || result.data.expiryDate,
+      certificateName: result.data.title,
+      issuer: result.data.organization,
+      issueDate: result.data.achieved_at,
       description: result.data.description,
-      certificateUrl: result.data.certificate_url || result.data.certificateUrl,
-      imageUrl: result.data.image_url ? constructCertificateImageUrl(result.data.image_url) : null
+      certificateUrl: result.data.certificate_url,
+      imageUrl: result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null,
+      // Keep original fields for compatibility
+      ...result.data
     } : null;
 
     return {

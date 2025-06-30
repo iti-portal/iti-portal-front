@@ -1,7 +1,7 @@
 // src/features/student/components/profile/edit/SkillsManagement.jsx
 
 import React, { useState, useEffect } from 'react';
-import { addUserSkill, deleteUserSkill } from '../../../../../services/profileService';
+import { addUserSkill, deleteUserSkill } from '../../../../../services/skillsService';
 
 function SkillTag({ skill, onRemove }) {
   return (

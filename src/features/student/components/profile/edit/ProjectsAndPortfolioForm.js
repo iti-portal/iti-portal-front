@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../../../../../components/UI/Modal';
 import ProjectSection from './ProjectSection';
 import ProjectForm from './ProjectForm';
-import { addProject, updateProject, deleteProject } from '../../../../../services/profileService';
+import { addProject, updateProject, deleteProject } from '../../../../../services/projectsService';
 
 // Main component
 function ProjectsAndPortfolioForm({ projects = [], onUpdateProjects }) {
