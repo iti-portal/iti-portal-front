@@ -8,32 +8,51 @@ export {
   getUserProfile, 
   updateUserProfile, 
   updateProfilePicture, 
-  updateCoverPhoto,
-  // Education
+  updateCoverPhoto
+} from './profileService';
+
+// Education service exports
+export {
   addEducation, 
   updateEducation, 
-  deleteEducation,
-  // Work Experience
+  deleteEducation
+} from './educationService';
+
+// Work Experience service exports
+export {
   addWorkExperience,
   updateWorkExperience,
-  deleteWorkExperience,
-  // Skills
+  deleteWorkExperience
+} from './workExperienceService';
+
+// Skills service exports
+export {
   addUserSkill, 
-  deleteUserSkill,
-  // Certificates
+  deleteUserSkill
+} from './skillsService';
+
+// Certificates service exports
+export {
   addCertificate, 
   updateCertificate, 
   updateCertificateImage, 
-  deleteCertificate,
-  // Awards
+  deleteCertificate
+} from './certificatesService';
+
+// Awards service exports
+export {
   addAward, 
   updateAward, 
-  deleteAward,
-  // Projects
+  updateAwardImage,
+  deleteAward
+} from './awardsService';
+
+// Projects service exports
+export {
   addProject, 
   updateProject, 
   deleteProject 
-} from './profileService';
+} from './projectsService';
 
 // API config exports (for advanced usage)
 export { 

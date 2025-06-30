@@ -5,11 +5,11 @@ import { FaTrophy } from 'react-icons/fa';
 
 function AwardForm({ onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
-    name: initialData?.name || initialData?.title || '',
+    title: initialData?.title || initialData?.name || '',
     organization: initialData?.organization || initialData?.issuingBody || '',
-    dateIssued: initialData?.dateIssued || '',
+    achieved_at: initialData?.achieved_at || initialData?.dateIssued || '',
     description: initialData?.description || '',
-    url: initialData?.url || '',
+    certificate_url: initialData?.certificate_url || initialData?.url || '',
   });
 
   const [errors, setErrors] = useState({});
@@ -33,23 +33,23 @@ function AwardForm({ onSubmit, initialData = null }) {
   const validate = () => {
     const newErrors = {};
     
-    if (!formData.name.trim()) {
-      newErrors.name = 'Award name is required';
+    if (!formData.title.trim()) {
+      newErrors.title = 'Award title is required';
     }
     
     if (!formData.organization.trim()) {
       newErrors.organization = 'Organization is required';
     }
     
-    if (!formData.dateIssued) {
-      newErrors.dateIssued = 'Date awarded is required';
+    if (!formData.achieved_at) {
+      newErrors.achieved_at = 'Date awarded is required';
     }
 
     // Validate URL format if provided
-    if (formData.url && formData.url.trim()) {
+    if (formData.certificate_url && formData.certificate_url.trim()) {
       const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-      if (!urlPattern.test(formData.url.trim())) {
-        newErrors.url = 'Please enter a valid URL';
+      if (!urlPattern.test(formData.certificate_url.trim())) {
+        newErrors.certificate_url = 'Please enter a valid URL';
       }
     }
 
@@ -59,6 +59,7 @@ function AwardForm({ onSubmit, initialData = null }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling to parent form
     
     if (validate()) {
       onSubmit(formData);
@@ -75,23 +76,23 @@ function AwardForm({ onSubmit, initialData = null }) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Award Name */}
+        {/* Award Title */}
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-            Award Name *
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+            Award Title *
           </label>
           <input
             type="text"
-            id="name"
-            name="name"
-            value={formData.name}
+            id="title"
+            name="title"
+            value={formData.title}
             onChange={handleChange}
             className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 ${
-              errors.name ? 'border-red-500' : 'border-gray-300'
+              errors.title ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="e.g., Employee of the Year, Dean's List"
           />
-          {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+          {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
         </div>
 
         {/* Organization */}
@@ -115,20 +116,20 @@ function AwardForm({ onSubmit, initialData = null }) {
 
         {/* Date Awarded */}
         <div>
-          <label htmlFor="dateIssued" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="achieved_at" className="block text-sm font-medium text-gray-700 mb-1">
             Date Awarded *
           </label>
           <input
             type="date"
-            id="dateIssued"
-            name="dateIssued"
-            value={formData.dateIssued}
+            id="achieved_at"
+            name="achieved_at"
+            value={formData.achieved_at ? formData.achieved_at.split('T')[0] : ''}
             onChange={handleChange}
             className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 ${
-              errors.dateIssued ? 'border-red-500' : 'border-gray-300'
+              errors.achieved_at ? 'border-red-500' : 'border-gray-300'
             }`}
           />
-          {errors.dateIssued && <p className="mt-1 text-sm text-red-600">{errors.dateIssued}</p>}
+          {errors.achieved_at && <p className="mt-1 text-sm text-red-600">{errors.achieved_at}</p>}
         </div>
 
         {/* Description */}
@@ -149,21 +150,21 @@ function AwardForm({ onSubmit, initialData = null }) {
 
         {/* Award URL */}
         <div>
-          <label htmlFor="url" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="certificate_url" className="block text-sm font-medium text-gray-700 mb-1">
             Award URL (Optional)
           </label>
           <input
             type="url"
-            id="url"
-            name="url"
-            value={formData.url}
+            id="certificate_url"
+            name="certificate_url"
+            value={formData.certificate_url}
             onChange={handleChange}
             className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 ${
-              errors.url ? 'border-red-500' : 'border-gray-300'
+              errors.certificate_url ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="https://example.com/award"
           />
-          {errors.url && <p className="mt-1 text-sm text-red-600">{errors.url}</p>}
+          {errors.certificate_url && <p className="mt-1 text-sm text-red-600">{errors.certificate_url}</p>}
         </div>
 
         {/* Form Actions */}

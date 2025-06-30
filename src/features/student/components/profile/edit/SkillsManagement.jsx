@@ -1,6 +1,7 @@
 // src/features/student/components/profile/edit/SkillsManagement.jsx
 
 import React, { useState, useEffect } from 'react';
+import Alert from '../../../../../components/UI/Alert';
 import { addUserSkill, deleteUserSkill } from '../../../../../services/skillsService';
 
 function SkillTag({ skill, onRemove }) {
@@ -21,14 +22,35 @@ function SkillTag({ skill, onRemove }) {
   );
 }
 
-function SkillsManagement({ skills = [], onUpdateSkills }) {
+function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = true }) {
   const [currentSkills, setCurrentSkills] = useState(skills || []);
   const [newSkillInput, setNewSkillInput] = useState('');
+  
+  // Notification state
+  const [notification, setNotification] = useState({ 
+    show: false, 
+    type: 'info', 
+    message: '' 
+  });
 
   // Sync data from props to internal state
   useEffect(() => {
     setCurrentSkills(skills || []);
   }, [skills]);
+
+  // Helper function to show notifications
+  const showNotification = (message, type = 'success') => {
+    if (showNotifications) {
+      setNotification({ show: true, type, message });
+    } else {
+      // Fallback to alert for now if notifications are disabled
+      alert(message);
+    }
+  };
+
+  const hideNotification = () => {
+    setNotification({ show: false, type: 'info', message: '' });
+  };
 
   // Skills Handlers
   const handleAddSkill = async () => {
@@ -39,7 +61,7 @@ function SkillsManagement({ skills = [], onUpdateSkills }) {
 
     // Check if skill already exists (case-insensitive)
     if (currentSkills.some(s => s.name.toLowerCase() === trimmedInput.toLowerCase())) {
-      alert('This skill is already added to your profile.');
+      showNotification('This skill is already added to your profile.', 'warning');
       return;
     }
 
@@ -62,13 +84,13 @@ function SkillsManagement({ skills = [], onUpdateSkills }) {
         setNewSkillInput('');
         
         // Show success message
-        alert('Skill added successfully!');
+        showNotification('Skill added successfully!', 'success');
       } else {
         throw new Error('Failed to add skill');
       }
     } catch (error) {
       console.error('Error adding skill:', error);
-      alert(`Error adding skill: ${error.message}`);
+      showNotification(`Error adding skill: ${error.message}`, 'error');
     }
   };
 
@@ -91,18 +113,29 @@ function SkillsManagement({ skills = [], onUpdateSkills }) {
         onUpdateSkills(updatedSkills);
         
         // Show success message
-        alert('Skill removed successfully!');
+        showNotification('Skill removed successfully!', 'success');
       } else {
         throw new Error('Failed to remove skill');
       }
     } catch (error) {
       console.error('Error removing skill:', error);
-      alert(`Error removing skill: ${error.message}`);
+      showNotification(`Error removing skill: ${error.message}`, 'error');
     }
   };
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+    <>
+      {/* Notification - only show if notifications are enabled */}
+      {showNotifications && (
+        <Alert
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={hideNotification}
+        />
+      )}
+      
+      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">Manage Your Skills</h2>
       <p className="text-gray-600 text-sm mb-4">Add or remove technologies you're proficient in.</p>
       
@@ -138,6 +171,7 @@ function SkillsManagement({ skills = [], onUpdateSkills }) {
         </button>
       </div>
     </div>
+    </>
   );
 }
 

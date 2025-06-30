@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../components/Layout/Navbar';
+import Alert from '../../../components/UI/Alert';
 import { useProfile } from '../../../hooks/useProfile';
 import { updateUserProfile } from '../../../services/profileService';
 
@@ -31,6 +32,7 @@ function EditProfilePage() {
   const { profile, loading, error, refreshProfile } = useProfile();
   const [activeTab, setActiveTab] = useState('personal');
   const [profileData, setProfileData] = useState({});
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
   const tabs = [
     { id: 'personal', name: 'Personal Information' },
@@ -108,7 +110,9 @@ function EditProfilePage() {
       if (result.success) {
         // Refresh profile data to show updated information
         await refreshProfile();
-        alert('Profile updated successfully!');
+        setShowSuccessNotification(true);
+        // Hide notification after 3 seconds
+        setTimeout(() => setShowSuccessNotification(false), 3000);
         navigate('/student/profile');
       } else {
         throw new Error('Failed to update profile');
@@ -154,6 +158,15 @@ function EditProfilePage() {
   return (
     <>
       <Navbar />
+      
+      {/* Success Notification */}
+      <Alert
+        show={showSuccessNotification}
+        type="success"
+        message="Profile updated successfully! All changes have been saved."
+        onClose={() => setShowSuccessNotification(false)}
+      />
+      
       <motion.div 
         className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-8"
         variants={pageVariants}

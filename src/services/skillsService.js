@@ -14,7 +14,7 @@ import {
  */
 export const addUserSkill = async (skillName) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/skills/add`, {
+    const response = await fetch(`${API_BASE_URL}/user-skills/`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ skill_name: skillName })
@@ -31,7 +31,7 @@ export const addUserSkill = async (skillName) => {
  */
 export const deleteUserSkill = async (skillId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/skills/${skillId}`, {
+    const response = await fetch(`${API_BASE_URL}/user-skills/${skillId}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',

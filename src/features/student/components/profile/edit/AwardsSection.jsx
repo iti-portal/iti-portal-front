@@ -8,7 +8,8 @@ function AwardsSection({
   awards, 
   onAdd, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onImageUpdate
 }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg">
@@ -41,6 +42,7 @@ function AwardsSection({
                 award={award}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onImageUpdate={onImageUpdate}
               />
             ))}
           </div>

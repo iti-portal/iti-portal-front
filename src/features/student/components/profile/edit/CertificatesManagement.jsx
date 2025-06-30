@@ -2,21 +2,40 @@
 
 import React, { useState, useEffect } from 'react';
 import Modal from '../../../../../components/UI/Modal';
+import Alert from '../../../../../components/UI/Alert';
 import CertificateSection from './CertificateSection.jsx';
 import CertificateForm from './CertificateForm.jsx';
 import { addCertificate, updateCertificate, deleteCertificate, updateCertificateImage } from '../../../../../services/certificatesService';
 
-function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
+function CertificatesManagement({ certificates = [], onUpdateCertificates, showNotifications = true }) {
   const [currentCertificates, setCurrentCertificates] = useState(certificates || []);
   
   // Modal state
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [editingCertificate, setEditingCertificate] = useState(null);
+  
+  // Notification state
+  const [notification, setNotification] = useState({ 
+    show: false, 
+    type: 'info', 
+    message: '' 
+  });
 
   // Sync data from props to internal state
   useEffect(() => {
     setCurrentCertificates(certificates || []);
   }, [certificates]);
+
+  // Helper function to show notifications
+  const showNotification = (message, type = 'success') => {
+    if (showNotifications) {
+      setNotification({ show: true, type, message });
+    }
+  };
+
+  const hideNotification = () => {
+    setNotification({ show: false, type: 'info', message: '' });
+  };
 
   // Certificate Modal Handlers
   const handleAddCertificate = () => {
@@ -56,7 +75,7 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
           );
           setCurrentCertificates(updatedCerts);
           onUpdateCertificates(updatedCerts);
-          alert('Certificate updated successfully!');
+          showNotification('Certificate updated successfully!', 'success');
         }
       } else {
         // Add new certificate
@@ -79,7 +98,7 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
           const updatedCerts = [...currentCertificates, mappedData];
           setCurrentCertificates(updatedCerts);
           onUpdateCertificates(updatedCerts);
-          alert('Certificate added successfully!');
+          showNotification('Certificate added successfully!', 'success');
         }
       }
       
@@ -89,7 +108,7 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
       
     } catch (error) {
       console.error('Error saving certificate:', error);
-      alert(`Error saving certificate: ${error.message}`);
+      showNotification(`Error saving certificate: ${error.message}`, 'error');
     }
   };
 
@@ -108,11 +127,11 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
         const updatedCerts = currentCertificates.filter(cert => cert.id !== idToDelete);
         setCurrentCertificates(updatedCerts);
         onUpdateCertificates(updatedCerts);
-        alert('Certificate deleted successfully!');
+        showNotification('Certificate deleted successfully!', 'success');
       }
     } catch (error) {
       console.error('Error deleting certificate:', error);
-      alert(`Error deleting certificate: ${error.message}`);
+      showNotification(`Error deleting certificate: ${error.message}`, 'error');
     }
   };
 
@@ -139,16 +158,26 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates }) {
         
         setCurrentCertificates(updatedCerts);
         onUpdateCertificates(updatedCerts);
-        alert('Certificate image updated successfully!');
+        showNotification('Certificate image updated successfully!', 'success');
       }
     } catch (error) {
       console.error('Error updating certificate image:', error);
-      alert(`Error updating certificate image: ${error.message}`);
+      showNotification(`Error updating certificate image: ${error.message}`, 'error');
     }
   };
 
   return (
     <>
+      {/* Notification - only show if notifications are enabled */}
+      {showNotifications && (
+        <Alert
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={hideNotification}
+        />
+      )}
+      
       {/* Certificates Section */}
       <CertificateSection
         certificates={currentCertificates}
