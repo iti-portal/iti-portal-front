@@ -4,20 +4,16 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '../../../../../components/UI/Modal';
 import EducationForm from './EducationForm';
-import ExperienceForm from './ExperienceForm';
 import EducationSection from './EducationSection';
-import ExperienceSection from './ExperienceSection';
+import ExperienceManagement from './ExperienceManagement';
 import TabNavigation from './TabNavigation';
 import { generateUniqueId } from '../../../utils/idGenerator';
 import { addEducation, updateEducation, deleteEducation } from '../../../../../services/educationService';
-import { addWorkExperience, updateWorkExperience, deleteWorkExperience } from '../../../../../services/workExperienceService';
 
 function EducationAndExperienceForm({ educations = [], workExperiences = [], onUpdateEducations, onUpdateWorkExperiences }) {
   const [activeTab, setActiveTab] = useState('education');
   const [isEducationModalOpen, setIsEducationModalOpen] = useState(false);
-  const [isExperienceModalOpen, setIsExperienceModalOpen] = useState(false);
   const [editingEducation, setEditingEducation] = useState(null);
-  const [editingExperience, setEditingExperience] = useState(null);
   
   // Education handlers
   const openAddEducationModal = () => {
@@ -146,77 +142,6 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
     }
   };
   
-  // Experience handlers
-  const openAddExperienceModal = () => {
-    setEditingExperience(null);
-    setIsExperienceModalOpen(true);
-  };
-  
-  const openEditExperienceModal = (experience) => {
-    setEditingExperience(experience);
-    setIsExperienceModalOpen(true);
-  };
-  
-  const handleAddExperience = async (experienceData) => {
-    try {
-      const result = await addWorkExperience(experienceData);
-      if (result?.success) {
-        const newExperience = {
-          id: result.data?.id || generateUniqueId(),
-          ...experienceData
-        };
-        
-        // Add to the beginning of the array (top of the list)
-        onUpdateWorkExperiences([newExperience, ...workExperiences]);
-        setIsExperienceModalOpen(false);
-      } else {
-        console.error('Failed to add work experience:', result?.message);
-      }
-    } catch (error) {
-      console.error('Error adding work experience:', error);
-    }
-  };
-  
-  const handleUpdateExperience = async (experienceData) => {
-    if (!editingExperience) return;
-    
-    try {
-      const result = await updateWorkExperience(editingExperience.id, experienceData);
-      if (result?.success) {
-        const updatedExperience = {
-          ...editingExperience,
-          ...experienceData
-        };
-        
-        const updatedExperiences = workExperiences.map(exp => 
-          exp.id === editingExperience.id ? updatedExperience : exp
-        );
-        
-        onUpdateWorkExperiences(updatedExperiences);
-        setIsExperienceModalOpen(false);
-        setEditingExperience(null);
-      } else {
-        console.error('Failed to update work experience:', result?.message);
-      }
-    } catch (error) {
-      console.error('Error updating work experience:', error);
-    }
-  };
-  
-    const handleDeleteExperience = async (id) => {
-    try {
-      const result = await deleteWorkExperience(id);
-      if (result?.success) {
-        const updatedExperiences = workExperiences.filter(exp => exp.id !== id);
-        onUpdateWorkExperiences(updatedExperiences);
-      } else {
-        console.error('Failed to delete work experience:', result?.message);
-      }
-    } catch (error) {
-      console.error('Error deleting work experience:', error);
-    }
-  };
-  
   return (
     <div className="space-y-6">
       <TabNavigation 
@@ -240,15 +165,16 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
               onDelete={handleDeleteEducation}
             />
           ) : (
-            <ExperienceSection
+            <ExperienceManagement
               workExperiences={workExperiences}
-              onAdd={openAddExperienceModal}
-              onEdit={openEditExperienceModal}
-              onDelete={handleDeleteExperience}
+              onUpdateExperiences={onUpdateWorkExperiences}
+              showNotifications={true}
             />
           )}
         </motion.div>
-      </AnimatePresence>      {/* Education Modal */}
+      </AnimatePresence>
+
+      {/* Education Modal */}
       <Modal
         isOpen={isEducationModalOpen}
         onClose={() => {
@@ -260,22 +186,6 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
           key={editingEducation ? `edit-${editingEducation.id}-${Date.now()}` : 'add-education'}
           initialData={editingEducation}
           onSubmit={editingEducation ? handleUpdateEducation : handleAddEducation}
-        />
-      </Modal>
-
-      {/* Experience Modal */}
-      <Modal
-        isOpen={isExperienceModalOpen}
-        onClose={() => {
-          setIsExperienceModalOpen(false);
-          setEditingExperience(null);
-        }}
-        title={editingExperience ? "Edit Experience" : "Add Experience"}
-      >
-        <ExperienceForm
-          key={editingExperience ? `edit-${editingExperience.id}` : 'add-experience'}
-          initialData={editingExperience}
-          onSubmit={editingExperience ? handleUpdateExperience : handleAddExperience}
         />
       </Modal>
     </div>
