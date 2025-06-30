@@ -36,12 +36,7 @@ function ProjectSection({
         ) : (
           <div className="space-y-4">
             {projects.map((project) => (
-              <ProjectItem
-                key={project.id}
-                project={project}
-                onEdit={onEdit}
-                onDelete={onDelete}
-              />
+              <ProjectItem key={project.id} project={project} onEdit={onEdit} onDelete={onDelete} />
             ))}
           </div>
         )}

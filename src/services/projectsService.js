@@ -12,12 +12,17 @@ import {
 /**
  * Add a new project
  */
-export const addProject = async (projectData) => {
+export const addProject = async (formData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/projects`, {
+    const response = await fetch(`${API_BASE_URL}/projects/new-project`, {
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(projectData)
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'X-Requested-With': 'XMLHttpRequest'
+        // DO NOT set 'Content-Type' here!
+      },
+      body: formData
     });
 
     return await handleApiResponse(response);

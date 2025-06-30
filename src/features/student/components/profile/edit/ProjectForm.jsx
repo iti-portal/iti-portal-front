@@ -1,337 +1,403 @@
 // src/features/student/components/profile/edit/ProjectForm.jsx
 
 import React, { useState } from 'react';
-import { FaCode, FaGithub, FaLink, FaUpload } from 'react-icons/fa';
+import { FaCode, FaUpload, FaTrash } from 'react-icons/fa';
 
 function ProjectForm({ onSubmit, initialData = null }) {
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      return '';
+    }
+  };
+
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
-    type: initialData?.type || '',
+    technologiesUsed: initialData?.technologiesUsed || initialData?.technologies_used || '',
     description: initialData?.description || '',
-    technologiesUsed: initialData?.technologiesUsed || '',
-    projectUrl: initialData?.projectUrl || '',
-    githubUrl: initialData?.githubUrl || '',
-    images: initialData?.images || [],
+    projectUrl: initialData?.projectUrl || initialData?.project_url || '',
+    githubUrl: initialData?.githubUrl || initialData?.github_url || '',
+    startDate: formatDateForInput(initialData?.startDate || initialData?.start_date),
+    endDate: formatDateForInput(initialData?.endDate || initialData?.end_date),
+    isFeatured: initialData?.isFeatured || initialData?.is_featured || false,
+    images: []
   });
 
   const [errors, setErrors] = useState({});
-  const [previewImage, setPreviewImage] = useState(
-    initialData?.images && initialData.images.length > 0 
-      ? initialData.images[0].imagePath 
-      : null
-  );
+
+  // Debug logging
+  console.log('ProjectForm render - Current images count:', formData.images.length);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ 
-      ...formData, 
-      [name]: value 
-    });
-    
-    // Clear error for this field when it's being edited
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: ''
-      });
-    }
-  };
-
-  const handleTechnologiesChange = (e) => {
-    const { value } = e.target;
-    setFormData({ 
-      ...formData, 
-      technologiesUsed: value 
-    });
-    
-    if (errors.technologiesUsed) {
-      setErrors({
-        ...errors,
-        technologiesUsed: ''
-      });
-    }
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+    setFormData(prev => ({
+      ...prev,
+      [name]: newValue
+    }));
+    console.log('handleChange:', name, newValue);
   };
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+    const files = Array.from(e.target.files);
+    console.log('Files selected:', files.length, files);
+    
+    if (files.length === 0) return;
+
+    const newImages = [];
+    let hasError = false;
+
+    files.forEach((file, index) => {
+      console.log(`Processing file ${index + 1}:`, file.name, file.size, file.type);
+      
       // Check file size (2MB limit)
       if (file.size > 2 * 1024 * 1024) {
-        setErrors({
-          ...errors,
-          image: 'Image size must be less than 2MB'
-        });
+        console.log('File too large:', file.name);
+        setErrors(prev => ({
+          ...prev,
+          images: 'Each image must be less than 2MB'
+        }));
+        hasError = true;
         return;
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewImage(reader.result);
-        setFormData({
-          ...formData,
-          images: [{ 
-            imagePath: reader.result, 
-            altText: formData.title || 'Project Image' 
-          }]
-        });
-        
-        // Clear image error
-        if (errors.image) {
-          setErrors({
-            ...errors,
-            image: ''
-          });
-        }
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        console.log('Invalid file type:', file.type);
+        setErrors(prev => ({
+          ...prev,
+          images: 'Only image files are allowed'
+        }));
+        hasError = true;
+        return;
+      }
+
+      // Create preview URL
+      const preview = URL.createObjectURL(file);
+      
+      const newImage = {
+        file: file,
+        altText: `${formData.title || 'Project'} image ${formData.images.length + index + 1}`,
+        order: formData.images.length + index + 1,
+        preview: preview,
+        id: Date.now() + index // Unique ID for React key
       };
-      reader.readAsDataURL(file);
+      
+      console.log('Created image object:', newImage);
+      newImages.push(newImage);
+    });
+
+    console.log('New images to add:', newImages.length);
+    console.log('Current images before update:', formData.images.length);
+
+    if (!hasError) {
+      // Add new images to existing ones
+      setFormData(prev => {
+        const updatedImages = [...prev.images, ...newImages];
+        console.log('Updated images array:', updatedImages.length, updatedImages);
+        return {
+          ...prev,
+          images: updatedImages
+        };
+      });
+
+      // Clear any previous errors
+      if (errors.images) {
+        setErrors(prev => ({ ...prev, images: '' }));
+      }
     }
+
+    // Reset the file input so the same file can be selected again
+    e.target.value = '';
   };
 
-  const handleRemoveImage = () => {
-    setPreviewImage(null);
-    setFormData({
-      ...formData,
-      images: []
+  const handleImageAltChange = (imageId, altText) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.map(img => 
+        img.id === imageId ? { ...img, altText } : img
+      )
+    }));
+  };
+
+  const handleRemoveImage = (imageId) => {
+    setFormData(prev => {
+      // Clean up preview URL to prevent memory leaks
+      const imageToRemove = prev.images.find(img => img.id === imageId);
+      if (imageToRemove && imageToRemove.preview) {
+        URL.revokeObjectURL(imageToRemove.preview);
+      }
+      
+      return {
+        ...prev,
+        images: prev.images.filter(img => img.id !== imageId)
+      };
     });
   };
 
   const validate = () => {
     const newErrors = {};
     
-    if (!formData.title.trim()) {
-      newErrors.title = 'Project title is required';
-    }
+    if (!formData.title.trim()) newErrors.title = 'Project title is required';
+    if (!formData.description.trim()) newErrors.description = 'Description is required';
+    if (!formData.technologiesUsed.trim()) newErrors.technologiesUsed = 'Technologies are required';
     
-    if (!formData.description.trim()) {
-      newErrors.description = 'Project description is required';
-    }
-
-    if (!formData.technologiesUsed.trim()) {
-      newErrors.technologiesUsed = 'Technologies used is required';
-    }    // Validate URLs if provided
     const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-    
-    if (formData.projectUrl && formData.projectUrl.trim() && !urlPattern.test(formData.projectUrl.trim())) {
-      newErrors.projectUrl = 'Please enter a valid project URL';
+    if (formData.projectUrl && !urlPattern.test(formData.projectUrl)) {
+      newErrors.projectUrl = 'Invalid project URL';
     }
-
-    if (formData.githubUrl && formData.githubUrl.trim() && !urlPattern.test(formData.githubUrl.trim())) {
-      newErrors.githubUrl = 'Please enter a valid GitHub URL';
+    if (formData.githubUrl && !urlPattern.test(formData.githubUrl)) {
+      newErrors.githubUrl = 'Invalid GitHub URL';
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const isEditMode = !!initialData;
+
   const handleSubmit = (e) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    if (validate()) {
-      onSubmit(formData);
+    e.preventDefault();
+    e.stopPropagation();
+    if (!validate()) return;
+
+    if (isEditMode) {
+      // Send plain object for edit (no images)
+      const data = {
+        title: formData.title,
+        technologies_used: formData.technologiesUsed,
+        description: formData.description,
+        project_url: formData.projectUrl,
+        github_url: formData.githubUrl,
+        start_date: formData.startDate,
+        end_date: !formData.isFeatured && formData.endDate ? formData.endDate : null,
+        is_featured: formData.isFeatured ? 1 : 0
+      };
+      onSubmit(data);
+    } else {
+      // Add mode: use FormData for file upload
+      const data = new FormData();
+      data.append('title', formData.title);
+      data.append('technologies_used', formData.technologiesUsed);
+      data.append('description', formData.description);
+      data.append('project_url', formData.projectUrl);
+      data.append('github_url', formData.githubUrl);
+      data.append('start_date', formData.startDate);
+      if (!formData.isFeatured && formData.endDate) {
+        data.append('end_date', formData.endDate);
+      }
+      data.append('is_featured', formData.isFeatured ? 1 : 0);
+      formData.images.forEach((img, idx) => {
+        if (img.file) {
+          data.append(`images[${idx}]`, img.file);
+          data.append(`alt_texts[${idx}]`, img.altText || '');
+          data.append(`orders[${idx}]`, img.order || idx + 1);
+        }
+      });
+      onSubmit(data);
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Project Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-            Project Title *
-          </label>
-          <input
-            id="title"
-            name="title"
-            type="text"
-            value={formData.title}
-            onChange={handleChange}
-            className={`block w-full px-3 py-2 border ${
-              errors.title ? 'border-red-300 bg-red-50' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
-            placeholder="e.g., ITI Portal Dashboard"
-          />
-          {errors.title && (
-            <p className="mt-1 text-sm text-red-600">{errors.title}</p>
-          )}
-        </div>
+  // Clean up preview URLs when component unmounts
+  React.useEffect(() => {
+    return () => {
+      formData.images.forEach(image => {
+        if (image.preview) {
+          URL.revokeObjectURL(image.preview);
+        }
+      });
+    };
+  }, [formData.images]);
 
-        {/* Project Type/Category */}
-        <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-            Category <span className="text-sm text-gray-500">(optional)</span>
-          </label>
-          <input
-            id="type"
-            name="type"
-            type="text"
-            value={formData.type}
-            onChange={handleChange}
-            className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm"
-            placeholder="e.g., Full Stack Web Application"
-          />
-        </div>
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Title */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Project Title *</label>
+        <input
+          name="title"
+          type="text"
+          value={formData.title}
+          onChange={handleChange}
+          required
+          className={`w-full px-3 py-2 border rounded-md ${errors.title ? 'border-red-300' : 'border-gray-300'}`}
+          placeholder="E-commerce Shopping Platform"
+        />
+        {errors.title && <p className="text-sm text-red-600 mt-1">{errors.title}</p>}
+      </div>
+
+      {/* Technologies */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Technologies Used *</label>
+        <input
+          name="technologiesUsed"
+          type="text"
+          value={formData.technologiesUsed}
+          onChange={handleChange}
+          className={`w-full px-3 py-2 border rounded-md ${errors.technologiesUsed ? 'border-red-300' : 'border-gray-300'}`}
+          placeholder="Laravel, Vue.js, MySQL, Stripe API, Redis"
+        />
+        {errors.technologiesUsed && <p className="text-sm text-red-600 mt-1">{errors.technologiesUsed}</p>}
       </div>
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Project Description *
-        </label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Description *</label>
         <textarea
-          id="description"
           name="description"
-          rows="4"
+          rows="3"
           value={formData.description}
           onChange={handleChange}
-          className={`block w-full px-3 py-2 border ${
-            errors.description ? 'border-red-300 bg-red-50' : 'border-gray-300'
-          } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm resize-y`}
-          placeholder="A brief overview of the project, your role, and key features."
+          className={`w-full px-3 py-2 border rounded-md ${errors.description ? 'border-red-300' : 'border-gray-300'}`}
+          placeholder="Describe your project features and achievements"
         />
-        {errors.description && (
-          <p className="mt-1 text-sm text-red-600">{errors.description}</p>
-        )}
+        {errors.description && <p className="text-sm text-red-600 mt-1">{errors.description}</p>}
       </div>
 
-      {/* Technologies Used */}
-      <div>
-        <label htmlFor="technologiesUsed" className="block text-sm font-medium text-gray-700 mb-1">
-          Technologies Used *
-        </label>
-        <input
-          id="technologiesUsed"
-          name="technologiesUsed"
-          type="text"
-          value={formData.technologiesUsed}
-          onChange={handleTechnologiesChange}
-          className={`block w-full px-3 py-2 border ${
-            errors.technologiesUsed ? 'border-red-300 bg-red-50' : 'border-gray-300'
-          } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
-          placeholder="e.g., React.js, Node.js, Tailwind CSS"
-        />
-        {errors.technologiesUsed && (
-          <p className="mt-1 text-sm text-red-600">{errors.technologiesUsed}</p>
-        )}
-        <p className="mt-1 text-xs text-gray-500">
-          Separate technologies with commas
-        </p>
-      </div>
-
+      {/* URLs */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Project URL */}
         <div>
-          <label htmlFor="projectUrl" className="block text-sm font-medium text-gray-700 mb-1">
-            <FaLink className="inline-block mr-1 text-gray-500" />
-            Project URL <span className="text-sm text-gray-500">(Live Demo)</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Project URL</label>
           <input
-            id="projectUrl"
             name="projectUrl"
             type="url"
             value={formData.projectUrl}
             onChange={handleChange}
-            className={`block w-full px-3 py-2 border ${
-              errors.projectUrl ? 'border-red-300 bg-red-50' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
-            placeholder="https://your-project-demo.com"
+            className={`w-full px-3 py-2 border rounded-md ${errors.projectUrl ? 'border-red-300' : 'border-gray-300'}`}
+            placeholder="https://myproject.com"
           />
-          {errors.projectUrl && (
-            <p className="mt-1 text-sm text-red-600">{errors.projectUrl}</p>
-          )}
+          {errors.projectUrl && <p className="text-sm text-red-600 mt-1">{errors.projectUrl}</p>}
         </div>
-
-        {/* GitHub URL */}
         <div>
-          <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700 mb-1">
-            <FaGithub className="inline-block mr-1 text-gray-500" />
-            GitHub URL <span className="text-sm text-gray-500">(optional)</span>
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">GitHub URL</label>
           <input
-            id="githubUrl"
             name="githubUrl"
             type="url"
             value={formData.githubUrl}
             onChange={handleChange}
-            className={`block w-full px-3 py-2 border ${
-              errors.githubUrl ? 'border-red-300 bg-red-50' : 'border-gray-300'
-            } rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm`}
-            placeholder="https://github.com/your-username/your-repo"
+            className={`w-full px-3 py-2 border rounded-md ${errors.githubUrl ? 'border-red-300' : 'border-gray-300'}`}
+            placeholder="https://github.com/username/project"
           />
-          {errors.githubUrl && (
-            <p className="mt-1 text-sm text-red-600">{errors.githubUrl}</p>
+          {errors.githubUrl && <p className="text-sm text-red-600 mt-1">{errors.githubUrl}</p>}
+        </div>
+      </div>
+
+      {/* Dates */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+          <input
+            name="startDate"
+            type="date"
+            value={formData.startDate}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+          <input
+            name="endDate"
+            type="date"
+            value={formData.endDate}
+            onChange={handleChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+          />
+        </div>
+      </div>
+
+      {/* Featured */}
+      <div className="flex items-center">
+        <input
+          name="isFeatured"
+          type="checkbox"
+          checked={formData.isFeatured}
+          onChange={handleChange}
+          className="h-4 w-4 text-iti-primary border-gray-300 rounded"
+        />
+        <label className="ml-2 text-sm text-gray-700">Featured Project</label>
+      </div>
+
+      {/* Images - only show in add mode */}
+      {!isEditMode && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Project Images ({formData.images.length} selected)
+          </label>
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+            id="imageUpload"
+          />
+          <label
+            htmlFor="imageUpload"
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+          >
+            <FaUpload className="mr-2" />
+            {formData.images.length > 0 ? 'Add More Images' : 'Add Images'}
+          </label>
+          {errors.images && <p className="text-sm text-red-600 mt-1">{errors.images}</p>}
+          {/* Image Previews */}
+          {formData.images.length > 0 && (
+            <div className="mt-4">
+              <p className="text-sm text-gray-600 mb-2">
+                You can add multiple images. Each image should be less than 2MB.
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {formData.images.map((image, index) => (
+                  <div key={image.id} className="relative group">
+                    <img
+                      src={image.preview}
+                      alt={image.altText}
+                      className="w-full h-24 object-cover rounded-md border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(image.id)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      title="Remove image"
+                    >
+                      <FaTrash className="h-3 w-3" />
+                    </button>
+                    <div className="absolute bottom-1 left-1 right-1">
+                      <input
+                        type="text"
+                        value={image.altText}
+                        onChange={(e) => handleImageAltChange(image.id, e.target.value)}
+                        placeholder="Alt text"
+                        className="w-full px-1 py-1 text-xs border rounded bg-white/90 text-gray-700"
+                      />
+                    </div>
+                    <div className="absolute top-1 left-1 bg-black/50 text-white text-xs px-1 rounded">
+                      {index + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* Project Image Upload */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Project Image <span className="text-sm text-gray-500">(optional)</span>
-        </label>
-        <div className="flex items-center space-x-4">
-          <div className="flex-shrink-0">
-            {previewImage ? (
-              <div className="relative">
-                <img 
-                  src={previewImage} 
-                  alt={formData.title || "Project Preview"} 
-                  className="h-24 w-24 object-cover rounded-md border border-gray-200" 
-                />
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="absolute -top-2 -right-2 bg-iti-primary text-white rounded-full p-1 text-xs hover:bg-iti-primary-dark transition-colors duration-200"
-                  title="Remove image"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <div className="h-24 w-24 flex items-center justify-center bg-gray-100 rounded-md border border-gray-300 text-gray-400">
-                <FaUpload className="h-8 w-8" />
-              </div>
-            )}
-          </div>
-          <div>
-            <label 
-              htmlFor="projectImage" 
-              className="cursor-pointer bg-iti-secondary text-iti-primary py-2 px-3 rounded-md text-sm font-medium hover:bg-gray-100 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus:ring-iti-primary transition-colors duration-200"
-            >
-              <span>Upload Image</span>
-              <input
-                id="projectImage"
-                name="projectImage"
-                type="file"
-                className="sr-only"
-                accept="image/*"
-                onChange={handleImageUpload}
-              />
-            </label>
-            <p className="mt-1 text-xs text-gray-500">
-              JPG, PNG, GIF up to 2MB
-            </p>
-            {errors.image && (
-              <p className="mt-1 text-sm text-red-600">{errors.image}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
+      {/* Submit */}
       <div className="flex justify-end pt-4">
         <button
-          type="button"
-          onClick={handleSubmit}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-iti-primary hover:bg-iti-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-iti-primary transition-colors duration-200"
+          type="submit"
+          className="inline-flex items-center px-4 py-2 bg-iti-primary text-white rounded-md hover:bg-iti-primary-dark transition-colors"
         >
-          <FaCode className="mr-2 -ml-1 h-4 w-4" />
+          <FaCode className="mr-2" />
           {initialData ? 'Update Project' : 'Add Project'}
         </button>
       </div>
-    </div>
+    </form>
   );
 }
 

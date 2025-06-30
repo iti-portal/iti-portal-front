@@ -54,7 +54,7 @@ export const getUserProfile = async () => {
  */
 export const updateUserProfile = async (profileData) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/profile`, {
+    const response = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(profileData)
