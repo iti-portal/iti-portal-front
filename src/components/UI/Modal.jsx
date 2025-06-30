@@ -52,12 +52,14 @@ function Modal({ isOpen, onClose, title, children, className = '' }) {  // Lock 
             right: 0,
             bottom: 0,
             width: '100vw',
-            height: '100vh'
+            height: '100vh',
+            zIndex: 99999
           }}
           onClick={handleBackdropClick}
         >
           <div
             className={`modal-content bg-white rounded-xl shadow-xl w-full overflow-hidden ${className}`}
+            style={{ zIndex: 100000 }}
           >
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <h2 className="text-xl font-bold text-gray-800">{title}</h2>

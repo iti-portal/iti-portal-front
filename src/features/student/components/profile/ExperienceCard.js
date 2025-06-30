@@ -15,7 +15,7 @@ function ExperienceCard({ data }) {
     <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200">
       <h3 className="text-lg font-semibold text-gray-800">{data.position}</h3>
       <p className="text-md text-gray-600 flex items-center mt-1">
-        <FaBuilding className="mr-2 text-gray-500" /> {data.companyName} - {data.location}
+        <FaBuilding className="mr-2 text-gray-500" /> {data.companyName}
       </p>
       <p className="text-sm text-gray-500 flex items-center mt-1">
         <FaCalendarAlt className="mr-2 text-gray-500" /> {formatDate(data.startDate)} - {endDateText}

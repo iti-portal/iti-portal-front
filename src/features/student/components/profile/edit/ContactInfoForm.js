@@ -60,23 +60,7 @@ function ContactInfoForm({ data = {}, onUpdateAll }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
           {/* Primary Contact Details */}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                <FaEnvelope className="mr-2 text-[#901b20]" /> Email Address*
-              </label>
-              <input
-                type="email" 
-                name="email" 
-                id="email" 
-                required
-                value={contactInfo.email || ''} 
-                onChange={handleChange}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
-                placeholder="your.email@example.com"
-              />
-            </div>
-            
+          <div className="space-y-4">            
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
                 <FaPhone className="mr-2 text-[#901b20]" /> Phone Number
@@ -104,6 +88,20 @@ function ContactInfoForm({ data = {}, onUpdateAll }) {
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="+20 10 1234 5678"
+              />
+            </div>
+            <div>
+              <label htmlFor="portfolioUrl" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                <FaGlobe className="mr-2 text-purple-600" /> Portfolio Website
+              </label>
+              <input
+                type="url" 
+                name="portfolioUrl" 
+                id="portfolioUrl" 
+                value={contactInfo.portfolioUrl || ''} 
+                onChange={handleChange}
+                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+                placeholder="https://yourportfolio.com"
               />
             </div>
           </div>
@@ -137,21 +135,6 @@ function ContactInfoForm({ data = {}, onUpdateAll }) {
                 onChange={handleChange}
                 className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
                 placeholder="https://github.com/yourusername"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="portfolioUrl" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
-                <FaGlobe className="mr-2 text-purple-600" /> Portfolio Website
-              </label>
-              <input
-                type="url" 
-                name="portfolioUrl" 
-                id="portfolioUrl" 
-                value={contactInfo.portfolioUrl || ''} 
-                onChange={handleChange}
-                className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
-                placeholder="https://yourportfolio.com"
               />
             </div>
           </div>

@@ -329,7 +329,7 @@ function ProfilePage() {
             onClick={() => setNotification(null)}
             className="ml-4 text-white hover:text-gray-200"
           >
-            ×
+            
           </button>
         </div>
       </div>

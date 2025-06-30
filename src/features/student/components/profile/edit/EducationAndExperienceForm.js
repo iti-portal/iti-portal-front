@@ -25,6 +25,7 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
   };
   
   const openEditEducationModal = (education) => {
+    console.log('Opening edit modal with education:', education);
     setEditingEducation(education);
     setIsEducationModalOpen(true);
   };
@@ -49,9 +50,9 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
           id: result.data.id,
           institution: result.data.institution,
           degree: result.data.degree,
-          fieldOfStudy: result.data.field_of_study,
-          startDate: result.data.start_date,
-          endDate: result.data.end_date,
+          fieldOfStudy: result.data.field_of_study, // Map from backend snake_case
+          startDate: result.data.start_date, // Map from backend snake_case
+          endDate: result.data.end_date, // Map from backend snake_case
           description: result.data.description
         };
         
@@ -92,9 +93,9 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
           id: result.data.id,
           institution: result.data.institution,
           degree: result.data.degree,
-          fieldOfStudy: result.data.field_of_study,
-          startDate: result.data.start_date,
-          endDate: result.data.end_date,
+          fieldOfStudy: result.data.field_of_study, // Map from backend snake_case
+          startDate: result.data.start_date, // Map from backend snake_case
+          endDate: result.data.end_date, // Map from backend snake_case
           description: result.data.description
         };
         
@@ -223,13 +224,13 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
       <Modal
         isOpen={isEducationModalOpen}
         onClose={() => {
+          console.log('Closing education modal');
           setIsEducationModalOpen(false);
-          setEditingEducation(null);
         }}
         title={editingEducation ? "Edit Education" : "Add Education"}
       >
         <EducationForm
-          key={editingEducation ? `edit-${editingEducation.id}` : 'add-education'}
+          key={editingEducation ? `edit-${editingEducation.id}-${Date.now()}` : 'add-education'}
           initialData={editingEducation}
           onSubmit={editingEducation ? handleUpdateEducation : handleAddEducation}
         />

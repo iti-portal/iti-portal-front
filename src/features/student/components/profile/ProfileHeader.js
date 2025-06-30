@@ -216,8 +216,8 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               transition={{ duration: 0.5, delay: 0.5 }}
             >
               <BsFillCalendarFill className="mr-1 text-gray-500 text-sm" /> 
-              ITI Intake&nbsp;<span className="font-bold">{data?.profile?.intake || 'N/A'}</span> |&nbsp;
-              <span className="font-bold">{data?.profile?.program?.toUpperCase() || ''}&nbsp;</span>|
+              ITI Intake&nbsp;<span className="font-bold">{data?.profile?.intake || 'N/A'}</span>&nbsp;|&nbsp; 
+              <span className="font-bold">{data?.profile?.program?.toUpperCase() || ''}&nbsp;</span>|&nbsp;
               <span className="font-bold">{data?.profile?.student_status?.charAt(0)?.toUpperCase() + data?.profile?.student_status?.slice(1) || 'Student'}</span>
             </motion.p>
           </div>

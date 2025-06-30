@@ -2,6 +2,48 @@ import { useState, useEffect, useCallback } from 'react';
 import { getUserProfile, updateProfilePicture, updateCoverPhoto } from '../services/profileService';
 
 /**
+ * Transform backend data to frontend format
+ */
+const transformProfileData = (data) => {
+  if (!data) return null;
+
+  const transformedData = { ...data };
+
+  // Transform educations
+  if (transformedData.user?.educations) {
+    transformedData.user.educations = transformedData.user.educations.map(edu => ({
+      ...edu,
+      fieldOfStudy: edu.field_of_study,
+      startDate: edu.start_date,
+      endDate: edu.end_date
+    }));
+  }
+
+  // Transform work experiences
+  if (transformedData.user?.work_experiences) {
+    transformedData.user.work_experiences = transformedData.user.work_experiences.map(exp => ({
+      ...exp,
+      companyName: exp.company_name,
+      startDate: exp.start_date,
+      endDate: exp.end_date,
+      isCurrent: exp.is_current
+    }));
+  }
+
+  // Transform certificates
+  if (transformedData.user?.certificates) {
+    transformedData.user.certificates = transformedData.user.certificates.map(cert => ({
+      ...cert,
+      achievedAt: cert.achieved_at,
+      certificateUrl: cert.certificate_url,
+      imagePath: cert.image_path
+    }));
+  }
+
+  return transformedData;
+};
+
+/**
  * Custom hook for managing user profile data
  */
 export const useProfile = () => {
@@ -20,7 +62,7 @@ export const useProfile = () => {
       const result = await getUserProfile();
       
       if (result.success) {
-        setProfile(result.data);
+        setProfile(transformProfileData(result.data));
       } else {
         setError('Failed to fetch profile data');
       }

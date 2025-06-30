@@ -36,16 +36,20 @@ function SkillItem({ skill }) {
         ease: "easeOut"
       }}
     >
-      <span className="mr-2 text-xs">{proficiencyIcons[skill.proficiency] || '📋'}</span>
+      {skill.proficiency && (
+        <span className="mr-2 text-xs">{proficiencyIcons[skill.proficiency] || '📋'}</span>
+      )}
       {skill.name}
-      <motion.span 
-        className="ml-2 text-xs opacity-70 font-medium"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.7 }}
-        transition={{ delay: 0.2 }}
-      >
-        {skill.proficiency}
-      </motion.span>
+      {skill.proficiency && (
+        <motion.span 
+          className="ml-2 text-xs opacity-70 font-medium"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ delay: 0.2 }}
+        >
+          {skill.proficiency}
+        </motion.span>
+      )}
     </motion.span>
   );
 }
