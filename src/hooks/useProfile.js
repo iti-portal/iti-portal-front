@@ -36,7 +36,7 @@ const transformProfileData = (data) => {
       ...cert,
       achievedAt: cert.achieved_at,
       certificateUrl: cert.certificate_url,
-      imagePath: cert.image_path
+      imagePath: cert.image_path ? `http://127.0.0.1:8000/storage/${cert.image_path}` : null
     }));
   }
 

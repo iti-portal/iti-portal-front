@@ -5,10 +5,10 @@ import { FaCertificate } from 'react-icons/fa';
 
 function CertificateForm({ onSubmit, initialData = null }) {
   const [formData, setFormData] = useState({
-    title: initialData?.title || initialData?.name || '',
-    organization: initialData?.organization || initialData?.issuingBody || '',
-    achieved_at: initialData?.achieved_at || initialData?.dateIssued || '',
-    certificate_url: initialData?.certificate_url || initialData?.url || '',
+    title: initialData?.title || '',
+    organization: initialData?.organization || '',
+    achieved_at: initialData?.achievedAt || initialData?.achieved_at || '',
+    certificate_url: initialData?.certificateUrl || initialData?.certificate_url || '',
     description: initialData?.description || '',
   });
 

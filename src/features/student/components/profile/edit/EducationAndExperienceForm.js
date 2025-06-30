@@ -9,7 +9,7 @@ import EducationSection from './EducationSection';
 import ExperienceSection from './ExperienceSection';
 import TabNavigation from './TabNavigation';
 import { generateUniqueId } from '../../../utils/idGenerator';
-import { addEducation, updateEducation, deleteEducation } from '../../../../../services/profileService';
+import { addEducation, updateEducation, deleteEducation, addWorkExperience, updateWorkExperience, deleteWorkExperience } from '../../../../../services/profileService';
 
 function EducationAndExperienceForm({ educations = [], workExperiences = [], onUpdateEducations, onUpdateWorkExperiences }) {
   const [activeTab, setActiveTab] = useState('education');
@@ -25,7 +25,6 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
   };
   
   const openEditEducationModal = (education) => {
-    console.log('Opening edit modal with education:', education);
     setEditingEducation(education);
     setIsEducationModalOpen(true);
   };
@@ -157,36 +156,64 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
     setIsExperienceModalOpen(true);
   };
   
-  const handleAddExperience = (experienceData) => {
-    const newExperience = {
-      id: generateUniqueId(),
-      ...experienceData
-    };
-    
-    // Add to the beginning of the array (top of the list)
-    onUpdateWorkExperiences([newExperience, ...workExperiences]);
-    setIsExperienceModalOpen(false);
+  const handleAddExperience = async (experienceData) => {
+    try {
+      const result = await addWorkExperience(experienceData);
+      if (result?.success) {
+        const newExperience = {
+          id: result.data?.id || generateUniqueId(),
+          ...experienceData
+        };
+        
+        // Add to the beginning of the array (top of the list)
+        onUpdateWorkExperiences([newExperience, ...workExperiences]);
+        setIsExperienceModalOpen(false);
+      } else {
+        console.error('Failed to add work experience:', result?.message);
+      }
+    } catch (error) {
+      console.error('Error adding work experience:', error);
+    }
   };
   
-  const handleUpdateExperience = (experienceData) => {
+  const handleUpdateExperience = async (experienceData) => {
     if (!editingExperience) return;
     
-    const updatedExperience = {
-      ...editingExperience,
-      ...experienceData
-    };
-    
-    const updatedExperiences = workExperiences.map(exp => 
-      exp.id === editingExperience.id ? updatedExperience : exp
-    );
-    
-    onUpdateWorkExperiences(updatedExperiences);
-    setIsExperienceModalOpen(false);
-    setEditingExperience(null);
+    try {
+      const result = await updateWorkExperience(editingExperience.id, experienceData);
+      if (result?.success) {
+        const updatedExperience = {
+          ...editingExperience,
+          ...experienceData
+        };
+        
+        const updatedExperiences = workExperiences.map(exp => 
+          exp.id === editingExperience.id ? updatedExperience : exp
+        );
+        
+        onUpdateWorkExperiences(updatedExperiences);
+        setIsExperienceModalOpen(false);
+        setEditingExperience(null);
+      } else {
+        console.error('Failed to update work experience:', result?.message);
+      }
+    } catch (error) {
+      console.error('Error updating work experience:', error);
+    }
   };
-    const handleDeleteExperience = (id) => {
-    const updatedExperiences = workExperiences.filter(exp => exp.id !== id);
-    onUpdateWorkExperiences(updatedExperiences);
+  
+    const handleDeleteExperience = async (id) => {
+    try {
+      const result = await deleteWorkExperience(id);
+      if (result?.success) {
+        const updatedExperiences = workExperiences.filter(exp => exp.id !== id);
+        onUpdateWorkExperiences(updatedExperiences);
+      } else {
+        console.error('Failed to delete work experience:', result?.message);
+      }
+    } catch (error) {
+      console.error('Error deleting work experience:', error);
+    }
   };
   
   return (
@@ -224,7 +251,6 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
       <Modal
         isOpen={isEducationModalOpen}
         onClose={() => {
-          console.log('Closing education modal');
           setIsEducationModalOpen(false);
         }}
         title={editingEducation ? "Edit Education" : "Add Education"}
