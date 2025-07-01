@@ -6,6 +6,7 @@ import Alert from '../../../../../components/UI/Alert';
 import AwardsSection from './AwardsSection.jsx';
 import AwardForm from './AwardForm.jsx';
 import { addAward, updateAward, deleteAward, updateAwardImage, addAwardImage, deleteAwardImage, getUserAwards } from '../../../../../services/awardsService';
+import { constructCertificateImageUrl } from '../../../../../services/apiConfig';
 
 function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = true, userId }) {
   const [currentAwards, setCurrentAwards] = useState(awards || []);
@@ -108,26 +109,48 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
         result = await updateAward(editingAward.id, formData);
         
         if (result.success) {
-          // Only show success message if notifications are enabled
+          console.log('Award update result:', result);
+          // Update the specific award in local state instead of refreshing
+          const updatedAwards = currentAwards.map(award => 
+            award.id === editingAward.id 
+              ? { 
+                  ...award, 
+                  ...result.data,
+                  imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : award.imagePath,
+                  imageUrl: result.data.imageUrl || award.imageUrl
+                }
+              : award
+          );
+          
+          setCurrentAwards(updatedAwards);
+          onUpdateAwards(updatedAwards);
           showNotification('Award updated successfully!', 'success');
-          // Refresh awards to get updated data with images
-          await refreshAwards();
         }
       } else {
         // Add new award
         result = await addAward(formData);
         
         if (result.success) {
-          // Only show success message if notifications are enabled
+          console.log('New award result:', result);
+          // Add the new award directly to local state
+          const newAward = {
+            ...result.data,
+            imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+            imageUrl: result.data.imageUrl || (result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null)
+          };
+          
+          const updatedAwards = [...currentAwards, newAward];
+          setCurrentAwards(updatedAwards);
+          onUpdateAwards(updatedAwards);
           showNotification('🎉 Award added successfully! Your achievement has been saved.', 'success');
-          // Refresh awards to get updated data with images
-          await refreshAwards();
         }
       }
       
       // Close modal on success
-      setShowAwardModal(false);
-      setEditingAward(null);
+      if (result && result.success) {
+        setShowAwardModal(false);
+        setEditingAward(null);
+      }
       
     } catch (error) {
       console.error('Error saving award:', error);
@@ -144,16 +167,41 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
     }
 
     try {
+      console.log('Attempting to delete award with ID:', idToDelete);
+      console.log('Current awards list:', currentAwards);
+      
+      // Check if the award exists in our local state
+      const awardExists = currentAwards.find(award => award.id === idToDelete);
+      if (!awardExists) {
+        console.warn('Award not found in local state:', idToDelete);
+        showNotification('Award not found. It may have already been deleted.', 'warning');
+        return;
+      }
+
       const result = await deleteAward(idToDelete);
       
       if (result.success) {
+        console.log('Award deleted successfully, updating local state...');
+        // Remove the deleted award directly from local state instead of refreshing
+        const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
+        
+        setCurrentAwards(updatedAwards);
+        onUpdateAwards(updatedAwards);
         showNotification('Award deleted successfully!', 'success');
-        // Refresh awards to get updated list
-        await refreshAwards();
       }
     } catch (error) {
       console.error('Error deleting award:', error);
-      showNotification(`Error deleting award: ${error.message}`, 'error');
+      
+      // If the award doesn't exist on the server, remove it from local state anyway
+      if (error.message.includes('No query results for model') || error.message.includes('404')) {
+        console.log('Award not found on server, removing from local state...');
+        const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
+        setCurrentAwards(updatedAwards);
+        onUpdateAwards(updatedAwards);
+        showNotification('Award removed (was already deleted on server)', 'info');
+      } else {
+        showNotification(`Error deleting award: ${error.message}`, 'error');
+      }
     }
   };
 

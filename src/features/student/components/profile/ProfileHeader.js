@@ -236,13 +236,6 @@ function ProfileHeader({ data, onUpdatePhoto }) {
             >
               Edit Profile
             </motion.button>
-            <motion.button 
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View Resume
-            </motion.button>
           </motion.div>          {/* Contact Information Bar */}
           <motion.div 
             className="mt-6 border-t pt-4"
