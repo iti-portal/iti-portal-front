@@ -44,6 +44,8 @@ export {
   addAward, 
   updateAward, 
   updateAwardImage,
+  addAwardImage,
+  deleteAwardImage,
   deleteAward
 } from './awardsService';
 
@@ -51,6 +53,9 @@ export {
 export {
   addProject, 
   updateProject, 
+  updateProjectImage,
+  addProjectImage,
+  deleteProjectImage,
   deleteProject 
 } from './projectsService';
 

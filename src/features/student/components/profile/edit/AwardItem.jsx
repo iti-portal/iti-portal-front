@@ -3,7 +3,7 @@
 import React, { useRef } from 'react';
 import { FaEdit, FaTrash, FaExternalLinkAlt, FaTrophy, FaCamera } from 'react-icons/fa';
 
-function AwardItem({ award, onEdit, onDelete, onImageUpdate }) {
+function AwardItem({ award, onEdit, onDelete, onImageUpdate, onImageAdd, onImageDelete }) {
   const fileInputRef = useRef(null);
   const formatDate = (dateString) => {
     if (!dateString) return 'Date not specified';
@@ -24,9 +24,12 @@ function AwardItem({ award, onEdit, onDelete, onImageUpdate }) {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file && onImageUpdate) {
-      onImageUpdate(award.id, file);
+    if (file && onImageAdd) {
+      // For awards, we use onImageAdd which will call updateAwardImage
+      onImageAdd(award.id, file);
     }
+    // Clear the input
+    e.target.value = '';
   };
 
   return (
@@ -35,30 +38,46 @@ function AwardItem({ award, onEdit, onDelete, onImageUpdate }) {
         <div className="flex gap-4 flex-1">
           {/* Award Image */}
           <div className="flex-shrink-0">
-            {(award.imagePath || award.image_path || award.image) ? (
-              <div className="relative group cursor-pointer" onClick={handleImageClick}>
+            {(award.imagePath || award.image_path || award.imageUrl) ? (
+              <div className="relative group">
                 <img 
-                  src={award.imagePath || award.image_path || award.image} 
+                  src={award.imagePath || award.imageUrl || `http://127.0.0.1:8000/storage/${award.image_path}`}
                   alt={award.title || award.name || 'Award'} 
                   className="w-20 h-20 object-cover rounded-lg border border-gray-200 group-hover:opacity-75 transition-opacity"
                   onError={(e) => {
+                    console.log('Image load error for award:', award);
                     e.target.style.display = 'none';
                   }}
                 />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50 rounded-lg">
+                {/* Replace image button */}
+                <div 
+                  className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-50 rounded-lg cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleImageClick();
+                  }}
+                  title="Replace image"
+                >
                   <FaCamera className="text-white text-xl" />
                 </div>
               </div>
             ) : (
               <div 
-                className="w-20 h-20 bg-yellow-100 border-2 border-dashed border-yellow-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-yellow-200 transition-colors group"
-                onClick={handleImageClick}
-                title="Upload award image"
+                className="w-20 h-20 bg-yellow-100 border-2 border-dashed border-yellow-300 rounded-lg flex items-center justify-center cursor-pointer hover:bg-yellow-200 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleImageClick();
+                }}
+                title="Add award image"
               >
-                <FaCamera className="text-yellow-500 text-xl group-hover:text-yellow-600" />
+                <div className="text-center">
+                  <FaCamera className="text-yellow-400 text-lg mx-auto mb-1" />
+                  <span className="text-xs text-yellow-500">Add Image</span>
+                </div>
               </div>
             )}
-            
             <input
               ref={fileInputRef}
               type="file"

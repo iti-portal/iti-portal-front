@@ -11,7 +11,8 @@ function SkillsAndCertificatesForm({
   awards = [],
   onUpdateSkills, 
   onUpdateCertificates, 
-  onUpdateAwards 
+  onUpdateAwards,
+  userId
 }) {
   return (
     <div className="space-y-8">
@@ -41,6 +42,7 @@ function SkillsAndCertificatesForm({
         <AwardsManagement 
           awards={awards} 
           onUpdateAwards={onUpdateAwards}
+          userId={userId}
           showNotifications={false}
         />
       </div>

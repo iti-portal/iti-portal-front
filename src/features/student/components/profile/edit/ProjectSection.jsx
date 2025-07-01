@@ -8,7 +8,9 @@ function ProjectSection({
   projects, 
   onAdd, 
   onEdit, 
-  onDelete 
+  onDelete, 
+  onImageAdd,
+  onImageDelete 
 }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg">
@@ -36,7 +38,14 @@ function ProjectSection({
         ) : (
           <div className="space-y-4">
             {projects.map((project) => (
-              <ProjectItem key={project.id} project={project} onEdit={onEdit} onDelete={onDelete} />
+              <ProjectItem 
+                key={project.id} 
+                project={project} 
+                onEdit={onEdit} 
+                onDelete={onDelete} 
+                onImageAdd={onImageAdd}
+                onImageDelete={onImageDelete}
+              />
             ))}
           </div>
         )}

@@ -5,9 +5,9 @@ import Modal from '../../../../../components/UI/Modal';
 import Alert from '../../../../../components/UI/Alert';
 import AwardsSection from './AwardsSection.jsx';
 import AwardForm from './AwardForm.jsx';
-import { addAward, updateAward, deleteAward, updateAwardImage } from '../../../../../services/awardsService';
+import { addAward, updateAward, deleteAward, updateAwardImage, addAwardImage, deleteAwardImage, getUserAwards } from '../../../../../services/awardsService';
 
-function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = true }) {
+function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = true, userId }) {
   const [currentAwards, setCurrentAwards] = useState(awards || []);
   
   // Modal state
@@ -21,10 +21,61 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
     message: '' 
   });
 
-  // Sync data from props to internal state
+  // Fetch awards with images on component mount or when userId changes
   useEffect(() => {
-    setCurrentAwards(awards || []);
-  }, [awards]);
+    const fetchAwardsWithImages = async () => {
+      if (userId) {
+        try {
+          const result = await getUserAwards(userId);
+          if (result.success) {
+            console.log('Fetched awards data:', result.data);
+            // The API should return award_images array for each award
+            setCurrentAwards(result.data);
+            onUpdateAwards(result.data);
+          }
+        } catch (error) {
+          console.error('Error fetching awards with images:', error);
+          // Fallback to props if API fails
+          setCurrentAwards(awards || []);
+        }
+      } else {
+        // Fallback to props if no userId
+        setCurrentAwards(awards || []);
+      }
+    };
+
+    fetchAwardsWithImages();
+  }, [userId, onUpdateAwards]);
+
+  // Sync data from props to internal state (backup)
+  useEffect(() => {
+    if (!userId) {
+      setCurrentAwards(awards || []);
+    }
+  }, [awards, userId]);
+
+  // Helper function to refresh awards after operations
+  const refreshAwards = async () => {
+    if (userId) {
+      try {
+        console.log('Refreshing awards for user:', userId);
+        const result = await getUserAwards(userId);
+        if (result.success) {
+          console.log('Refreshed awards data:', result.data);
+          // The API should return award_images array for each award
+          setCurrentAwards(result.data);
+          onUpdateAwards(result.data);
+          console.log('Awards state updated successfully');
+        } else {
+          console.error('Failed to refresh awards:', result);
+        }
+      } catch (error) {
+        console.error('Error refreshing awards:', error);
+      }
+    } else {
+      console.warn('No userId provided for refreshing awards');
+    }
+  };
 
   // Helper function to show notifications
   const showNotification = (message, type = 'success') => {
@@ -57,54 +108,20 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
         result = await updateAward(editingAward.id, formData);
         
         if (result.success) {
-          // Map backend response to frontend format
-          const mappedData = {
-            id: result.data.id,
-            title: result.data.title,
-            description: result.data.description,
-            organization: result.data.organization,
-            achieved_at: result.data.achieved_at,
-            certificate_url: result.data.certificate_url,
-            image_path: result.data.image_path,
-            imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
-            created_at: result.data.created_at,
-            updated_at: result.data.updated_at
-          };
-          
-          const updatedAwards = currentAwards.map(award => 
-            award.id === editingAward.id ? mappedData : award
-          );
-          setCurrentAwards(updatedAwards);
-          onUpdateAwards(updatedAwards);
-          
           // Only show success message if notifications are enabled
           showNotification('Award updated successfully!', 'success');
+          // Refresh awards to get updated data with images
+          await refreshAwards();
         }
       } else {
         // Add new award
         result = await addAward(formData);
         
         if (result.success) {
-          // Map backend response to frontend format
-          const mappedData = {
-            id: result.data.id,
-            title: result.data.title,
-            description: result.data.description,
-            organization: result.data.organization,
-            achieved_at: result.data.achieved_at,
-            certificate_url: result.data.certificate_url,
-            image_path: result.data.image_path,
-            imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
-            created_at: result.data.created_at,
-            updated_at: result.data.updated_at
-          };
-          
-          const updatedAwards = [...currentAwards, mappedData];
-          setCurrentAwards(updatedAwards);
-          onUpdateAwards(updatedAwards);
-          
           // Only show success message if notifications are enabled
           showNotification('🎉 Award added successfully! Your achievement has been saved.', 'success');
+          // Refresh awards to get updated data with images
+          await refreshAwards();
         }
       }
       
@@ -130,10 +147,9 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
       const result = await deleteAward(idToDelete);
       
       if (result.success) {
-        const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
-        setCurrentAwards(updatedAwards);
-        onUpdateAwards(updatedAwards);
         showNotification('Award deleted successfully!', 'success');
+        // Refresh awards to get updated list
+        await refreshAwards();
       }
     } catch (error) {
       console.error('Error deleting award:', error);
@@ -151,13 +167,14 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
       const result = await updateAwardImage(awardId, imageFile);
       
       if (result.success) {
-        // Update the award with the new image path
+        // Update the award with the new image path directly in local state
         const updatedAwards = currentAwards.map(award => 
           award.id === awardId 
             ? { 
                 ...award, 
                 image_path: result.data.image_path,
                 imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+                imageUrl: result.data.imageUrl || result.data.imagePath,
                 updated_at: result.data.updated_at
               }
             : award
@@ -170,6 +187,60 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
     } catch (error) {
       console.error('Error updating award image:', error);
       showNotification(`Error updating award image: ${error.message}`, 'error');
+    }
+  };
+
+  const handleImageAdd = async (awardId, imageFile) => {
+    try {
+      console.log('Starting image update for award:', awardId);
+      // For awards, we update the single image rather than adding multiple
+      const result = await updateAwardImage(awardId, imageFile);
+      console.log('Image update result:', result);
+      
+      if (result.success) {
+        console.log('Image update successful, updating local state...');
+        
+        // Update the award with the new image path directly in local state
+        const updatedAwards = currentAwards.map(award => 
+          award.id === awardId 
+            ? { 
+                ...award, 
+                image_path: result.data.image_path,
+                imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+                imageUrl: result.data.imageUrl || result.data.imagePath,
+                updated_at: result.data.updated_at
+              }
+            : award
+        );
+        
+        console.log('Updated awards state:', updatedAwards);
+        setCurrentAwards(updatedAwards);
+        onUpdateAwards(updatedAwards);
+        
+        showNotification('Award image added successfully!', 'success');
+      } else {
+        showNotification('Failed to update award image', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding award image:', error);
+      showNotification(`Error adding award image: ${error.message}`, 'error');
+    }
+  };
+
+  const handleImageDelete = async (imageId) => {
+    try {
+      const result = await deleteAwardImage(imageId);
+      
+      if (result && result.success) {
+        // Refresh awards to get updated list
+        await refreshAwards();
+        showNotification('Award image deleted successfully!', 'success');
+      } else {
+        showNotification('Failed to delete award image', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting award image:', error);
+      showNotification(`Error deleting award image: ${error.message || 'Unknown error'}`, 'error');
     }
   };
 
@@ -192,6 +263,8 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
         onEdit={handleEditAward}
         onDelete={handleAwardDelete}
         onImageUpdate={handleImageUpdate}
+        onImageAdd={handleImageAdd}
+        onImageDelete={handleImageDelete}
       />
 
       {/* Award Modal */}

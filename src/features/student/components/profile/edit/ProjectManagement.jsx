@@ -5,9 +5,10 @@ import Modal from '../../../../../components/UI/Modal';
 import Alert from '../../../../../components/UI/Alert';
 import ProjectSection from './ProjectSection.jsx';
 import ProjectForm from './ProjectForm.jsx';
-import { addProject, updateProject, deleteProject } from '../../../../../services/projectsService';
+import { addProject, updateProject, deleteProject, addProjectImage, deleteProjectImage } from '../../../../../services/projectsService';
+import { getFeaturedProjects } from '../../../../../services/featuredProjectsService';
 
-function ProjectManagement({ projects = [], onUpdateProjects, showNotifications = true }) {
+function ProjectManagement({ projects = [], onUpdateProjects, showNotifications = true, userId }) {
   const [currentProjects, setCurrentProjects] = useState(projects || []);
   
   // Modal state
@@ -21,10 +22,49 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
     message: '' 
   });
 
-  // Sync data from props to internal state
+  // Fetch projects with images on component mount or when userId changes
   useEffect(() => {
-    setCurrentProjects(projects || []);
-  }, [projects]);
+    const fetchProjectsWithImages = async () => {
+      if (userId) {
+        try {
+          const projectsData = await getFeaturedProjects(userId);
+          // The API already returns project_images array, no need to modify
+          setCurrentProjects(projectsData);
+          onUpdateProjects(projectsData);
+        } catch (error) {
+          console.error('Error fetching projects with images:', error);
+          // Fallback to props if API fails
+          setCurrentProjects(projects || []);
+        }
+      } else {
+        // Fallback to props if no userId
+        setCurrentProjects(projects || []);
+      }
+    };
+
+    fetchProjectsWithImages();
+  }, [userId, onUpdateProjects]);
+
+  // Sync data from props to internal state (backup)
+  useEffect(() => {
+    if (!userId) {
+      setCurrentProjects(projects || []);
+    }
+  }, [projects, userId]);
+
+  // Helper function to refresh projects after operations
+  const refreshProjects = async () => {
+    if (userId) {
+      try {
+        const projectsData = await getFeaturedProjects(userId);
+        // The API already returns project_images array, no need to modify
+        setCurrentProjects(projectsData);
+        onUpdateProjects(projectsData);
+      } catch (error) {
+        console.error('Error refreshing projects:', error);
+      }
+    }
+  };
 
   // Helper function to show notifications
   const showNotification = (message, type = 'success') => {
@@ -57,22 +97,18 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
         result = await updateProject(editingProject.id, formData);
         
         if (result.success) {
-          const updatedProjects = currentProjects.map(proj => 
-            proj.id === editingProject.id ? result.data : proj
-          );
-          setCurrentProjects(updatedProjects);
-          onUpdateProjects(updatedProjects);
           showNotification('Project updated successfully!', 'success');
+          // Refresh projects to get updated data with images
+          await refreshProjects();
         }
       } else {
         // Add new project
         result = await addProject(formData);
         
         if (result.success) {
-          const updatedProjects = [result.data, ...currentProjects];
-          setCurrentProjects(updatedProjects);
-          onUpdateProjects(updatedProjects);
           showNotification('🎉 Project added successfully! Your project has been saved.', 'success');
+          // Refresh projects to get updated data with images
+          await refreshProjects();
         }
       }
       
@@ -98,10 +134,9 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
       const result = await deleteProject(idToDelete);
       
       if (result.success) {
-        const updatedProjects = currentProjects.filter(proj => proj.id !== idToDelete);
-        setCurrentProjects(updatedProjects);
-        onUpdateProjects(updatedProjects);
         showNotification('Project deleted successfully!', 'success');
+        // Refresh projects to get updated list
+        await refreshProjects();
       }
     } catch (error) {
       console.error('Error deleting project:', error);
@@ -112,6 +147,38 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
   const handleCloseProjectModal = () => {
     setShowProjectModal(false);
     setEditingProject(null);
+  };
+
+  const handleImageAdd = async (projectId, imageFile) => {
+    try {
+      const result = await addProjectImage(projectId, imageFile);
+      
+      if (result.success) {
+        // Refresh projects to get updated list with new image
+        await refreshProjects();
+        showNotification('Project image added successfully!', 'success');
+      }
+    } catch (error) {
+      console.error('Error adding project image:', error);
+      showNotification(`Error adding project image: ${error.message}`, 'error');
+    }
+  };
+
+  const handleImageDelete = async (imageId) => {
+    try {
+      const result = await deleteProjectImage(imageId);
+      
+      if (result && result.success) {
+        // Refresh projects to get updated list
+        await refreshProjects();
+        showNotification('Project image deleted successfully!', 'success');
+      } else {
+        showNotification('Failed to delete project image', 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting project image:', error);
+      showNotification(`Error deleting project image: ${error.message || 'Unknown error'}`, 'error');
+    }
   };
 
   return (
@@ -132,6 +199,8 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
         onAdd={handleAddProject}
         onEdit={handleEditProject}
         onDelete={handleProjectDelete}
+        onImageAdd={handleImageAdd}
+        onImageDelete={handleImageDelete}
       />
 
       {/* Project Modal */}

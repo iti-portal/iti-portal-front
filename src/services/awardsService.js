@@ -143,11 +143,17 @@ export const updateAwardImage = async (awardId, imageFile) => {
 
     const response = await fetch(`${API_BASE_URL}/awards/image/${awardId}`, {
       method: 'POST',
-      headers: getFileUploadHeaders(),
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'X-Requested-With': 'XMLHttpRequest'
+        // DO NOT set 'Content-Type' here for FormData
+      },
       body: formData
     });
 
     const result = await response.json();
+    console.log('Update award image API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update award image');
@@ -156,11 +162,17 @@ export const updateAwardImage = async (awardId, imageFile) => {
     // Transform the response data to match frontend expectations
     const transformedData = result.data ? {
       id: result.data.id,
+      title: result.data.title,
       awardName: result.data.title,
       issuer: result.data.organization,
+      organization: result.data.organization,
       issueDate: result.data.achieved_at,
+      achieved_at: result.data.achieved_at,
       description: result.data.description,
       certificateUrl: result.data.certificate_url,
+      certificate_url: result.data.certificate_url,
+      image_path: result.data.image_path,
+      imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
       imageUrl: result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null,
       // Keep original fields for compatibility
       ...result.data
@@ -170,6 +182,42 @@ export const updateAwardImage = async (awardId, imageFile) => {
       success: true,
       data: transformedData,
       message: result.message || 'Award image updated successfully'
+    };
+  } catch (error) {
+    console.error('Error in updateAwardImage service:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all awards for a user
+ */
+export const getUserAwards = async (userId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${userId}/awards`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to fetch awards');
+    }
+    
+    // Process image URLs for each award
+    const awardsWithImages = (result.data || []).map(award => ({
+      ...award,
+      imagePath: award.image_path ? `http://127.0.0.1:8000/storage/${award.image_path}` : null,
+      imageUrl: award.image_path ? constructCertificateImageUrl(award.image_path) : null
+    }));
+    
+    return {
+      success: true,
+      data: awardsWithImages
     };
   } catch (error) {
     handleNetworkError(error);
@@ -202,5 +250,64 @@ export const deleteAward = async (awardId) => {
     };
   } catch (error) {
     handleNetworkError(error);
+  }
+};
+
+/**
+ * Add image to award
+ */
+export const addAwardImage = async (awardId, imageFile, altText = '') => {
+  try {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    if (altText) {
+      formData.append('alt_text', altText);
+    }
+    
+    const response = await fetch(`${API_BASE_URL}/awards/image/${awardId}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'X-Requested-With': 'XMLHttpRequest'
+        // DO NOT set 'Content-Type' here for FormData
+      },
+      body: formData
+    });
+
+    return await handleApiResponse(response);
+  } catch (error) {
+    handleNetworkError(error);
+  }
+};
+
+/**
+ * Delete award image
+ */
+export const deleteAwardImage = async (imageId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/awards/image/${imageId}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to delete award image');
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      message: result.message || 'Image deleted successfully'
+    };
+  } catch (error) {
+    console.error('Error in deleteAwardImage service:', error);
+    throw error;
   }
 };

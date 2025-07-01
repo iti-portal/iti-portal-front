@@ -11,7 +11,7 @@ import { updateUserProfile } from '../../../services/profileService';
 import PersonalInfoForm from '../components/profile/edit/PersonalInfoForm';
 import ContactInfoForm from '../components/profile/edit/ContactInfoForm';
 import SkillsAndCertificatesForm from '../components/profile/edit/SkillsAndCertificatesForm';
-import ProjectsAndPortfolioForm from '../components/profile/edit/ProjectsAndPortfolioForm';
+import ProjectManagement from '../components/profile/edit/ProjectManagement';
 import EducationAndExperienceForm from '../components/profile/edit/EducationAndExperienceForm';
 
 // Animation variants
@@ -81,6 +81,9 @@ function EditProfilePage() {
       });
     }
   }, [profile]);
+
+  // Get user ID for API calls
+  const userId = profile?.user?.id;
 
   // Update profile data helper
   const handleProfileDataChange = (field, value) => {
@@ -312,6 +315,7 @@ function EditProfilePage() {
                         onUpdateSkills={(newSkills) => handleProfileDataChange('skills', newSkills)}
                         onUpdateCertificates={(newCertificates) => handleProfileDataChange('certificates', newCertificates)}
                         onUpdateAwards={(newAwards) => handleProfileDataChange('awards', newAwards)}
+                        userId={userId}
                       />
                     </motion.div>
                   )}
@@ -322,9 +326,11 @@ function EditProfilePage() {
                       whileHover={{ scale: 1.005 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ProjectsAndPortfolioForm
+                      <ProjectManagement
                         projects={profileData.projects}
                         onUpdateProjects={(newProjects) => handleProfileDataChange('projects', newProjects)}
+                        userId={userId}
+                        showNotifications={true}
                       />
                     </motion.div>
                   )}
