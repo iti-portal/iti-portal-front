@@ -10,6 +10,7 @@ import Navbar from '../../../components/Layout/Navbar';
 import AchievementTypeSelector from '../components/common/AchievementTypeSelector';
 import BaseAchievementForm from '../components/forms/BaseAchievementForm';
 import { useAchievementForm } from '../hooks/useAchievementForm';
+import { createAchievement } from '../../../services/achievementsService';
 import { ACHIEVEMENT_TYPES } from '../types/achievementTypes';
 
 const CreateAchievement = () => {
@@ -40,20 +41,24 @@ const CreateAchievement = () => {
 
     try {
       const submissionData = getFormDataForSubmission();
-      console.log('Submitting achievement:', submissionData);
       
-      // TODO: Replace with actual API call
-      // await achievementService.createAchievement(submissionData);
       
-      // Show success message
-      alert(`${formData.type} achievement created successfully!`);
+      // Create the achievement using the API
+      const result = await createAchievement(submissionData);
       
-      // Navigate back or to achievements list
-      navigate('/achievements'); // or navigate(-1) to go back
+      if (result.success) {
+        // Show success message
+        alert(`${formData.type} achievement created successfully!`);
+        
+        // Navigate back to my achievements page
+        navigate('/my-achievements');
+      } else {
+        throw new Error(result.message || 'Failed to create achievement');
+      }
       
     } catch (error) {
       console.error('Error creating achievement:', error);
-      alert('Failed to create achievement. Please try again.');
+      alert(`Failed to create achievement: ${error.message}`);
     }
   };
 

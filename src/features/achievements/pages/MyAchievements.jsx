@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AchievementCard from '../components/common/AchievementCard';
 import { useMyAchievements } from '../hooks/useMyAchievements';
+import { deleteAchievement } from '../../../services/achievementsService';
 import Navbar from '../../../components/Layout/Navbar';
 
 const MyAchievements = () => {
@@ -77,6 +78,30 @@ const MyAchievements = () => {
       // Handle error silently or show user notification
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  // Handle delete achievement
+  const handleDeleteAchievement = async (achievement) => {
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${achievement.title}"? This action cannot be undone.`
+    );
+    
+    if (!confirmDelete) return;
+
+    try {
+      const result = await deleteAchievement(achievement.id);
+      
+      if (result.success) {
+        // Refresh the achievements list
+        await refresh();
+        alert('Achievement deleted successfully!');
+      } else {
+        throw new Error(result.message || 'Failed to delete achievement');
+      }
+    } catch (error) {
+      console.error('Error deleting achievement:', error);
+      alert(`Failed to delete achievement: ${error.message}`);
     }
   };
 
@@ -332,9 +357,7 @@ const MyAchievements = () => {
                         onEdit={(achievement) => {
                           navigate(`/achievements/edit/${achievement.id}`);
                         }}
-                        onDelete={(achievement) => {
-                          // TODO: Implement delete functionality
-                        }}
+                        onDelete={handleDeleteAchievement}
                         onLike={async (achievementId, isLiked) => {
                           // TODO: Implement like API call
                         }}

@@ -221,7 +221,9 @@ export const validateAchievement = (achievement) => {
     errors.title = 'Title is required';
   }
   
-  if (!achievement.description?.trim()) {
+  // Description validation based on type
+  if ((achievement.type === ACHIEVEMENT_TYPES.PROJECT || achievement.type === ACHIEVEMENT_TYPES.CERTIFICATE) 
+      && !achievement.description?.trim()) {
     errors.description = 'Description is required';
   }
   
@@ -236,24 +238,24 @@ export const validateAchievement = (achievement) => {
       if (!achievement.organization?.trim()) {
         errors.organization = 'Organization is required';
       }
-      if (!achievement.position?.trim()) {
-        errors.position = 'Position is required';
+      if (!achievement.start_date) {
+        errors.start_date = 'Start date is required';
       }
       break;
     case ACHIEVEMENT_TYPES.CERTIFICATE:
       if (!achievement.organization?.trim()) {
         errors.organization = 'Issuing organization is required';
       }
-      if (!achievement.issue_date) {
-        errors.issue_date = 'Issue date is required';
+      if (!achievement.start_date) {
+        errors.start_date = 'Issue date is required';
       }
       break;
     case ACHIEVEMENT_TYPES.AWARD:
       if (!achievement.organization?.trim()) {
         errors.organization = 'Awarding organization is required';
       }
-      if (!achievement.received_date) {
-        errors.received_date = 'Award date is required';
+      if (!achievement.start_date) {
+        errors.start_date = 'Received date is required';
       }
       break;
   }
@@ -268,9 +270,25 @@ export const getAchievementCompletionPercentage = (achievement) => {
   const category = ACHIEVEMENT_CATEGORIES[achievement.type];
   if (!category) return 0;
   
-  const requiredFields = category.fields.filter(field => 
-    ['title', 'description'].includes(field) // Always required
-  );
+  let requiredFields = [];
+  
+  // Determine required fields based on type
+  switch (achievement.type) {
+    case ACHIEVEMENT_TYPES.PROJECT:
+      requiredFields = ['title', 'description', 'start_date'];
+      break;
+    case ACHIEVEMENT_TYPES.JOB:
+      requiredFields = ['title', 'organization', 'start_date'];
+      break;
+    case ACHIEVEMENT_TYPES.CERTIFICATE:
+      requiredFields = ['title', 'description', 'organization', 'start_date'];
+      break;
+    case ACHIEVEMENT_TYPES.AWARD:
+      requiredFields = ['title', 'organization', 'start_date'];
+      break;
+    default:
+      requiredFields = ['title', 'description'];
+  }
   
   const filledFields = requiredFields.filter(field => {
     const value = achievement[field];

@@ -21,25 +21,43 @@ export const useMyAchievements = () => {
 
   // Transform API response data to component format
   const transformAchievement = useCallback((achievement) => {
+    // If we get a specific structure with project/certificate/job/award sub-object, handle it
+    let typeSpecificData = {};
+    
+    // If the achievement has a type-specific sub-object, extract those fields
+    if (achievement.project || achievement.certificate || achievement.job || achievement.award) {
+      const typeObj = achievement.project || achievement.certificate || achievement.job || achievement.award;
+      if (typeObj) {
+        typeSpecificData = { ...typeObj };
+      }
+    }
+    
     return {
-      id: achievement.id,
+      id: achievement.id || typeSpecificData.id,
       type: achievement.type || 'achievement',
-      title: achievement.title,
-      description: achievement.description,
+      title: achievement.title || typeSpecificData.title,
+      description: achievement.description || typeSpecificData.description || '',
       user: {
-        id: achievement.user_id,
+        id: achievement.user_id || typeSpecificData.user_id,
         name: `${achievement.user_profile?.first_name || ''} ${achievement.user_profile?.last_name || ''}`.trim() || 'Unknown User',
         profile_picture: achievement.user_profile?.profile_picture,
         first_name: achievement.user_profile?.first_name,
         last_name: achievement.user_profile?.last_name
       },
-      date: achievement.created_at,
-      created_at: achievement.created_at,
+      organization: achievement.organization || typeSpecificData.organization,
+      start_date: achievement.achieved_at || typeSpecificData.start_date || achievement.start_date,
+      end_date: achievement.end_date || typeSpecificData.end_date,
+      url: achievement.project_url || achievement.certificate_url || typeSpecificData.url,
+      date: achievement.created_at || typeSpecificData.created_at,
+      created_at: achievement.created_at || typeSpecificData.created_at,
+      updated_at: achievement.updated_at || typeSpecificData.updated_at,
       like_count: achievement.like_count || 0,
       is_liked: achievement.is_liked || false,
       comment_count: achievement.comment_count || 0,
       comments: achievement.comments || [],
-      likes: achievement.likes || []
+      likes: achievement.likes || [],
+      // Include the raw achievement for debugging
+      raw: achievement
     };
   }, []);
 
@@ -61,8 +79,12 @@ export const useMyAchievements = () => {
     }
     
     try {
+      // Call with params object as expected by the service function
+      const response = await getMyAchievements({
+        page,
+        per_page: ITEMS_PER_PAGE
+      });
       
-      const response = await getMyAchievements(page, ITEMS_PER_PAGE);
       
       
       // Extract achievements and pagination from response
