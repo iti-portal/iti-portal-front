@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { logoutUser } from '../features/auth/services/authAPI';
+import { getUserProfile } from '../services/profileService';
 
 const AuthContext = createContext();
 
@@ -21,14 +22,23 @@ export const AuthProvider = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  const checkAuthStatus = () => {
+  const checkAuthStatus = async () => {
     try {
       const token = localStorage.getItem('token');
       const userData = localStorage.getItem('user');
       
       if (token && userData) {
         setIsAuthenticated(true);
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        
+        // Try to fetch fresh profile data if token exists
+        try {
+          await refreshUserProfile();
+        } catch (error) {
+          console.warn('Could not refresh user profile:', error);
+          // Keep the stored user data even if profile refresh fails
+        }
       } else {
         setIsAuthenticated(false);
         setUser(null);
@@ -42,12 +52,41 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (userData, token) => {
+  const refreshUserProfile = async () => {
+    try {
+      
+      const profileResponse = await getUserProfile();
+      
+      
+      if (profileResponse.success && profileResponse.data?.user) {
+        const freshUserData = profileResponse.data.user;
+        
+        setUser(freshUserData);
+        localStorage.setItem('user', JSON.stringify(freshUserData));
+        return freshUserData;
+      } else {
+        console.warn('⚠️ Invalid profile response:', profileResponse);
+      }
+    } catch (error) {
+      console.error('❌ Error refreshing user profile:', error);
+      throw error;
+    }
+  };
+
+  const login = async (userData, token) => {
     try {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       setIsAuthenticated(true);
+      
+      // Try to fetch fresh profile data after login
+      try {
+        await refreshUserProfile();
+      } catch (error) {
+        console.warn('Could not refresh profile after login:', error);
+        // Keep the login data even if profile refresh fails
+      }
     } catch (error) {
       console.error('Error during login:', error);
     }
@@ -93,7 +132,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    checkAuthStatus
+    checkAuthStatus,
+    refreshUserProfile
   };
 
   return (

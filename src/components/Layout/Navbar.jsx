@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
@@ -6,10 +6,51 @@ import Logo from '../Common/Logo';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [refreshingProfile, setRefreshingProfile] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUserProfile } = useAuth();
+  const desktopDropdownRef = useRef(null);
+  const mediumDropdownRef = useRef(null);
+  const smallDropdownRef = useRef(null);
+
+  // Debug: Log user data
+  React.useEffect(() => {
+    
+  }, [user]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInsideDropdown = 
+        (desktopDropdownRef.current && desktopDropdownRef.current.contains(event.target)) ||
+        (mediumDropdownRef.current && mediumDropdownRef.current.contains(event.target)) ||
+        (smallDropdownRef.current && smallDropdownRef.current.contains(event.target));
+      
+      if (!isClickInsideDropdown) {
+        setProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Handle manual profile refresh
+  const handleRefreshProfile = async () => {
+    try {
+      setRefreshingProfile(true);
+      await refreshUserProfile();
+    } catch (error) {
+      console.error('Failed to refresh profile:', error);
+    } finally {
+      setRefreshingProfile(false);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -103,13 +144,105 @@ const Navbar = () => {
           >
             {logoutLoading ? 'hourglass_empty' : 'logout'}
           </button>
-          <Link to="/student/profile">
-            <img
-              src="/avatar.png"
+          <div className="relative" ref={desktopDropdownRef}>
+            <button
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              className="focus:outline-none"
+            >            <img
+              src={user?.profile?.profile_picture || "/avatar.png"}
               alt="User"
               className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
             />
-          </Link>
+            </button>
+            
+            {/* Profile Dropdown */}
+            {profileDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                <div className="px-4 py-2 border-b border-gray-200">
+                  <div className="font-semibold text-gray-800 text-sm">
+                    {user?.profile?.first_name && user?.profile?.last_name 
+                      ? `${user.profile.first_name} ${user.profile.last_name}` 
+                      : user?.name || 'Unknown User'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {user?.email || 'No email available'}
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    setProfileDropdownOpen(false);
+                    navigate('/student/profile');
+                  }}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                >
+                  <span className="material-icons text-lg mr-3">person</span>
+                  View Profile
+                </button>
+                
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    setProfileDropdownOpen(false);
+                    navigate('/my-achievements');
+                  }}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                >
+                  <span className="material-icons text-lg mr-3">emoji_events</span>
+                  My Achievements
+                </button>
+                
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    setProfileDropdownOpen(false);
+                    navigate('/student/profile/edit');
+                  }}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                >
+                  <span className="material-icons text-lg mr-3">edit</span>
+                  Edit Profile
+                </button>
+                
+                <button 
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    handleRefreshProfile();
+                  }}
+                  disabled={refreshingProfile}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left disabled:opacity-50"
+                >
+                  <span className="material-icons text-lg mr-3">
+                    {refreshingProfile ? 'hourglass_empty' : 'refresh'}
+                  </span>
+                  {refreshingProfile ? 'Refreshing...' : 'Refresh Profile'}
+                </button>
+                
+                <div className="border-t border-gray-200 mt-2 pt-2">
+                  <button
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      handleLogout();
+                    }}
+                    disabled={logoutLoading}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-icons text-lg mr-3">
+                      {logoutLoading ? 'hourglass_empty' : 'logout'}
+                    </span>
+                    {logoutLoading ? 'Logging out...' : 'Logout'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -129,13 +262,92 @@ const Navbar = () => {
         >
           {logoutLoading ? 'hourglass_empty' : 'logout'}
         </button>
-        <Link to="/student/profile">
-          <img
-            src="/avatar.png"
-            alt="User"
-            className="w-7 h-7 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
-          />
-        </Link>
+        <div className="relative" ref={mediumDropdownRef}>
+          <button
+            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            className="focus:outline-none"
+          >
+            <img
+              src={user?.profile?.profile_picture || "/avatar.png"}
+              alt="User"
+              className="w-7 h-7 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+            />
+          </button>
+          
+          {/* Profile Dropdown */}
+          {profileDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <div className="px-4 py-2 border-b border-gray-200">
+                <div className="font-semibold text-gray-800 text-sm">
+                  {user?.profile?.first_name && user?.profile?.last_name 
+                    ? `${user.profile.first_name} ${user.profile.last_name}` 
+                    : user?.name || 'Unknown User'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {user?.email || 'No email available'}
+                </div>
+              </div>
+              
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  setProfileDropdownOpen(false);
+                  navigate('/student/profile');
+                }}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              >
+                <span className="material-icons text-lg mr-3">person</span>
+                View Profile
+              </button>
+              
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  setProfileDropdownOpen(false);
+                  navigate('/my-achievements');
+                }}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              >
+                <span className="material-icons text-lg mr-3">emoji_events</span>
+                My Achievements
+              </button>
+              
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  setProfileDropdownOpen(false);
+                  navigate('/student/profile/edit');
+                }}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              >
+                <span className="material-icons text-lg mr-3">edit</span>
+                Edit Profile
+              </button>
+              
+              <div className="border-t border-gray-200 mt-2 pt-2">
+                <button
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    handleLogout();
+                  }}
+                  disabled={logoutLoading}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="material-icons text-lg mr-3">
+                    {logoutLoading ? 'hourglass_empty' : 'logout'}
+                  </span>
+                  {logoutLoading ? 'Logging out...' : 'Logout'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Small Screen Content (640px-768px) */}
@@ -149,13 +361,92 @@ const Navbar = () => {
         >
           {logoutLoading ? 'hourglass_empty' : 'logout'}
         </button>
-        <Link to="/student/profile">
-          <img
-            src="/avatar.png"
-            alt="User"
-            className="w-6 h-6 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
-          />
-        </Link>
+        <div className="relative" ref={smallDropdownRef}>
+          <button
+            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            className="focus:outline-none"
+          >
+            <img
+              src={user?.profile?.profile_picture || "/avatar.png"}
+              alt="User"
+              className="w-6 h-6 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+            />
+          </button>
+          
+          {/* Profile Dropdown */}
+          {profileDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <div className="px-4 py-2 border-b border-gray-200">
+                <div className="font-semibold text-gray-800 text-sm">
+                  {user?.profile?.first_name && user?.profile?.last_name 
+                    ? `${user.profile.first_name} ${user.profile.last_name}` 
+                    : user?.name || 'Unknown User'}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {user?.email || 'No email available'}
+                </div>
+              </div>
+              
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  setProfileDropdownOpen(false);
+                  navigate('/student/profile');
+                }}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              >
+                <span className="material-icons text-lg mr-3">person</span>
+                View Profile
+              </button>
+              
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  setProfileDropdownOpen(false);
+                  navigate('/my-achievements');
+                }}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              >
+                <span className="material-icons text-lg mr-3">emoji_events</span>
+                My Achievements
+              </button>
+              
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  
+                  setProfileDropdownOpen(false);
+                  navigate('/student/profile/edit');
+                }}
+                className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+              >
+                <span className="material-icons text-lg mr-3">edit</span>
+                Edit Profile
+              </button>
+              
+              <div className="border-t border-gray-200 mt-2 pt-2">
+                <button
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    handleLogout();
+                  }}
+                  disabled={logoutLoading}
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="material-icons text-lg mr-3">
+                    {logoutLoading ? 'hourglass_empty' : 'logout'}
+                  </span>
+                  {logoutLoading ? 'Logging out...' : 'Logout'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Hamburger for mobile and tablet screens */}
@@ -216,6 +507,10 @@ const Navbar = () => {
                 <span className="material-icons text-lg mr-3 align-middle">emoji_events</span>
                 Achievements
               </Link>
+              <Link to="/my-achievements" className={getLinkClasses('/my-achievements', false)} onClick={() => setMenuOpen(false)}>
+                <span className="material-icons text-lg mr-3 align-middle">star</span>
+                My Achievements
+              </Link>
               <Link to="/articles" className={getLinkClasses('/articles', false)} onClick={() => setMenuOpen(false)}>
                 <span className="material-icons text-lg mr-3 align-middle">article</span>
                 Articles
@@ -240,19 +535,19 @@ const Navbar = () => {
               <div className="flex items-center gap-3 mb-3">
                 <Link to="/student/profile" onClick={() => setMenuOpen(false)}>
                   <img
-                    src="/avatar.png"
+                    src={user?.profile?.profile_picture || "/avatar.png"}
                     alt="User"
                     className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
                   />
                 </Link>
                 <div className="flex-1">
                   <div className="font-semibold text-gray-800 text-sm">
-                    {user?.first_name && user?.last_name 
-                      ? `${user.first_name} ${user.last_name}` 
+                    {user?.profile?.first_name && user?.profile?.last_name 
+                      ? `${user.profile.first_name} ${user.profile.last_name}` 
                       : user?.name || 'User'}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {user?.email || 'user@example.com'}
+                    {user?.email || 'No email available'}
                   </div>
                 </div>
               </div>
