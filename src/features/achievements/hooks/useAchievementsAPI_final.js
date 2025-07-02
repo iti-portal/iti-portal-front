@@ -69,7 +69,7 @@ export const useAchievementsAPI = () => {
     
     // Prevent multiple concurrent requests
     if (control.isRequesting) {
-      console.log('🚫 Request blocked: already requesting');
+      
       return;
     }
 
@@ -78,7 +78,6 @@ export const useAchievementsAPI = () => {
     const timeSinceLastRequest = now - control.lastRequestTime;
     if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
       const delay = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
-      console.log(`⏳ Rate limit: waiting ${delay}ms`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
 
@@ -92,7 +91,6 @@ export const useAchievementsAPI = () => {
     }
     control.currentAbortController = new AbortController();
 
-    console.log(`🔄 Fetching ${source} page ${page} ${append ? '(append)' : '(replace)'}`);
 
     // Update loading state
     setState(prev => ({
@@ -121,11 +119,9 @@ export const useAchievementsAPI = () => {
 
       // Check if request was aborted
       if (signal.aborted) {
-        console.log('🚫 Request aborted');
         return;
       }
 
-      console.log('📥 API Response received');
 
       // Extract achievements data
       let achievementsData = [];
@@ -169,11 +165,9 @@ export const useAchievementsAPI = () => {
         };
       });
 
-      console.log(`✅ Loaded ${transformedAchievements.length} achievements. HasMore: ${hasMoreItems}`);
 
     } catch (err) {
       if (err.name === 'AbortError') {
-        console.log('🚫 Request was aborted');
         return;
       }
 
@@ -201,7 +195,6 @@ export const useAchievementsAPI = () => {
   const initialize = useCallback(() => {
     if (!requestControlRef.current.initialized) {
       requestControlRef.current.initialized = true;
-      console.log('🚀 Initializing with ALL achievements');
       fetchAchievements(ACHIEVEMENT_SOURCES.ALL, 1, false);
     }
   }, [fetchAchievements]);

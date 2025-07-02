@@ -133,13 +133,7 @@ const AchievementCard = ({
       const newIsLiked = !isLiked;
       const newLikeCount = newIsLiked ? likeCount + 1 : likeCount - 1;
       
-      console.log('🔄 Card handleLike - Before:', { 
-        id: achievement.id, 
-        isLiked, 
-        likeCount, 
-        newIsLiked, 
-        newLikeCount 
-      });
+
       
       // Update local state
       setIsLiked(newIsLiked);
@@ -155,12 +149,7 @@ const AchievementCard = ({
       if (onLike) {
         await onLike(achievement.id, newIsLiked);
       }
-      
-      console.log('✅ Card handleLike - Success:', { 
-        id: achievement.id, 
-        isLiked: newIsLiked, 
-        likeCount: newLikeCount 
-      });
+
     } catch (error) {
       console.error('❌ Card handleLike - Error:', error);
       // Revert on error

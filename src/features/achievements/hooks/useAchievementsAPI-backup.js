@@ -58,7 +58,6 @@ export const useAchievementsAPI = () => {
   const fetchAchievements = useCallback(async (source = ACHIEVEMENT_SOURCES.ALL, page = 1, append = false) => {
     // Prevent duplicate requests
     if (isRequestingRef.current) {
-      console.log('🚫 Request already in progress, skipping...');
       return;
     }
 
@@ -75,7 +74,6 @@ export const useAchievementsAPI = () => {
     try {
       let response;
       
-      console.log(`🔄 Fetching ${source} achievements: page=${page}, per_page=${ITEMS_PER_PAGE}, append=${append}`);
       
       // Call the appropriate API based on source
       switch (source) {
@@ -90,8 +88,7 @@ export const useAchievementsAPI = () => {
           response = await getAllAchievements(page, ITEMS_PER_PAGE);
           break;
       }
-      
-      console.log('📋 API Response:', response);
+
       
       // Extract achievements and pagination from response
       let achievementsData = [];
@@ -112,20 +109,20 @@ export const useAchievementsAPI = () => {
       // Transform the achievements data
       const transformedAchievements = achievementsData.map(transformAchievement);
       
-      console.log(`📝 Transformed ${transformedAchievements.length} achievements`);
+
       
       if (append && page > 1) {
         // Append new data for infinite scroll
         setAchievements(prev => {
           const existingIds = new Set(prev.map(item => item.id));
           const newItems = transformedAchievements.filter(item => !existingIds.has(item.id));
-          console.log(`➕ Appending ${newItems.length} new achievements (${transformedAchievements.length - newItems.length} duplicates filtered)`);
+
           return [...prev, ...newItems];
         });
       } else {
         // Replace data for new source or first page
         setAchievements(transformedAchievements);
-        console.log(`🔄 Replaced with ${transformedAchievements.length} achievements`);
+
       }
       
       // Update pagination state
@@ -133,12 +130,10 @@ export const useAchievementsAPI = () => {
         setPagination(paginationData);
         setHasMore(paginationData.current_page < paginationData.last_page);
         setCurrentPage(paginationData.current_page);
-        console.log(`📊 Pagination: page ${paginationData.current_page}/${paginationData.last_page}, total: ${paginationData.total}`);
       } else {
         // Fallback pagination logic
         setHasMore(transformedAchievements.length >= ITEMS_PER_PAGE);
         setCurrentPage(page);
-        console.log(`📊 Fallback pagination: hasMore=${transformedAchievements.length >= ITEMS_PER_PAGE}`);
       }
       
       setCurrentSource(source);
@@ -161,7 +156,6 @@ export const useAchievementsAPI = () => {
   const loadMore = useCallback(async () => {
     if (!loadingMore && hasMore && !isRequestingRef.current) {
       const nextPage = currentPage + 1;
-      console.log(`🔄 Loading more: page ${nextPage}`);
       await fetchAchievements(currentSource, nextPage, true);
     }
   }, [fetchAchievements, currentSource, currentPage, loadingMore, hasMore]);
@@ -169,7 +163,6 @@ export const useAchievementsAPI = () => {
   // Switch between sources
   const switchToSource = useCallback(async (source) => {
     if (currentSource !== source) {
-      console.log(`🔄 Switching to ${source} source`);
       setCurrentPage(1);
       setHasMore(true);
       setPagination(null);
@@ -183,7 +176,6 @@ export const useAchievementsAPI = () => {
 
   // Refresh current source
   const refresh = useCallback(async () => {
-    console.log(`🔄 Refreshing ${currentSource} achievements`);
     setCurrentPage(1);
     setHasMore(true);
     setPagination(null);
@@ -192,7 +184,6 @@ export const useAchievementsAPI = () => {
 
   // Initial load
   useEffect(() => {
-    console.log('🚀 Initial load starting...');
     fetchAchievements(ACHIEVEMENT_SOURCES.ALL, 1, false);
   }, [fetchAchievements]);
 

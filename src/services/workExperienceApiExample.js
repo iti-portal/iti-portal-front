@@ -101,8 +101,6 @@ async function exampleUsage() {
       description: "Developed and maintained web applications."
     });
     
-    console.log('Added experience:', newExperience);
-    
     // 2. Update existing work experience
     if (newExperience.success && newExperience.data.id) {
       const updatedExperience = await updateWorkExperience(newExperience.data.id, {
@@ -114,17 +112,14 @@ async function exampleUsage() {
         description: "Led development team and maintained web applications."
       });
       
-      console.log('Updated experience:', updatedExperience);
     }
     
     // 3. Get all work experiences
     const allExperiences = await getUserWorkExperiences();
-    console.log('All experiences:', allExperiences);
     
     // 4. Delete work experience
     if (newExperience.success && newExperience.data.id) {
       const deleteResult = await deleteWorkExperience(newExperience.data.id);
-      console.log('Delete result:', deleteResult);
     }
     
   } catch (error) {

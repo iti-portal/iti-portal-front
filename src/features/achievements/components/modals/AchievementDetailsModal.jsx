@@ -108,7 +108,6 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     
     try {
       const response = await addComment(achievement.id, newComment);
-      console.log('📝 Add comment response:', response); // Debug log
       
       if (response.success) {
         // Add the new comment to the UI
@@ -126,9 +125,6 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
             profile_picture: user?.profile_picture || null
           }
         };
-        
-        console.log('📝 New comment data:', newCommentData); // Debug log
-        console.log('👤 Current user:', user); // Debug log
         
         updatedAchievement.comments = [
           ...(updatedAchievement.comments || []),
@@ -325,8 +321,13 @@ This feature requires the backend to provide comment IDs.`);
                           {/* Clickable likes count to see who liked */}
                           {achievement.likes && achievement.likes.length > 0 && (
                             <button
-                              onClick={handleToggleLikesList}
-                              className="text-xs text-blue-600 hover:text-blue-800 underline mr-4"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleToggleLikesList();
+                              }}
+                              className="text-xs text-blue-600 hover:text-blue-800 underline mr-4 px-1 py-0.5 rounded transition-colors"
+                              type="button"
                             >
                               View {achievement.likes.length} {achievement.likes.length === 1 ? 'like' : 'likes'}
                             </button>
@@ -384,11 +385,6 @@ This feature requires the backend to provide comment IDs.`);
                                 <p className="text-sm font-medium text-gray-900 truncate">
                                   {like.user_profile?.first_name} {like.user_profile?.last_name}
                                 </p>
-                                {like.user_profile?.user_id && (
-                                  <p className="text-xs text-gray-500">
-                                    ID: {like.user_profile.user_id}
-                                  </p>
-                                )}
                               </div>
                             </div>
                           ))}

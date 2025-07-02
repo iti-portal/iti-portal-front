@@ -35,7 +35,7 @@ const CreateAchievement = () => {
     e.preventDefault();
     
     if (!isValid) {
-      console.log('Form validation failed:', errors);
+
       return;
     }
 

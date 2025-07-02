@@ -57,7 +57,6 @@ export const useAchievementsAPI = () => {
   // Fetch achievements with pagination
   const fetchAchievements = useCallback(async (source, page = 1, append = false) => {
     if (isRequestingRef.current) {
-      console.log('🚫 Request already in progress, skipping...');
       return;
     }
 
@@ -71,7 +70,6 @@ export const useAchievementsAPI = () => {
     }
 
     try {
-      console.log(`🔄 Fetching ${source} achievements: page=${page}, per_page=${ITEMS_PER_PAGE}`);
       
       let response;
       switch (source) {
@@ -87,7 +85,6 @@ export const useAchievementsAPI = () => {
           break;
       }
 
-      console.log('📥 API Response:', response);
 
       // Handle the response structure you provided
       let achievementsData = [];
@@ -118,7 +115,6 @@ export const useAchievementsAPI = () => {
         setAchievements(prev => {
           const existingIds = new Set(prev.map(item => item.id));
           const newItems = transformedAchievements.filter(item => !existingIds.has(item.id));
-          console.log(`📝 Appending ${newItems.length} new achievements`);
           return [...prev, ...newItems];
         });
       } else {
@@ -138,7 +134,6 @@ export const useAchievementsAPI = () => {
       
       setHasMore(hasMoreItems);
 
-      console.log(`✅ Loaded ${transformedAchievements.length} achievements. Total: ${append ? achievements.length + transformedAchievements.length : transformedAchievements.length}, HasMore: ${hasMoreItems}`);
 
     } catch (err) {
       console.error(`❌ Error fetching ${source} achievements:`, err);
@@ -158,7 +153,6 @@ export const useAchievementsAPI = () => {
   const loadMore = useCallback(async () => {
     if (!loadingMore && hasMore && !isRequestingRef.current) {
       const nextPage = currentPage + 1;
-      console.log(`🔄 Loading more achievements: page ${nextPage}`);
       await fetchAchievements(currentSource, nextPage, true);
     }
   }, [fetchAchievements, currentSource, currentPage, loadingMore, hasMore]);
@@ -166,7 +160,6 @@ export const useAchievementsAPI = () => {
   // Switch to All achievements
   const switchToAll = useCallback(async () => {
     if (currentSource !== ACHIEVEMENT_SOURCES.ALL) {
-      console.log('🔄 Switching to ALL achievements');
       setCurrentPage(1);
       setHasMore(true);
       await fetchAchievements(ACHIEVEMENT_SOURCES.ALL, 1, false);
@@ -176,7 +169,6 @@ export const useAchievementsAPI = () => {
   // Switch to Connections achievements
   const switchToConnections = useCallback(async () => {
     if (currentSource !== ACHIEVEMENT_SOURCES.CONNECTIONS) {
-      console.log('🔄 Switching to CONNECTIONS achievements');
       setCurrentPage(1);
       setHasMore(true);
       await fetchAchievements(ACHIEVEMENT_SOURCES.CONNECTIONS, 1, false);
@@ -186,7 +178,6 @@ export const useAchievementsAPI = () => {
   // Switch to Popular achievements
   const switchToPopular = useCallback(async () => {
     if (currentSource !== ACHIEVEMENT_SOURCES.POPULAR) {
-      console.log('🔄 Switching to POPULAR achievements');
       setCurrentPage(1);
       setHasMore(true);
       await fetchAchievements(ACHIEVEMENT_SOURCES.POPULAR, 1, false);
@@ -195,7 +186,6 @@ export const useAchievementsAPI = () => {
 
   // Refresh current source
   const refresh = useCallback(async () => {
-    console.log('🔄 Refreshing achievements...');
     setCurrentPage(1);
     setHasMore(true);
     await fetchAchievements(currentSource, 1, false);
@@ -207,7 +197,6 @@ export const useAchievementsAPI = () => {
     
     const initialLoad = async () => {
       if (isMounted) {
-        console.log('🚀 Initial load: fetching ALL achievements');
         await fetchAchievements(ACHIEVEMENT_SOURCES.ALL, 1, false);
       }
     };
