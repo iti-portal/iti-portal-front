@@ -68,9 +68,8 @@ export const getConnectionsAchievements = async (page = 1, perPage = 25) => {
     const queryParams = new URLSearchParams();
     queryParams.append('page', page);
     queryParams.append('per_page', perPage);
-    queryParams.append('source', 'connections');
 
-    const url = `${API_BASE_URL}/achievements?${queryParams.toString()}`;
+    const url = `${API_BASE_URL}/connections-achievements?${queryParams.toString()}`;
     
     const response = await fetch(url, {
       method: 'GET',
@@ -91,9 +90,8 @@ export const getPopularAchievements = async (page = 1, perPage = 25) => {
     const queryParams = new URLSearchParams();
     queryParams.append('page', page);
     queryParams.append('per_page', perPage);
-    queryParams.append('sort', 'popular');
 
-    const url = `${API_BASE_URL}/achievements?${queryParams.toString()}`;
+    const url = `${API_BASE_URL}/popular-achievements?${queryParams.toString()}`;
     
     const response = await fetch(url, {
       method: 'GET',

@@ -41,9 +41,19 @@ export const useAchievementsAPI = () => {
 
   // Transform API response to component format
   const transformAchievement = (achievement) => {
+    // Import the mapping function (referencing from global scope since we can't import inside a function)
+    const mapType = (type) => {
+      // Map specific types that differ between backend and frontend
+      const typeMap = {
+        'certification': 'certificate', // Backend returns 'certification', frontend uses 'certificate'
+      };
+      
+      return typeMap[type] || type;
+    };
+    
     return {
       id: achievement.id,
-      type: achievement.type || 'achievement',
+      type: mapType(achievement.type) || 'achievement',
       title: achievement.title,
       description: achievement.description,
       user: {

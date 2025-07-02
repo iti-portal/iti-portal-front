@@ -50,6 +50,14 @@ const AchievementCard = ({
         indicatorColor: 'bg-blue-500',
         borderColor: 'border-blue-200'
       },
+      certificate: { 
+        icon: '🎓', 
+        label: 'Certificate', 
+        bgColor: 'bg-purple-100', 
+        textColor: 'text-purple-800',
+        indicatorColor: 'bg-purple-500',
+        borderColor: 'border-purple-200'
+      },
       certification: { 
         icon: '🎓', 
         label: 'Certificate', 
