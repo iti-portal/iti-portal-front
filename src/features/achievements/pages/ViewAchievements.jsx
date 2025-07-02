@@ -36,7 +36,7 @@ const ViewAchievements = () => {
   // Load data with applied filters - using pageRef to avoid dependency loop  
   const loadFilteredData = useCallback(() => {
     const filteredData = filterAchievements();
-    console.log(`Loading filtered data: type=${selectedType}, search="${searchQuery}", found ${filteredData.length} items`);
+    // console.log(`Loading filtered data: type=${selectedType}, search="${searchQuery}", found ${filteredData.length} items`);
     setLoading(true);
     
     // Simulate API delay
@@ -70,7 +70,7 @@ const ViewAchievements = () => {
         // Update the ref directly instead of using setState
         pageRef.current = currentPage + 1;
         setHasMore(endIndex < filteredData.length);
-        console.log(`Loaded ${newBatch.length} items (page ${currentPage}). Has more: ${endIndex < filteredData.length}`);
+        // console.log(`Loaded ${newBatch.length} items (page ${currentPage}). Has more: ${endIndex < filteredData.length}`);
       } else {
         if (currentPage === 1) {
           // No results for the filter
@@ -104,7 +104,7 @@ const ViewAchievements = () => {
   
   // Initial load - using empty dependency array to only run once
   useEffect(() => {
-    console.log("Initial load of achievements - ONE TIME ONLY");
+    // console.log("Initial load of achievements - ONE TIME ONLY");
     // Reset to page 1 for initial load
     pageRef.current = 1;
     setHasMore(true);
@@ -133,7 +133,7 @@ const ViewAchievements = () => {
   // React to filter changes
   useEffect(() => {
     // When filters change, reset everything and load fresh data
-    console.log('Filter changed, resetting pagination and loading fresh data');
+    // console.log('Filter changed, resetting pagination and loading fresh data');
     
     // Clear existing achievements
     setAchievements([]);

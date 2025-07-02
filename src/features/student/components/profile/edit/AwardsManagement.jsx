@@ -29,7 +29,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
         try {
           const result = await getUserAwards(userId);
           if (result.success) {
-            console.log('Fetched awards data:', result.data);
             // The API should return award_images array for each award
             setCurrentAwards(result.data);
             onUpdateAwards(result.data);
@@ -46,7 +45,8 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
     };
 
     fetchAwardsWithImages();
-  }, [userId, onUpdateAwards]);
+    // Note: Removed onUpdateAwards from dependency array to prevent infinite loop
+  }, [userId]);
 
   // Sync data from props to internal state (backup)
   useEffect(() => {
@@ -59,14 +59,11 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
   const refreshAwards = async () => {
     if (userId) {
       try {
-        console.log('Refreshing awards for user:', userId);
         const result = await getUserAwards(userId);
         if (result.success) {
-          console.log('Refreshed awards data:', result.data);
           // The API should return award_images array for each award
           setCurrentAwards(result.data);
           onUpdateAwards(result.data);
-          console.log('Awards state updated successfully');
         } else {
           console.error('Failed to refresh awards:', result);
         }
@@ -109,7 +106,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
         result = await updateAward(editingAward.id, formData);
         
         if (result.success) {
-          console.log('Award update result:', result);
           // Update the specific award in local state instead of refreshing
           const updatedAwards = currentAwards.map(award => 
             award.id === editingAward.id 
@@ -131,7 +127,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
         result = await addAward(formData);
         
         if (result.success) {
-          console.log('New award result:', result);
           // Add the new award directly to local state
           const newAward = {
             ...result.data,
@@ -167,9 +162,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
     }
 
     try {
-      console.log('Attempting to delete award with ID:', idToDelete);
-      console.log('Current awards list:', currentAwards);
-      
       // Check if the award exists in our local state
       const awardExists = currentAwards.find(award => award.id === idToDelete);
       if (!awardExists) {
@@ -181,7 +173,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
       const result = await deleteAward(idToDelete);
       
       if (result.success) {
-        console.log('Award deleted successfully, updating local state...');
         // Remove the deleted award directly from local state instead of refreshing
         const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
         
@@ -194,7 +185,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
       
       // If the award doesn't exist on the server, remove it from local state anyway
       if (error.message.includes('No query results for model') || error.message.includes('404')) {
-        console.log('Award not found on server, removing from local state...');
         const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
         setCurrentAwards(updatedAwards);
         onUpdateAwards(updatedAwards);
@@ -240,14 +230,10 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
 
   const handleImageAdd = async (awardId, imageFile) => {
     try {
-      console.log('Starting image update for award:', awardId);
       // For awards, we update the single image rather than adding multiple
       const result = await updateAwardImage(awardId, imageFile);
-      console.log('Image update result:', result);
       
       if (result.success) {
-        console.log('Image update successful, updating local state...');
-        
         // Update the award with the new image path directly in local state
         const updatedAwards = currentAwards.map(award => 
           award.id === awardId 
@@ -261,7 +247,6 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
             : award
         );
         
-        console.log('Updated awards state:', updatedAwards);
         setCurrentAwards(updatedAwards);
         onUpdateAwards(updatedAwards);
         
@@ -280,15 +265,36 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
       const result = await deleteAwardImage(imageId);
       
       if (result && result.success) {
-        // Refresh awards to get updated list
-        await refreshAwards();
+        // Update local state directly instead of API refresh
+        const updatedAwards = currentAwards.map(award => ({
+          ...award,
+          image_path: null,
+          imagePath: null,
+          imageUrl: null
+        }));
+        setCurrentAwards(updatedAwards);
+        onUpdateAwards(updatedAwards);
         showNotification('Award image deleted successfully!', 'success');
       } else {
         showNotification('Failed to delete award image', 'error');
       }
     } catch (error) {
       console.error('Error deleting award image:', error);
-      showNotification(`Error deleting award image: ${error.message || 'Unknown error'}`, 'error');
+      
+      // Even if API call fails, remove from UI if image already deleted
+      if (error.message && error.message.includes('not found')) {
+        const updatedAwards = currentAwards.map(award => ({
+          ...award,
+          image_path: null,
+          imagePath: null,
+          imageUrl: null
+        }));
+        setCurrentAwards(updatedAwards);
+        onUpdateAwards(updatedAwards);
+        showNotification('Image removed from list (already deleted)', 'info');
+      } else {
+        showNotification(`Error deleting award image: ${error.message || 'Unknown error'}`, 'error');
+      }
     }
   };
 

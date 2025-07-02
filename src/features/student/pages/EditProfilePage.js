@@ -53,6 +53,8 @@ function EditProfilePage() {
         firstName: userProfile.first_name || user.first_name || '',
         lastName: userProfile.last_name || user.last_name || '',
         username: userProfile.username || user.username || '',
+        job_profile: userProfile.job_profile || user.job_profile || '',
+        // About Me
         summary: userProfile.summary || userProfile.bio || '',
         
         // Contact Information
@@ -99,6 +101,7 @@ function EditProfilePage() {
         first_name: profileData.firstName,
         last_name: profileData.lastName,
         username: profileData.username,
+        job_profile: profileData.job_profile,
         summary: profileData.summary,
         phone: profileData.phone,
         whatsapp: profileData.whatsapp,

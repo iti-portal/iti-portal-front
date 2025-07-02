@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getUserProfile, updateProfilePicture, updateCoverPhoto } from '../services/profileService';
+import { getFeaturedProjects } from '../services/featuredProjectsService';
 
 /**
  * Transform backend data to frontend format
@@ -40,6 +41,28 @@ const transformProfileData = (data) => {
     }));
   }
 
+  // Transform projects
+  if (transformedData.user?.projects) {
+    transformedData.user.projects = transformedData.user.projects.map(project => ({
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      technologiesUsed: project.technologies_used,
+      projectUrl: project.project_url,
+      githubUrl: project.github_url,
+      startDate: project.start_date,
+      endDate: project.end_date,
+      isFeatured: project.is_featured,
+      // Transform project images
+      images: project.project_images?.map(img => ({
+        id: img.id,
+        imagePath: `http://127.0.0.1:8000/storage/${img.image_path}`,
+        altText: img.alt_text || project.title,
+        order: img.order
+      })) || []
+    }));
+  }
+
   return transformedData;
 };
 
@@ -62,7 +85,22 @@ export const useProfile = () => {
       const result = await getUserProfile();
       
       if (result.success) {
-        setProfile(transformProfileData(result.data));
+        const profileData = result.data;
+        
+        // Fetch projects data separately if user ID is available
+        if (profileData.user?.id) {
+          try {
+            const projectsData = await getFeaturedProjects(profileData.user.id);
+            // Add projects to the profile data
+            profileData.user.projects = projectsData;
+          } catch (projectError) {
+            console.error('Failed to fetch projects:', projectError);
+            // Continue without projects data
+            profileData.user.projects = [];
+          }
+        }
+        
+        setProfile(transformProfileData(profileData));
       } else {
         setError('Failed to fetch profile data');
       }

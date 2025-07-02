@@ -9,6 +9,7 @@ function PersonalInfoForm({ data = {}, onUpdateAll }) {
     lastName: data?.lastName || '',
     username: data?.username || '',
     summary: data?.summary || '', // About Me
+    job_profile: data?.job_profile || '', // Job Profile
   });
 
   useEffect(() => {
@@ -17,6 +18,7 @@ function PersonalInfoForm({ data = {}, onUpdateAll }) {
       lastName: data?.lastName || '',
       username: data?.username || '',
       summary: data?.summary || '',
+      job_profile: data?.job_profile || '',
     });
   }, [data]);
 
@@ -98,6 +100,23 @@ function PersonalInfoForm({ data = {}, onUpdateAll }) {
           />
           <p className="text-xs text-gray-500 mt-1">
             Choose a unique username that represents you professionally.
+          </p>
+        </div>
+          <div className="mt-6">
+          <label htmlFor="job_profile" className="block text-sm font-medium text-gray-700 mb-2">
+            Job Profile
+          </label>
+          <input
+            type="text"
+            name="job_profile"
+            id="job_profile"
+            value={personalInfo.job_profile || ''}
+            onChange={handleChange}
+            placeholder="e.g. Full Stack Developer, UI/UX Designer, Data Analyst"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Your current job title or desired career path.
           </p>
         </div>
       </motion.div>

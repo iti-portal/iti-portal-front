@@ -34,7 +34,7 @@ export const useAchievementFilters = (allAchievements = []) => {
       );
     }
     
-    console.log(`Filtered data count: ${filteredData.length}`);
+    // console.log(`Filtered data count: ${filteredData.length}`);
     return filteredData;
   }, [selectedType, searchQuery, allAchievements]);
 

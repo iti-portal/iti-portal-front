@@ -32,8 +32,6 @@ export const addAward = async (awardData) => {
       }
     });
 
-    console.log('Sending award data to API:', apiData);
-
     const response = await fetch(`${API_BASE_URL}/awards/add`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -41,7 +39,6 @@ export const addAward = async (awardData) => {
     });
 
     const result = await response.json();
-    console.log('Add award API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to add award');
@@ -90,9 +87,6 @@ export const updateAward = async (awardId, awardData) => {
         delete apiData[key];
       }
     });
-
-    console.log('Updating award data to API:', apiData);
-
     const response = await fetch(`${API_BASE_URL}/awards/${awardId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -100,7 +94,6 @@ export const updateAward = async (awardId, awardData) => {
     });
 
     const result = await response.json();
-    console.log('Update award API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update award');
@@ -153,7 +146,6 @@ export const updateAwardImage = async (awardId, imageFile) => {
     });
 
     const result = await response.json();
-    console.log('Update award image API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update award image');

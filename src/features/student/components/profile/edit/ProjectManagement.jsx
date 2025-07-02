@@ -43,7 +43,8 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
     };
 
     fetchProjectsWithImages();
-  }, [userId, onUpdateProjects]);
+    // Note: Removed onUpdateProjects from dependency array to prevent infinite loop
+  }, [userId]);
 
   // Sync data from props to internal state (backup)
   useEffect(() => {
@@ -98,8 +99,15 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
         
         if (result.success) {
           showNotification('Project updated successfully!', 'success');
-          // Refresh projects to get updated data with images
-          await refreshProjects();
+          
+          // Update local state directly instead of API refresh
+          const updatedProjects = currentProjects.map(project => 
+            project.id === editingProject.id 
+              ? { ...project, ...result.data, project_images: project.project_images || [] }
+              : project
+          );
+          setCurrentProjects(updatedProjects);
+          onUpdateProjects(updatedProjects);
         }
       } else {
         // Add new project
@@ -107,8 +115,12 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
         
         if (result.success) {
           showNotification('🎉 Project added successfully! Your project has been saved.', 'success');
-          // Refresh projects to get updated data with images
-          await refreshProjects();
+          
+          // Add new project to local state instead of API refresh
+          const newProject = { ...result.data, project_images: [] };
+          const updatedProjects = [...currentProjects, newProject];
+          setCurrentProjects(updatedProjects);
+          onUpdateProjects(updatedProjects);
         }
       }
       
@@ -135,12 +147,24 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
       
       if (result.success) {
         showNotification('Project deleted successfully!', 'success');
-        // Refresh projects to get updated list
-        await refreshProjects();
+        
+        // Remove project from local state instead of API refresh
+        const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
+        setCurrentProjects(updatedProjects);
+        onUpdateProjects(updatedProjects);
       }
     } catch (error) {
       console.error('Error deleting project:', error);
-      showNotification(`Error deleting project: ${error.message}`, 'error');
+      
+      // Even if API call fails, remove from UI if project already deleted
+      if (error.message && error.message.includes('not found')) {
+        const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
+        setCurrentProjects(updatedProjects);
+        onUpdateProjects(updatedProjects);
+        showNotification('Project removed from list (already deleted)', 'info');
+      } else {
+        showNotification(`Error deleting project: ${error.message}`, 'error');
+      }
     }
   };
 
@@ -154,8 +178,16 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
       const result = await addProjectImage(projectId, imageFile);
       
       if (result.success) {
-        // Refresh projects to get updated list with new image
-        await refreshProjects();
+        // Update local state directly instead of API refresh
+        const updatedProjects = currentProjects.map(project => {
+          if (project.id === projectId) {
+            const updatedImages = [...(project.project_images || []), result.data];
+            return { ...project, project_images: updatedImages };
+          }
+          return project;
+        });
+        setCurrentProjects(updatedProjects);
+        onUpdateProjects(updatedProjects);
         showNotification('Project image added successfully!', 'success');
       }
     } catch (error) {
@@ -169,15 +201,32 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
       const result = await deleteProjectImage(imageId);
       
       if (result && result.success) {
-        // Refresh projects to get updated list
-        await refreshProjects();
+        // Update local state directly instead of API refresh
+        const updatedProjects = currentProjects.map(project => ({
+          ...project,
+          project_images: (project.project_images || []).filter(img => img.id !== imageId)
+        }));
+        setCurrentProjects(updatedProjects);
+        onUpdateProjects(updatedProjects);
         showNotification('Project image deleted successfully!', 'success');
       } else {
         showNotification('Failed to delete project image', 'error');
       }
     } catch (error) {
       console.error('Error deleting project image:', error);
-      showNotification(`Error deleting project image: ${error.message || 'Unknown error'}`, 'error');
+      
+      // Even if API call fails, remove from UI if image already deleted
+      if (error.message && error.message.includes('not found')) {
+        const updatedProjects = currentProjects.map(project => ({
+          ...project,
+          project_images: (project.project_images || []).filter(img => img.id !== imageId)
+        }));
+        setCurrentProjects(updatedProjects);
+        onUpdateProjects(updatedProjects);
+        showNotification('Image removed from list (already deleted)', 'info');
+      } else {
+        showNotification(`Error deleting project image: ${error.message || 'Unknown error'}`, 'error');
+      }
     }
   };
 

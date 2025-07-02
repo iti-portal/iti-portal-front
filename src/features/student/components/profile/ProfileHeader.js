@@ -199,7 +199,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              {data?.profile?.job_profile || data?.profile?.track || 'Student'}
+              {data?.profile?.job_profile || ' '}
             </motion.p>
             <motion.p 
               className="text-gray-600 flex items-center mt-2"
@@ -207,7 +207,8 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <IoLocationSharp className="mr-1 text-gray-500" /> <span className="font-bold">{data?.profile?.branch || 'ITI'} </span>&nbsp;<span> Branch </span>
+              <IoLocationSharp className="mr-1 text-gray-500" /> <span className="font-bold">{data?.profile?.branch || 'ITI'} </span>&nbsp;<span> Branch </span> &nbsp;|&nbsp;
+              <span className="font-bold">{data?.profile?.track || ' '} </span>&nbsp;<span> Track </span>
             </motion.p>
             <motion.p 
               className="text-gray-600 flex items-center mt-1"
@@ -218,7 +219,12 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               <BsFillCalendarFill className="mr-1 text-gray-500 text-sm" /> 
               ITI Intake&nbsp;<span className="font-bold">{data?.profile?.intake || 'N/A'}</span>&nbsp;|&nbsp; 
               <span className="font-bold">{data?.profile?.program?.toUpperCase() || ''}&nbsp;</span>|&nbsp;
-              <span className="font-bold">{data?.profile?.student_status?.charAt(0)?.toUpperCase() + data?.profile?.student_status?.slice(1) || 'Student'}</span>
+              <span className="font-bold">
+                {data?.profile?.student_status?.toLowerCase() === 'current' 
+                  ? 'Current Student' 
+                  : `${data?.profile?.student_status?.charAt(0)?.toUpperCase() + data?.profile?.student_status?.slice(1) || 'Student'}`
+                }
+              </span>
             </motion.p>
           </div>
 
