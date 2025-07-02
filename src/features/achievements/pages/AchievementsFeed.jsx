@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AchievementCard from '../components/common/AchievementCard';
 import { useAchievementsAPI, ACHIEVEMENT_SOURCES } from '../hooks/useAchievementsAPI';
+import { likeAchievement, unlikeAchievement } from '../../../services/achievementsService';
 
 const AchievementsFeed = () => {
   const navigate = useNavigate();
@@ -95,6 +96,28 @@ const AchievementsFeed = () => {
     } finally {
       setRefreshing(false);
     }
+  };
+
+  // Handle like/unlike
+  const handleLike = async (achievementId, isLiked) => {
+    try {
+      if (isLiked) {
+        await likeAchievement(achievementId);
+      } else {
+        await unlikeAchievement(achievementId);
+      }
+      // Optionally refresh to get updated like count
+      // Note: The AchievementCard handles optimistic updates
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+      // The AchievementCard will revert optimistic update on error
+    }
+  };
+
+  // Handle comment (opens modal)
+  const handleComment = (achievement) => {
+    // The AchievementCard already handles opening the modal
+    // No additional action needed here
   };
 
   // Debounced tab switching to prevent rate limiting
@@ -440,14 +463,10 @@ const AchievementsFeed = () => {
                         showActions={false}
                         viewMode={viewMode}
                         onView={(achievement) => {
-                          // Handle view achievement
+                          // Handle view achievement - modal opens automatically
                         }}
-                        onLike={async (achievementId, isLiked) => {
-                          // TODO: Implement like API call
-                        }}
-                        onComment={(achievement) => {
-                          // TODO: Implement comment functionality
-                        }}
+                        onLike={handleLike}
+                        onComment={handleComment}
                       />
                     </div>
                   ))

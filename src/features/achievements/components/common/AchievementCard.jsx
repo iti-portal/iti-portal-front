@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import AchievementDetailsModal from '../../components/modals/AchievementDetailsModal';
 
 // Get the base URL for images (remove /api part for storage URLs)
 const getImageUrl = (imagePath) => {
@@ -30,6 +30,7 @@ const AchievementCard = ({
   const [isLiked, setIsLiked] = useState(achievement.is_liked || false);
   const [likeCount, setLikeCount] = useState(achievement.like_count || 0);
   const [showComments, setShowComments] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // Helper functions
   const getAchievementDisplayProps = (type) => {
@@ -115,6 +116,7 @@ const AchievementCard = ({
   };
 
   const handleView = () => {
+    setShowDetailsModal(true);
     onView?.(achievement);
   };
 
@@ -137,7 +139,7 @@ const AchievementCard = ({
 
   const handleComment = (e) => {
     e.stopPropagation();
-    setShowComments(!showComments);
+    setShowDetailsModal(true);
     onComment?.(achievement);
   };
 
@@ -154,29 +156,27 @@ const AchievementCard = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      whileHover={{ y: viewMode === 'grid' ? -2 : 0, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-      onClick={handleView}
-      className={`
-        bg-white rounded-lg border border-gray-200 hover:border-gray-300
-        transition-all duration-200 cursor-pointer group overflow-hidden
-        ${viewMode === 'list' ? 'flex items-center space-x-4 p-4' : `${compact ? 'p-4' : 'p-6'}`} ${className}
-      `}
-    >
+    <>
+      <div
+        onClick={handleView}
+        className={`
+          bg-white rounded-lg border border-gray-200 hover:border-gray-300
+          transition-all duration-200 cursor-pointer group overflow-hidden hover:shadow-md
+          ${viewMode === 'list' ? 'flex items-center space-x-4 p-4' : `${compact ? 'p-4' : 'p-6'}`} ${className}
+        `}
+      >
       {viewMode === 'list' ? (
         // List View Layout
         <>
           {/* User Profile - Left */}
-          {achievement.user && showUser && (
+          {(achievement.user_profile || achievement.user) && showUser && (
             <div className="flex-shrink-0">
-              {achievement.user.profile_picture ? (
+              {(achievement.user_profile?.profile_picture || achievement.user?.profile_picture) ? (
                 <>
                   <img
-                    src={getImageUrl(achievement.user.profile_picture)}
-                    alt={achievement.user.name}
+                    src={getImageUrl(achievement.user_profile?.profile_picture || achievement.user?.profile_picture)}
+                    alt={(achievement.user_profile?.first_name || achievement.user?.first_name || '') + ' ' + 
+                         (achievement.user_profile?.last_name || achievement.user?.last_name || '')}
                     className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 shadow-sm"
                     onError={(e) => {
                       e.target.style.display = 'none';
@@ -186,14 +186,14 @@ const AchievementCard = ({
                   <div 
                     className="w-12 h-12 rounded-full hidden items-center justify-center text-white text-sm font-semibold bg-gray-500"
                   >
-                    {achievement.user.first_name?.charAt(0).toUpperCase() || 'U'}
+                    {(achievement.user_profile?.first_name || achievement.user?.first_name || '?').charAt(0).toUpperCase()}
                   </div>
                 </>
               ) : (
                 <div 
                   className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold bg-gray-500"
                 >
-                  {achievement.user.first_name?.charAt(0).toUpperCase() || 'U'}
+                  {(achievement.user_profile?.first_name || achievement.user?.first_name || '?').charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
@@ -216,9 +216,9 @@ const AchievementCard = ({
                   {achievement.title}
                 </h3>
 
-                {achievement.user && showUser && (
+                {(achievement.user_profile || achievement.user) && showUser && (
                   <p className="text-sm text-gray-600 mb-1">
-                    by {achievement.user.name} • {formatTimeAgo(achievement.created_at)}
+                    by {achievement.user_profile?.first_name || achievement.user?.first_name || ''} {achievement.user_profile?.last_name || achievement.user?.last_name || ''} • {formatTimeAgo(achievement.created_at)}
                   </p>
                 )}
 
@@ -324,15 +324,16 @@ const AchievementCard = ({
           {/* Content Section */}
           <div className="space-y-3">
             {/* User Information - moved to top */}
-            {achievement.user && showUser && (
+            {(achievement.user_profile || achievement.user) && showUser && (
               <div className="flex items-center space-x-3 mb-4">
                 {/* Profile Image */}
                 <div className="flex-shrink-0 relative">
-                  {achievement.user.profile_picture ? (
+                  {(achievement.user_profile?.profile_picture || achievement.user?.profile_picture) ? (
                     <>
                       <img
-                        src={getImageUrl(achievement.user.profile_picture)}
-                        alt={achievement.user.name}
+                        src={getImageUrl(achievement.user_profile?.profile_picture || achievement.user?.profile_picture)}
+                        alt={(achievement.user_profile?.first_name || achievement.user?.first_name || '') + ' ' + 
+                             (achievement.user_profile?.last_name || achievement.user?.last_name || '')}
                         className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 shadow-sm"
                         onError={(e) => {
                           e.target.style.display = 'none';
@@ -342,14 +343,14 @@ const AchievementCard = ({
                       <div 
                         className="w-10 h-10 rounded-full hidden items-center justify-center text-white text-sm font-semibold bg-gray-500"
                       >
-                        {achievement.user.first_name?.charAt(0).toUpperCase() || 'U'}
+                        {(achievement.user_profile?.first_name || achievement.user?.first_name || '?').charAt(0).toUpperCase()}
                       </div>
                     </>
                   ) : (
                     <div 
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold bg-gray-500"
                     >
-                      {achievement.user.first_name?.charAt(0).toUpperCase() || 'U'}
+                      {(achievement.user_profile?.first_name || achievement.user?.first_name || '?').charAt(0).toUpperCase()}
                     </div>
                   )}
                 </div>
@@ -357,7 +358,7 @@ const AchievementCard = ({
                 {/* User Details */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">
-                    {achievement.user.name}
+                    {achievement.user_profile?.first_name || achievement.user?.first_name || ''} {achievement.user_profile?.last_name || achievement.user?.last_name || ''}
                   </p>
                   <p className="text-xs text-gray-500">
                     {formatTimeAgo(achievement.created_at)}
@@ -451,7 +452,15 @@ const AchievementCard = ({
           )}
         </>
       )}
-    </motion.div>
+    </div>
+      
+      {/* Achievement Details Modal */}
+      <AchievementDetailsModal 
+        isOpen={showDetailsModal} 
+        onClose={() => setShowDetailsModal(false)} 
+        achievement={achievement} 
+      />
+    </>
   );
 };
 

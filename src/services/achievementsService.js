@@ -260,29 +260,20 @@ export const deleteAchievement = async (id) => {
 };
 
 /**
- * Get achievement details by ID
- */
-export const getAchievementById = async (id) => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/achievements/${id}`, {
-      method: 'GET',
-      headers: getAuthHeaders(),
-    });
 
-    return await handleApiResponse(response);
-  } catch (error) {
-    throw new Error(`Failed to fetch achievement: ${error.message}`);
-  }
-};
 
 /**
  * Like an achievement
  */
-export const likeAchievement = async (id) => {
+export const likeAchievement = async (id) => { 
   try {
-    const response = await fetch(`${API_BASE_URL}/achievements/${id}/like`, {
+    const response = await fetch(`${API_BASE_URL}/achievements/like`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: {
+        ...getAuthHeaders(), // should include 'Content-Type': 'application/json' and Authorization token
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ achievement_id: id }),
     });
 
     return await handleApiResponse(response);
@@ -292,13 +283,17 @@ export const likeAchievement = async (id) => {
 };
 
 /**
- * Unlike an achievement
+ * Unlike an achievement (uses same API as like - toggles based on current state)
  */
-export const unlikeAchievement = async (id) => {
+export const unlikeAchievement = async (id) => { 
   try {
-    const response = await fetch(`${API_BASE_URL}/achievements/${id}/unlike`, {
+    const response = await fetch(`${API_BASE_URL}/achievements/like`, {
       method: 'POST',
-      headers: getAuthHeaders(),
+      headers: {
+        ...getAuthHeaders(), // should include 'Content-Type': 'application/json' and Authorization token
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ achievement_id: id }),
     });
 
     return await handleApiResponse(response);
@@ -307,15 +302,37 @@ export const unlikeAchievement = async (id) => {
   }
 };
 
+
+
+
 /**
  * Add comment to an achievement
  */
-export const addComment = async (achievementId, comment) => {
+// export const addComment = async (achievementId, comment) => {
+//   try {
+//     const response = await fetch(`${API_BASE_URL}/achievements/${achievementId}/comments`, {
+//       method: 'POST',
+//       headers: getAuthHeaders(),
+//       body: JSON.stringify({ comment }),
+//     });
+
+//     return await handleApiResponse(response);
+//   } catch (error) {
+//     throw new Error(`Failed to add comment: ${error.message}`);
+//   }
+// };
+export const addComment = async (achievementId, content) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/achievements/${achievementId}/comments`, {
+    const response = await fetch('http://localhost:8000/api/achievements/comment', {
       method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify({ comment }),
+      headers: {
+        ...getAuthHeaders(), // should include Authorization and Content-Type
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        achievement_id: achievementId,
+        content: content,
+      }),
     });
 
     return await handleApiResponse(response);
@@ -323,6 +340,7 @@ export const addComment = async (achievementId, comment) => {
     throw new Error(`Failed to add comment: ${error.message}`);
   }
 };
+
 
 /**
  * Get comments for an achievement
@@ -349,9 +367,9 @@ export const getComments = async (achievementId, params = {}) => {
 /**
  * Delete a comment
  */
-export const deleteComment = async (achievementId, commentId) => {
+export const deleteComment = async (commentId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/achievements/${achievementId}/comments/${commentId}`, {
+    const response = await fetch(`http://localhost:8000/api/achievements/comment/${commentId}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });

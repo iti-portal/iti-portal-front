@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AchievementCard from '../components/common/AchievementCard';
 import { useMyAchievements } from '../hooks/useMyAchievements';
-import { deleteAchievement } from '../../../services/achievementsService';
+import { deleteAchievement, likeAchievement, unlikeAchievement } from '../../../services/achievementsService';
 import Navbar from '../../../components/Layout/Navbar';
 
 const MyAchievements = () => {
@@ -103,6 +103,28 @@ const MyAchievements = () => {
       console.error('Error deleting achievement:', error);
       alert(`Failed to delete achievement: ${error.message}`);
     }
+  };
+
+  // Handle like/unlike
+  const handleLike = async (achievementId, isLiked) => {
+    try {
+      if (isLiked) {
+        await likeAchievement(achievementId);
+      } else {
+        await unlikeAchievement(achievementId);
+      }
+      // Optionally refresh to get updated like count
+      // Note: The AchievementCard handles optimistic updates
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+      // The AchievementCard will revert optimistic update on error
+    }
+  };
+
+  // Handle comment (opens modal)
+  const handleComment = (achievement) => {
+    // The AchievementCard already handles opening the modal
+    // No additional action needed here
   };
 
   // Calculate statistics
@@ -352,18 +374,14 @@ const MyAchievements = () => {
                         showActions={true} // Show edit/delete actions
                         viewMode={viewMode}
                         onView={() => {
-                          // Handle view achievement
+                          // Handle view achievement - modal opens automatically
                         }}
                         onEdit={(achievement) => {
                           navigate(`/achievements/edit/${achievement.id}`);
                         }}
                         onDelete={handleDeleteAchievement}
-                        onLike={async (achievementId, isLiked) => {
-                          // TODO: Implement like API call
-                        }}
-                        onComment={(achievement) => {
-                          // TODO: Implement comment functionality
-                        }}
+                        onLike={handleLike}
+                        onComment={handleComment}
                       />
                     </div>
                   ))
