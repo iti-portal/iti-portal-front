@@ -323,7 +323,7 @@ export const unlikeAchievement = async (id) => {
 // };
 export const addComment = async (achievementId, content) => {
   try {
-    const response = await fetch('http://localhost:8000/api/achievements/comment', {
+    const response = await fetch(`${API_BASE_URL}/achievements/comment`, {
       method: 'POST',
       headers: {
         ...getAuthHeaders(), // should include Authorization and Content-Type
@@ -369,13 +369,24 @@ export const getComments = async (achievementId, params = {}) => {
  */
 export const deleteComment = async (commentId) => {
   try {
-    const response = await fetch(`http://localhost:8000/api/achievements/comment/${commentId}`, {
+    // Use localhost instead of 127.0.0.1 to match your working API calls
+    const url = `http://localhost:8000/api/achievements/comment/${commentId}`;
+    
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
 
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('🗑️ Delete comment error response:', errorText);
+      throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+    
     return await handleApiResponse(response);
   } catch (error) {
+    console.error('❌ Delete comment error:', error);
     throw new Error(`Failed to delete comment: ${error.message}`);
   }
 };

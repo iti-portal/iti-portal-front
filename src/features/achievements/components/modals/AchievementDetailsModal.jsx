@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { likeAchievement, unlikeAchievement, addComment, deleteComment } from '../../../../services/achievementsService';
 import { mapBackendTypeToFrontend } from '../../../../services/achievementsService';
+import { useAuth } from '../../../../contexts/AuthContext';
 
-const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievement }) => {
+const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievement, onAchievementUpdate }) => {
+  const { user } = useAuth(); // Get current user from auth context
   const [achievement, setAchievement] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [error, setError] = useState(null);
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commentError, setCommentError] = useState(null);
+  const [showLikesList, setShowLikesList] = useState(false);
   const commentsEndRef = useRef(null);
 
   // Scroll to bottom of comments when modal opens or comments change
@@ -21,6 +24,7 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   // Set achievement from props when modal opens
   useEffect(() => {
     if (isOpen && initialAchievement) {
+      
       // Map backend type to frontend if needed
       const mappedAchievement = { ...initialAchievement };
       if (mappedAchievement.type) {
@@ -47,12 +51,20 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     try {
       const currentLikeState = achievement.is_liked;
       
+      
       // Optimistic update
-      setAchievement(prev => ({
-        ...prev,
+      const updatedAchievement = {
+        ...achievement,
         is_liked: !currentLikeState,
-        like_count: currentLikeState ? prev.like_count - 1 : prev.like_count + 1
-      }));
+        like_count: currentLikeState ? achievement.like_count - 1 : achievement.like_count + 1
+      };
+      
+      setAchievement(updatedAchievement);
+      
+      // Notify parent card of the update
+      if (onAchievementUpdate) {
+        onAchievementUpdate(updatedAchievement);
+      }
       
       // Call API
       if (currentLikeState) {
@@ -60,15 +72,30 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
       } else {
         await likeAchievement(achievement.id);
       }
+      
     } catch (err) {
+      console.error('❌ Modal handleLikeToggle - Error:', err);
       // Revert on error
-      setAchievement(prev => ({
-        ...prev,
-        is_liked: !prev.is_liked,
-        like_count: prev.is_liked ? prev.like_count - 1 : prev.like_count + 1
-      }));
+      const revertedAchievement = {
+        ...achievement,
+        is_liked: !achievement.is_liked,
+        like_count: achievement.is_liked ? achievement.like_count - 1 : achievement.like_count + 1
+      };
+      
+      setAchievement(revertedAchievement);
+      
+      // Notify parent card of the revert
+      if (onAchievementUpdate) {
+        onAchievementUpdate(revertedAchievement);
+      }
+      
       console.error('Failed to toggle like:', err);
     }
+  };
+
+  // Handle showing/hiding likes list
+  const handleToggleLikesList = () => {
+    setShowLikesList(!showLikesList);
   };
 
   // Handle submit comment
@@ -81,17 +108,27 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     
     try {
       const response = await addComment(achievement.id, newComment);
+      console.log('📝 Add comment response:', response); // Debug log
+      
       if (response.success) {
         // Add the new comment to the UI
         const updatedAchievement = { ...achievement };
         
-        // Use the comment data from response if available, otherwise create a mock
+        // Use the comment data from response if available, otherwise create with current user's data
         const newCommentData = response.data?.comment || {
           id: response.data?.id || Date.now(), // Use response ID or timestamp as fallback
           content: newComment,
           created_at: new Date().toISOString(),
-          user_profile: response.data?.user_profile || achievement.user_profile // Use response user or current user
+          // Use the current user's profile instead of achievement owner's profile
+          user_profile: response.data?.user_profile || {
+            first_name: user?.first_name || user?.name?.split(' ')[0] || 'You',
+            last_name: user?.last_name || user?.name?.split(' ')[1] || '',
+            profile_picture: user?.profile_picture || null
+          }
         };
+        
+        console.log('📝 New comment data:', newCommentData); // Debug log
+        console.log('👤 Current user:', user); // Debug log
         
         updatedAchievement.comments = [
           ...(updatedAchievement.comments || []),
@@ -99,6 +136,12 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
         ];
         updatedAchievement.comment_count = (updatedAchievement.comment_count || 0) + 1;
         setAchievement(updatedAchievement);
+        
+        // Notify parent card of the update
+        if (onAchievementUpdate) {
+          onAchievementUpdate(updatedAchievement);
+        }
+        
         setNewComment('');
       } else {
         setCommentError('Failed to add comment');
@@ -127,6 +170,11 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
           updatedAchievement.comments = updatedAchievement.comments.filter((_, index) => index !== commentIndex);
           updatedAchievement.comment_count = Math.max(0, (updatedAchievement.comment_count || 0) - 1);
           setAchievement(updatedAchievement);
+          
+          // Notify parent card of the update
+          if (onAchievementUpdate) {
+            onAchievementUpdate(updatedAchievement);
+          }
         } else {
           alert('Failed to delete comment');
         }
@@ -266,13 +314,24 @@ This feature requires the backend to provide comment IDs.`);
                         <div className="flex items-center mt-3 text-sm text-gray-600">
                           <button 
                             onClick={handleLikeToggle}
-                            className={`flex items-center mr-4 ${achievement.is_liked ? 'text-blue-600' : ''}`}
+                            className={`flex items-center mr-4 transition-colors ${achievement.is_liked ? 'text-red-600' : 'text-gray-500 hover:text-red-600'}`}
                           >
                             <svg className="w-4 h-4 mr-1" fill={achievement.is_liked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                             {achievement.like_count} {achievement.like_count === 1 ? 'Like' : 'Likes'}
                           </button>
+                          
+                          {/* Clickable likes count to see who liked */}
+                          {achievement.likes && achievement.likes.length > 0 && (
+                            <button
+                              onClick={handleToggleLikesList}
+                              className="text-xs text-blue-600 hover:text-blue-800 underline mr-4"
+                            >
+                              View {achievement.likes.length} {achievement.likes.length === 1 ? 'like' : 'likes'}
+                            </button>
+                          )}
+                          
                           <div className="flex items-center">
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -286,6 +345,57 @@ This feature requires the backend to provide comment IDs.`);
                   
                   {/* Comments section - Takes remaining space */}
                   <div className="flex-1 p-4 flex flex-col overflow-hidden">
+                    {/* Show likes list if toggled */}
+                    {showLikesList && achievement.likes && achievement.likes.length > 0 && (
+                      <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="font-medium text-gray-900 flex items-center">
+                            <svg className="w-4 h-4 mr-2 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            Liked by {achievement.likes.length} {achievement.likes.length === 1 ? 'person' : 'people'}
+                          </h4>
+                          <button
+                            onClick={handleToggleLikesList}
+                            className="text-gray-400 hover:text-gray-600 p-1"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="space-y-2 max-h-32 overflow-y-auto">
+                          {achievement.likes.map((like, index) => (
+                            <div key={index} className="flex items-center space-x-3">
+                              <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                                {like.user_profile?.profile_picture ? (
+                                  <img 
+                                    src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/storage/${like.user_profile.profile_picture}`} 
+                                    alt={`${like.user_profile.first_name} ${like.user_profile.last_name}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 text-sm">
+                                    {like.user_profile?.first_name?.charAt(0) || '?'}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {like.user_profile?.first_name} {like.user_profile?.last_name}
+                                </p>
+                                {like.user_profile?.user_id && (
+                                  <p className="text-xs text-gray-500">
+                                    ID: {like.user_profile.user_id}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
                     <h3 className="font-medium text-gray-900 mb-3 flex items-center flex-shrink-0">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

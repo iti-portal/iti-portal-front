@@ -29,8 +29,15 @@ const AchievementCard = ({
 }) => {
   const [isLiked, setIsLiked] = useState(achievement.is_liked || false);
   const [likeCount, setLikeCount] = useState(achievement.like_count || 0);
-  const [showComments, setShowComments] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [currentAchievement, setCurrentAchievement] = useState(achievement);
+
+  // Update local state when achievement prop changes
+  React.useEffect(() => {
+    setIsLiked(achievement.is_liked || false);
+    setLikeCount(achievement.like_count || 0);
+    setCurrentAchievement(achievement);
+  }, [achievement]);
 
   // Helper functions
   const getAchievementDisplayProps = (type) => {
@@ -124,16 +131,46 @@ const AchievementCard = ({
     e.stopPropagation();
     try {
       const newIsLiked = !isLiked;
+      const newLikeCount = newIsLiked ? likeCount + 1 : likeCount - 1;
+      
+      console.log('🔄 Card handleLike - Before:', { 
+        id: achievement.id, 
+        isLiked, 
+        likeCount, 
+        newIsLiked, 
+        newLikeCount 
+      });
+      
+      // Update local state
       setIsLiked(newIsLiked);
-      setLikeCount(prev => newIsLiked ? prev + 1 : prev - 1);
+      setLikeCount(newLikeCount);
+      
+      // Update current achievement state for modal
+      setCurrentAchievement(prev => ({
+        ...prev,
+        is_liked: newIsLiked,
+        like_count: newLikeCount
+      }));
       
       if (onLike) {
         await onLike(achievement.id, newIsLiked);
       }
+      
+      console.log('✅ Card handleLike - Success:', { 
+        id: achievement.id, 
+        isLiked: newIsLiked, 
+        likeCount: newLikeCount 
+      });
     } catch (error) {
+      console.error('❌ Card handleLike - Error:', error);
       // Revert on error
       setIsLiked(!isLiked);
-      setLikeCount(prev => isLiked ? prev + 1 : prev - 1);
+      setLikeCount(isLiked ? likeCount + 1 : likeCount - 1);
+      setCurrentAchievement(prev => ({
+        ...prev,
+        is_liked: !prev.is_liked,
+        like_count: prev.is_liked ? prev.like_count + 1 : prev.like_count - 1
+      }));
     }
   };
 
@@ -141,6 +178,17 @@ const AchievementCard = ({
     e.stopPropagation();
     setShowDetailsModal(true);
     onComment?.(achievement);
+  };
+
+  // Handle achievement updates from modal
+  const handleAchievementUpdate = (updatedAchievement) => {
+
+    
+    setIsLiked(updatedAchievement.is_liked);
+    setLikeCount(updatedAchievement.like_count);
+    setCurrentAchievement(updatedAchievement);
+    
+
   };
 
   const formatTimeAgo = (dateString) => {
@@ -258,11 +306,52 @@ const AchievementCard = ({
             {((likeCount > 0 || isLiked) || achievement.comment_count > 0) && (
               <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500">
                 {(likeCount > 0 || isLiked) && (
-                  <span className="flex items-center space-x-1">
+                  <span 
+                    className="flex items-center space-x-1 relative group cursor-pointer"
+                    title={achievement.likes && achievement.likes.length > 0 ? 
+                      `Liked by: ${achievement.likes.map(like => `${like.user_profile?.first_name} ${like.user_profile?.last_name}`).join(', ')}` : 
+                      `${likeCount} ${likeCount === 1 ? 'like' : 'likes'}`
+                    }
+                  >
                     <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                     <span>{likeCount}</span>
+                    
+                    {/* Tooltip for likes - List View */}
+                    {achievement.likes && achievement.likes.length > 0 && (
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap max-w-xs">
+                        <div className="space-y-1">
+                          {achievement.likes.slice(0, 5).map((like, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <div className="w-4 h-4 rounded-full bg-gray-600 overflow-hidden flex-shrink-0">
+                                {like.user_profile?.profile_picture ? (
+                                  <img 
+                                    src={`${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}/storage/${like.user_profile.profile_picture}`} 
+                                    alt={`${like.user_profile.first_name} ${like.user_profile.last_name}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gray-500 text-white text-xs">
+                                    {like.user_profile?.first_name?.charAt(0) || '?'}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-xs">
+                                {like.user_profile?.first_name} {like.user_profile?.last_name}
+                              </span>
+                            </div>
+                          ))}
+                          {achievement.likes.length > 5 && (
+                            <div className="text-xs text-gray-300 pt-1">
+                              and {achievement.likes.length - 5} more...
+                            </div>
+                          )}
+                        </div>
+                        {/* Tooltip arrow */}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                      </div>
+                    )}
                   </span>
                 )}
                 
@@ -384,11 +473,52 @@ const AchievementCard = ({
               {/* Social Stats */}
               <div className="flex items-center space-x-4">
                 {(likeCount > 0 || isLiked) && (
-                  <span className="flex items-center space-x-1">
+                  <span 
+                    className="flex items-center space-x-1 relative group cursor-pointer"
+                    title={achievement.likes && achievement.likes.length > 0 ? 
+                      `Liked by: ${achievement.likes.map(like => `${like.user_profile?.first_name} ${like.user_profile?.last_name}`).join(', ')}` : 
+                      `${likeCount} ${likeCount === 1 ? 'like' : 'likes'}`
+                    }
+                  >
                     <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                     </svg>
                     <span>{likeCount}</span>
+                    
+                    {/* Tooltip for likes */}
+                    {achievement.likes && achievement.likes.length > 0 && (
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10 whitespace-nowrap max-w-xs">
+                        <div className="space-y-1">
+                          {achievement.likes.slice(0, 5).map((like, index) => (
+                            <div key={index} className="flex items-center space-x-2">
+                              <div className="w-4 h-4 rounded-full bg-gray-600 overflow-hidden flex-shrink-0">
+                                {like.user_profile?.profile_picture ? (
+                                  <img 
+                                    src={`${process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://127.0.0.1:8000'}/storage/${like.user_profile.profile_picture}`} 
+                                    alt={`${like.user_profile.first_name} ${like.user_profile.last_name}`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gray-500 text-white text-xs">
+                                    {like.user_profile?.first_name?.charAt(0) || '?'}
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-xs">
+                                {like.user_profile?.first_name} {like.user_profile?.last_name}
+                              </span>
+                            </div>
+                          ))}
+                          {achievement.likes.length > 5 && (
+                            <div className="text-xs text-gray-300 pt-1">
+                              and {achievement.likes.length - 5} more...
+                            </div>
+                          )}
+                        </div>
+                        {/* Tooltip arrow */}
+                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                      </div>
+                    )}
                   </span>
                 )}
                 
@@ -458,7 +588,8 @@ const AchievementCard = ({
       <AchievementDetailsModal 
         isOpen={showDetailsModal} 
         onClose={() => setShowDetailsModal(false)} 
-        achievement={achievement} 
+        achievement={currentAchievement}
+        onAchievementUpdate={handleAchievementUpdate}
       />
     </>
   );

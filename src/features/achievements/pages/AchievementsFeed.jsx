@@ -101,15 +101,21 @@ const AchievementsFeed = () => {
   // Handle like/unlike
   const handleLike = async (achievementId, isLiked) => {
     try {
+      
+      
       if (isLiked) {
+        
         await likeAchievement(achievementId);
       } else {
+        
         await unlikeAchievement(achievementId);
       }
+      
+      
       // Optionally refresh to get updated like count
       // Note: The AchievementCard handles optimistic updates
     } catch (error) {
-      console.error('Failed to toggle like:', error);
+      console.error('❌ Feed handleLike - Failed to toggle like:', error);
       // The AchievementCard will revert optimistic update on error
     }
   };
