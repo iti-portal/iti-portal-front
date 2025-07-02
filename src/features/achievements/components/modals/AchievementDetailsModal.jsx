@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { likeAchievement, unlikeAchievement, addComment, deleteComment } from '../../../../services/achievementsService';
+import { likeAchievement, unlikeAchievement, addComment, deleteComment, getAchievementDetails } from '../../../../services/achievementsService';
 import { mapBackendTypeToFrontend } from '../../../../services/achievementsService';
 import { useAuth } from '../../../../contexts/AuthContext';
 
@@ -67,10 +67,30 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
       }
       
       // Call API
+      let apiResponse;
       if (currentLikeState) {
-        await unlikeAchievement(achievement.id);
+        apiResponse = await unlikeAchievement(achievement.id);
       } else {
-        await likeAchievement(achievement.id);
+        apiResponse = await likeAchievement(achievement.id);
+      }
+      
+      
+      
+      // If the API response includes updated achievement data with likes, use it
+      if (apiResponse && apiResponse.likes) {
+        const updatedWithLikes = {
+          ...updatedAchievement,
+          likes: apiResponse.likes,
+          like_count: apiResponse.like_count || updatedAchievement.like_count,
+          is_liked: apiResponse.is_liked !== undefined ? apiResponse.is_liked : updatedAchievement.is_liked
+        };
+        
+        setAchievement(updatedWithLikes);
+        
+        // Notify parent card of the complete update
+        if (onAchievementUpdate) {
+          onAchievementUpdate(updatedWithLikes);
+        }
       }
       
     } catch (err) {
@@ -94,7 +114,33 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   };
 
   // Handle showing/hiding likes list
-  const handleToggleLikesList = () => {
+  const handleToggleLikesList = async () => {
+    
+    // If we're showing the likes list and don't have likes data, try to fetch it
+    if (!showLikesList && achievement?.like_count > 0 && (!achievement?.likes || achievement.likes.length === 0)) {
+      try {
+        const freshData = await getAchievementDetails(achievement.id);
+        
+        if (freshData && freshData.likes) {
+          const updatedAchievement = {
+            ...achievement,
+            likes: freshData.likes,
+            like_count: freshData.like_count || achievement.like_count,
+            is_liked: freshData.is_liked !== undefined ? freshData.is_liked : achievement.is_liked
+          };
+          
+          setAchievement(updatedAchievement);
+          
+          // Notify parent card of the update
+          if (onAchievementUpdate) {
+            onAchievementUpdate(updatedAchievement);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch fresh achievement data:', error);
+      }
+    }
+    
     setShowLikesList(!showLikesList);
   };
 
@@ -221,7 +267,7 @@ This feature requires the backend to provide comment IDs.`);
           onClick={onClose}
         >
           <div
-            className="bg-white rounded-xl shadow-xl max-w-2xl w-full flex flex-col h-[85vh] overflow-hidden"
+            className="bg-white rounded-xl shadow-xl max-w-2xl w-full flex flex-col h-[85vh] overflow-hidden relative"
             onClick={e => e.stopPropagation()}
           >
             {loading ? (
@@ -318,8 +364,8 @@ This feature requires the backend to provide comment IDs.`);
                             {achievement.like_count} {achievement.like_count === 1 ? 'Like' : 'Likes'}
                           </button>
                           
-                          {/* Clickable likes count to see who liked */}
-                          {achievement.likes && achievement.likes.length > 0 && (
+                          {/* Clickable likes count to see who liked - Show if there are likes count > 0 */}
+                          {achievement.like_count > 0 && (
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
@@ -329,7 +375,7 @@ This feature requires the backend to provide comment IDs.`);
                               className="text-xs text-blue-600 hover:text-blue-800 underline mr-4 px-1 py-0.5 rounded transition-colors"
                               type="button"
                             >
-                              View {achievement.likes.length} {achievement.likes.length === 1 ? 'like' : 'likes'}
+                              View {achievement.like_count} {achievement.like_count === 1 ? 'like' : 'likes'}
                             </button>
                           )}
                           
@@ -346,52 +392,6 @@ This feature requires the backend to provide comment IDs.`);
                   
                   {/* Comments section - Takes remaining space */}
                   <div className="flex-1 p-4 flex flex-col overflow-hidden">
-                    {/* Show likes list if toggled */}
-                    {showLikesList && achievement.likes && achievement.likes.length > 0 && (
-                      <div className="mb-4 p-3 bg-gray-50 rounded-lg border">
-                        <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-medium text-gray-900 flex items-center">
-                            <svg className="w-4 h-4 mr-2 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                            Liked by {achievement.likes.length} {achievement.likes.length === 1 ? 'person' : 'people'}
-                          </h4>
-                          <button
-                            onClick={handleToggleLikesList}
-                            className="text-gray-400 hover:text-gray-600 p-1"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                        <div className="space-y-2 max-h-32 overflow-y-auto">
-                          {achievement.likes.map((like, index) => (
-                            <div key={index} className="flex items-center space-x-3">
-                              <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
-                                {like.user_profile?.profile_picture ? (
-                                  <img 
-                                    src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/storage/${like.user_profile.profile_picture}`} 
-                                    alt={`${like.user_profile.first_name} ${like.user_profile.last_name}`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 text-sm">
-                                    {like.user_profile?.first_name?.charAt(0) || '?'}
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">
-                                  {like.user_profile?.first_name} {like.user_profile?.last_name}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    
                     <h3 className="font-medium text-gray-900 mb-3 flex items-center flex-shrink-0">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -503,6 +503,80 @@ This feature requires the backend to provide comment IDs.`);
               </div>
             ) : null}
           </div>
+          
+          {/* Likes List Overlay - appears on top when toggled */}
+          {showLikesList && achievement && achievement.like_count > 0 && (
+            <div 
+              className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 rounded-xl"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleLikesList();
+              }}
+            >
+              <div 
+                className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-96 flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b">
+                  <h4 className="font-medium text-gray-900 flex items-center">
+                    <svg className="w-5 h-5 mr-2 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                    Liked by {achievement.like_count} {achievement.like_count === 1 ? 'person' : 'people'}
+                  </h4>
+                  <button
+                    onClick={handleToggleLikesList}
+                    className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {/* Likes List */}
+                <div className="flex-1 overflow-y-auto p-4">
+                  {achievement.likes && achievement.likes.length > 0 ? (
+                    <div className="space-y-3">
+                      {achievement.likes.map((like, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                            {like.user_profile?.profile_picture ? (
+                              <img 
+                                src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/storage/${like.user_profile.profile_picture}`} 
+                                alt={`${like.user_profile.first_name} ${like.user_profile.last_name}`}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 text-sm font-medium">
+                                {like.user_profile?.first_name?.charAt(0) || '?'}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {like.user_profile?.first_name} {like.user_profile?.last_name}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="text-gray-400 mb-2">
+                        <svg className="w-12 h-12 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-sm text-gray-500">Likes data not available</p>
+                      <p className="text-xs text-gray-400 mt-1">{achievement.like_count} people liked this post</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>

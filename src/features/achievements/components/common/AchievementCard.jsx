@@ -135,11 +135,11 @@ const AchievementCard = ({
       
 
       
-      // Update local state
+      // Update local state optimistically
       setIsLiked(newIsLiked);
       setLikeCount(newLikeCount);
       
-      // Update current achievement state for modal
+      // Update current achievement state for modal optimistically
       setCurrentAchievement(prev => ({
         ...prev,
         is_liked: newIsLiked,
@@ -147,7 +147,19 @@ const AchievementCard = ({
       }));
       
       if (onLike) {
-        await onLike(achievement.id, newIsLiked);
+        const response = await onLike(achievement.id, newIsLiked);
+        
+        
+        // If the API response includes updated achievement data with likes, use it
+        if (response && response.likes) {
+          
+          setCurrentAchievement(prev => ({
+            ...prev,
+            likes: response.likes,
+            like_count: response.like_count || newLikeCount,
+            is_liked: response.is_liked !== undefined ? response.is_liked : newIsLiked
+          }));
+        }
       }
 
     } catch (error) {

@@ -6,7 +6,6 @@ import {
   API_BASE_URL, 
   getAuthHeaders, 
   getFileUploadHeaders, 
-  handleApiResponse, 
   handleNetworkError,
   constructCertificateImageUrl 
 } from './apiConfig';

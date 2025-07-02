@@ -260,9 +260,6 @@ export const deleteAchievement = async (id) => {
 };
 
 /**
-
-
-/**
  * Like an achievement
  */
 export const likeAchievement = async (id) => { 
@@ -302,9 +299,6 @@ export const unlikeAchievement = async (id) => {
   }
 };
 
-
-
-
 /**
  * Add comment to an achievement
  */
@@ -340,7 +334,6 @@ export const addComment = async (achievementId, content) => {
     throw new Error(`Failed to add comment: ${error.message}`);
   }
 };
-
 
 /**
  * Get comments for an achievement
@@ -388,6 +381,22 @@ export const deleteComment = async (commentId) => {
   } catch (error) {
     console.error('❌ Delete comment error:', error);
     throw new Error(`Failed to delete comment: ${error.message}`);
+  }
+};
+
+/**
+ * Get a single achievement with full details including likes
+ */
+export const getAchievementDetails = async (id) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/achievements/${id}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    return await handleApiResponse(response);
+  } catch (error) {
+    throw new Error(`Failed to fetch achievement details: ${error.message}`);
   }
 };
 
