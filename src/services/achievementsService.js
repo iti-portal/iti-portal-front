@@ -1,57 +1,103 @@
 /**
  * Achievements Service
- * API service for managing achievements with authentication
+ * API s    });
+    
+    const url = `http:    });
+    
+    const url = `http://localhost:8000/api/achievements/popular?${params.toString()}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    
+    return await handleApiResponse(response);
+  } catch (error) {
+    throw error;
+  }0/api/achievements/connections?${params.toString()}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    
+    return await handleApiResponse(response);
+  } catch (error) {
+    throw error;
+  }ging achievements with pagination and authentication
  */
 
 import { API_BASE_URL, getAuthHeaders, handleApiResponse } from './apiConfig';
 
 /**
- * Get all achievements
+ * Get all achievements with pagination
  */
-export const getAllAchievements = async () => {
+export const getAllAchievements = async (page = 1, per_page = 25) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/achievements`, {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: per_page.toString()
+    });
+    
+    const url = `http://localhost:8000/api/achievements?${params.toString()}`;
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error('Error fetching all achievements:', error);
     throw error;
   }
 };
 
 /**
- * Get achievements from connections
+ * Get achievements from connections with pagination
  */
-export const getConnectionsAchievements = async () => {
+export const getConnectionsAchievements = async (page = 1, per_page = 20) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/connections-achievements`, {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: per_page.toString()
+    });
+    
+    const url = `http://localhost:8000/api/connections-achievements?${params.toString()}`;
+    
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error('Error fetching connections achievements:', error);
+    
     throw error;
   }
 };
 
 /**
- * Get popular achievements
+ * Get popular achievements with pagination
  */
-export const getPopularAchievements = async () => {
+export const getPopularAchievements = async (page = 1, per_page = 20) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/popular-achievements`, {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      per_page: per_page.toString()
+    });
+    
+    const url = `http://localhost:8000/api/popular-achievements?${params.toString()}`;
+    
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: getAuthHeaders(),
     });
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error('Error fetching popular achievements:', error);
+    
     throw error;
   }
 };
@@ -68,7 +114,7 @@ export const getAchievementById = async (id) => {
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error(`Error fetching achievement ${id}:`, error);
+    
     throw error;
   }
 };
@@ -86,7 +132,7 @@ export const createAchievement = async (achievementData) => {
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error('Error creating achievement:', error);
+    
     throw error;
   }
 };
@@ -104,7 +150,7 @@ export const updateAchievement = async (id, achievementData) => {
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error(`Error updating achievement ${id}:`, error);
+    
     throw error;
   }
 };
@@ -121,7 +167,7 @@ export const deleteAchievement = async (id) => {
     
     return await handleApiResponse(response);
   } catch (error) {
-    console.error(`Error deleting achievement ${id}:`, error);
+    
     throw error;
   }
 };
