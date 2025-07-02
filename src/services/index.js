@@ -59,6 +59,17 @@ export {
   deleteProject 
 } from './projectsService';
 
+// Achievements service exports
+export {
+  getAllAchievements,
+  getConnectionsAchievements,
+  getPopularAchievements,
+  getAchievementById,
+  createAchievement,
+  updateAchievement,
+  deleteAchievement
+} from './achievementsService';
+
 // API config exports (for advanced usage)
 export { 
   API_BASE_URL, 

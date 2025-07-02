@@ -9,22 +9,28 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Layout/Navbar';
 import AchievementCard from '../components/common/AchievementCard';
 import AchievementFilters from '../components/common/AchievementFilters';
-import { useAchievements } from '../hooks/useAchievements';
+import { useAchievementsAPI, ACHIEVEMENT_SOURCES } from '../hooks/useAchievementsAPI';
 import { useAchievementFilters } from '../hooks/useAchievementFilters';
 import { ACHIEVEMENT_TYPES } from '../types/achievementTypes';
-import { allMockAchievements } from '../data/mockAchievements';
 
 const ViewAchievements = () => {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState('grid'); // grid, list, timeline
-  // Using ref instead of state for pagination to avoid re-renders
-  const pageRef = useRef(1); 
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const observer = useRef();
   
-  // Use the custom hooks
-  const { filteredAchievements, setAchievements } = useAchievements([]);
+  // Use the API-based hook for fetching achievements
+  const { 
+    achievements, 
+    loading, 
+    error,
+    currentSource,
+    switchToAll,
+    switchToConnections,
+    switchToPopular,
+    getStatistics,
+    refresh
+  } = useAchievementsAPI();
+  
+  // Use filtering hook with live data
   const {
     selectedType,
     searchQuery,
@@ -32,92 +38,30 @@ const ViewAchievements = () => {
     getFilteredStatistics,
     handleTypeFilter,
     handleSearchChange
-  } = useAchievementFilters(allMockAchievements);
-  // Load data with applied filters - using pageRef to avoid dependency loop  
-  const loadFilteredData = useCallback(() => {
-    const filteredData = filterAchievements();
-    // console.log(`Loading filtered data: type=${selectedType}, search="${searchQuery}", found ${filteredData.length} items`);
-    setLoading(true);
-    
-    // Simulate API delay
-    setTimeout(() => {
-      // Use the ref directly to avoid state updates causing rerenders
-      const currentPage = pageRef.current;
-      const batchSize = 4;
-      const startIndex = (currentPage - 1) * batchSize;
-      const endIndex = currentPage * batchSize;
-      const newBatch = filteredData.slice(startIndex, endIndex);
-      
-      if (newBatch.length > 0) {
-        setAchievements(prevAchievements => {
-          if (currentPage === 1) {
-            // First batch, just return it directly
-            return newBatch;
-          } else {
-            // Filter out any items with IDs that already exist
-            const existingIds = new Set(prevAchievements.map(item => item.id));
-            const uniqueNewItems = newBatch.filter(item => !existingIds.has(item.id));
-            
-            // Log if any duplicates were found
-            if (uniqueNewItems.length !== newBatch.length) {
-              console.log(`Found ${newBatch.length - uniqueNewItems.length} duplicate IDs, filtered them out`);
-            }
-            
-            return [...prevAchievements, ...uniqueNewItems];
-          }
-        });
-        
-        // Update the ref directly instead of using setState
-        pageRef.current = currentPage + 1;
-        setHasMore(endIndex < filteredData.length);
-        // console.log(`Loaded ${newBatch.length} items (page ${currentPage}). Has more: ${endIndex < filteredData.length}`);
-      } else {
-        if (currentPage === 1) {
-          // No results for the filter
-          setAchievements([]);
-        }
-        setHasMore(false);
-      }
-        setLoading(false);
-    }, 500);
-  }, [filterAchievements, setAchievements, selectedType, searchQuery]);
+  } = useAchievementFilters(achievements);
 
-  // Setup intersection observer for infinite scrolling
-  const lastAchievementElementRef = useCallback(node => {
-    if (loading) return;
-    
-    if (observer.current) observer.current.disconnect();
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        console.log('Loading more filtered achievements...');
-        loadFilteredData();
+  // Get filtered achievements
+  const filteredAchievements = filterAchievements();
+  // Handle tab switching with async support
+  const handleTabSwitch = async (source) => {
+    try {
+      switch (source) {
+        case ACHIEVEMENT_SOURCES.ALL:
+          await switchToAll();
+          break;
+        case ACHIEVEMENT_SOURCES.CONNECTIONS:
+          await switchToConnections();
+          break;
+        case ACHIEVEMENT_SOURCES.POPULAR:
+          await switchToPopular();
+          break;
+        default:
+          await switchToAll();
       }
-    }, {
-      rootMargin: '150px', // Increased margin to load earlier
-      threshold: 0.1
-    });
-      if (node) observer.current.observe(node);
-  }, [loading, hasMore, loadFilteredData]);
-
-  // Page tracking is handled by pageRef defined above
-  
-  // Initial load - using empty dependency array to only run once
-  useEffect(() => {
-    // console.log("Initial load of achievements - ONE TIME ONLY");
-    // Reset to page 1 for initial load
-    pageRef.current = 1;
-    setHasMore(true);
-    setAchievements([]);
-    
-    // Small delay to ensure component is fully mounted
-    const timer = setTimeout(() => {
-      loadFilteredData();
-    }, 10);
-    
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty array ensures this effect runs only once on component mount
+    } catch (error) {
+      console.error('Error switching tabs:', error);
+    }
+  };
 
   const handleCreateNew = () => {
     navigate('/achievements/create');
@@ -127,27 +71,8 @@ const ViewAchievements = () => {
     navigate(`/achievements/${achievement.id}`);
   };
 
-  // Get statistics based on current filters
+  // Get statistics based on current filtered data
   const statistics = getFilteredStatistics();
-
-  // React to filter changes
-  useEffect(() => {
-    // When filters change, reset everything and load fresh data
-    // console.log('Filter changed, resetting pagination and loading fresh data');
-    
-    // Clear existing achievements
-    setAchievements([]);
-      // Reset pagination
-    pageRef.current = 1;
-    setHasMore(true);
-    
-    // Load the first page with the new filters
-    const timer = setTimeout(() => {
-      loadFilteredData();
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  }, [selectedType, searchQuery, loadFilteredData, setAchievements]);
 
   return (
     <>
@@ -195,7 +120,66 @@ const ViewAchievements = () => {
               </div>
             </div>
           </div>
-        </div>        {/* Filters */}
+        </div>
+
+        {/* Source Tabs */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between">
+              <div className="flex space-x-8">
+                <button
+                  onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.ALL)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    currentSource === ACHIEVEMENT_SOURCES.ALL
+                      ? 'border-[#901b20] text-[#901b20]'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  For You
+                </button>
+                
+                <button
+                  onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.CONNECTIONS)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    currentSource === ACHIEVEMENT_SOURCES.CONNECTIONS
+                      ? 'border-[#901b20] text-[#901b20]'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Following
+                </button>
+                
+                <button
+                  onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.POPULAR)}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                    currentSource === ACHIEVEMENT_SOURCES.POPULAR
+                      ? 'border-[#901b20] text-[#901b20]'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  Popular
+                </button>
+              </div>
+              
+              {/* Refresh Button */}
+              <button
+                onClick={refresh}
+                disabled={loading}
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                title="Refresh achievements"
+              >
+                <svg 
+                  className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
         <AchievementFilters
           selectedType={selectedType}
           searchQuery={searchQuery}
@@ -207,7 +191,52 @@ const ViewAchievements = () => {
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {filteredAchievements.length === 0 && !loading ? (
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-red-800">Error loading achievements</h3>
+                  <p className="text-sm text-red-700 mt-1">
+                    {error.includes('Too Many Attempts') 
+                      ? 'Server is busy. Please wait a moment before trying again.'
+                      : error
+                    }
+                  </p>
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={refresh}
+                    className="bg-red-100 text-red-800 px-3 py-1 rounded text-sm hover:bg-red-200 transition-colors"
+                  >
+                    Retry
+                  </button>
+                  <button
+                    onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.ALL)}
+                    className="bg-gray-100 text-gray-800 px-3 py-1 rounded text-sm hover:bg-gray-200 transition-colors"
+                  >
+                    Load For You
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {loading && !error && (
+            <div className="flex flex-col justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20]"></div>
+              <p className="text-gray-600 mt-4">Loading achievements...</p>
+            </div>
+          )}
+
+          {/* Empty State or Content */}
+          {!loading && !error && (
+            <>
+              {filteredAchievements.length === 0 ? (
             /* Empty State */
             <div className="text-center py-10">
               <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,34 +283,8 @@ const ViewAchievements = () => {
                     />
                   ))}                </AnimatePresence>
               </motion.div>
-
-              {/* Loading indicator */}
-              {loading && (
-                <div className="flex flex-col justify-center items-center py-6 mt-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#901b20]"></div>
-                  <p className="text-sm text-gray-600 mt-2">Loading more achievements...</p>
-                </div>
-              )}
-              
-              {/* End of results message */}
-              {!hasMore && filteredAchievements.length > 0 && !loading && (
-                <div className="text-center py-4 mt-2">
-                  <p className="text-sm text-gray-500">You've reached the end of the achievements list</p>
-                  <p className="text-xs text-gray-400 mt-1">Showing {filteredAchievements.length} achievements</p>
-                </div>
-              )}
-                {/* Load more trigger - always visible unless we've reached the end */}
-              {hasMore && !loading && filteredAchievements.length > 0 && (
-                <div 
-                  ref={lastAchievementElementRef}
-                  className="h-20 flex justify-center items-center py-6 mt-2 text-center text-sm text-gray-500"
-                >
-                  <p>Scroll for more achievements</p>
-                  <svg className="w-5 h-5 ml-2 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-              )}
+            </>
+          )}
             </>
           )}
         </div>

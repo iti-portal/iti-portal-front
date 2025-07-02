@@ -3,7 +3,7 @@
  * Shared configuration and helper functions for all service modules
  */
 
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
 /**
  * Get authentication headers for API requests
@@ -47,6 +47,11 @@ export const handleApiResponse = async (response) => {
   const result = await response.json();
 
   if (!response.ok) {
+    // Handle rate limiting (429)
+    if (response.status === 429) {
+      throw new Error('Too Many Attempts. Please wait a moment and try again.');
+    }
+    
     // Handle validation errors (422) by showing all error details
     if (response.status === 422 && result.errors) {
       console.log('Validation errors from server:', result.errors);
@@ -73,15 +78,13 @@ export const handleApiResponse = async (response) => {
       
       throw new Error(errorMessage);
     } else {
-      throw new Error(result.message || 'API request failed');
+      throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
     }
   }
 
-  return {
-    success: true,
-    data: result.data,
-    message: result.message
-  };
+  // Return the full result for successful responses
+  // This allows the calling code to access both data and metadata
+  return result;
 };
 
 /**

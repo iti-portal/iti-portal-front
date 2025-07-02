@@ -190,6 +190,40 @@ const AchievementCard = ({
             )}
           </div>
         )}
+
+        {/* Social Interaction */}
+        {(achievement.like_count > 0 || achievement.comment_count > 0) && (
+          <div className="flex items-center justify-between pt-2 mt-2 border-t border-gray-100">
+            <div className="flex items-center space-x-3 text-xs text-gray-500">
+              {achievement.like_count > 0 && (
+                <div className="flex items-center space-x-1">
+                  <svg 
+                    className={`w-3.5 h-3.5 ${achievement.is_liked ? 'text-red-500 fill-current' : 'text-gray-400'}`} 
+                    fill={achievement.is_liked ? 'currentColor' : 'none'} 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  <span>{achievement.like_count}</span>
+                </div>
+              )}
+              
+              {achievement.comment_count > 0 && (
+                <div className="flex items-center space-x-1">
+                  <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-4.126-.98L3 21l1.98-5.874A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+                  </svg>
+                  <span>{achievement.comment_count}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="text-xs text-gray-400">
+              {new Date(achievement.created_at).toLocaleDateString()}
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
