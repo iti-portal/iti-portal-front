@@ -1,47 +1,40 @@
 /**
  * ViewAchievements Page
- * Professional achievements listing for community members
+ * Professional achievements listing for community members with infinite scroll
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import Navbar from '../../../components/Layout/Navbar';
 import AchievementCard from '../components/common/AchievementCard';
-import AchievementFilters from '../components/common/AchievementFilters';
 import { useAchievementsAPI, ACHIEVEMENT_SOURCES } from '../hooks/useAchievementsAPI';
-import { useAchievementFilters } from '../hooks/useAchievementFilters';
-import { ACHIEVEMENT_TYPES } from '../types/achievementTypes';
 
 const ViewAchievements = () => {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState('grid'); // grid, list, timeline
+  const [viewMode, setViewMode] = useState('grid'); // grid, list
   
   // Use the API-based hook for fetching achievements
   const { 
     achievements, 
     loading, 
+    loadingMore,
     error,
     currentSource,
+    currentPage,
+    hasMore,
+    pagination,
     switchToAll,
     switchToConnections,
     switchToPopular,
-    getStatistics,
+    loadMore,
     refresh
   } = useAchievementsAPI();
-  
-  // Use filtering hook with live data
-  const {
-    selectedType,
-    searchQuery,
-    filterAchievements,
-    getFilteredStatistics,
-    handleTypeFilter,
-    handleSearchChange
-  } = useAchievementFilters(achievements);
 
-  // Get filtered achievements
-  const filteredAchievements = filterAchievements();
+  // Use all achievements without filtering for Twitter-like experience
+  const filteredAchievements = achievements;
+
   // Handle tab switching with async support
   const handleTabSwitch = async (source) => {
     try {
@@ -71,123 +64,132 @@ const ViewAchievements = () => {
     navigate(`/achievements/${achievement.id}`);
   };
 
-  // Get statistics based on current filtered data
-  const statistics = getFilteredStatistics();
-
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-gradient-to-r from-[#901b20] to-[#b52329] text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Community Achievements</h1>
-                <p className="mt-1 text-sm text-gray-600">
-                  Discover accomplishments from ITI community members
+                <h1 className="text-3xl font-bold">🏆 Your Achievement Feed</h1>
+                <p className="mt-2 text-white/80">
+                  Discover inspiring accomplishments from your ITI community
                 </p>
               </div>
               
               <button
                 onClick={handleCreateNew}
-                className="bg-[#901b20] text-white px-4 py-2 text-sm rounded-lg font-medium hover:bg-[#a83236] transition-colors flex items-center space-x-1.5 shadow-md"
+                className="bg-white text-[#901b20] px-6 py-3 text-sm rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                <span>Share Achievement</span>
+                <span>Share Your Win</span>
               </button>
-            </div>
-
-            {/* Statistics */}
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                <div className="text-lg font-bold text-blue-800">{statistics.total}</div>
-                <div className="text-blue-600 text-xs">Total Achievements</div>
-              </div>
-              <div className="bg-green-50 p-3 rounded-lg border border-green-200">
-                <div className="text-lg font-bold text-green-800">{statistics.byType[ACHIEVEMENT_TYPES.PROJECT] || 0}</div>
-                <div className="text-green-600 text-xs">Projects</div>
-              </div>
-              <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
-                <div className="text-lg font-bold text-purple-800">{statistics.byType[ACHIEVEMENT_TYPES.CERTIFICATE] || 0}</div>
-                <div className="text-purple-600 text-xs">Certificates</div>
-              </div>
-              <div className="bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-                <div className="text-lg font-bold text-yellow-800">{statistics.byType[ACHIEVEMENT_TYPES.AWARD] || 0}</div>
-                <div className="text-yellow-600 text-xs">Awards</div>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Source Tabs */}
-        <div className="bg-white border-b border-gray-200">
+        {/* Twitter-like Navigation Tabs */}
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between">
-              <div className="flex space-x-8">
+              <div className="flex space-x-0">
                 <button
                   onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.ALL)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`relative px-6 py-4 text-base font-semibold transition-all duration-200 ${
                     currentSource === ACHIEVEMENT_SOURCES.ALL
-                      ? 'border-[#901b20] text-[#901b20]'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-[#901b20] border-b-2 border-[#901b20]'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  For You
+                  <span className="flex items-center space-x-2">
+                    <span>🎯</span>
+                    <span>For You</span>
+                  </span>
                 </button>
-                
                 <button
                   onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.CONNECTIONS)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`relative px-6 py-4 text-base font-semibold transition-all duration-200 ${
                     currentSource === ACHIEVEMENT_SOURCES.CONNECTIONS
-                      ? 'border-[#901b20] text-[#901b20]'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-[#901b20] border-b-2 border-[#901b20]'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  Following
+                  <span className="flex items-center space-x-2">
+                    <span>👥</span>
+                    <span>Following</span>
+                  </span>
                 </button>
-                
                 <button
                   onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.POPULAR)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  className={`relative px-6 py-4 text-base font-semibold transition-all duration-200 ${
                     currentSource === ACHIEVEMENT_SOURCES.POPULAR
-                      ? 'border-[#901b20] text-[#901b20]'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      ? 'text-[#901b20] border-b-2 border-[#901b20]'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
-                  Popular
+                  <span className="flex items-center space-x-2">
+                    <span>🔥</span>
+                    <span>Trending</span>
+                  </span>
                 </button>
               </div>
-              
-              {/* Refresh Button */}
-              <button
-                onClick={refresh}
-                disabled={loading}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
-                title="Refresh achievements"
-              >
-                <svg 
-                  className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
+
+              {/* Right side controls */}
+              <div className="flex items-center space-x-3">
+                {/* View Mode Toggle */}
+                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'grid'
+                        ? 'bg-white text-[#901b20] shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="Grid View"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-all duration-200 ${
+                      viewMode === 'list'
+                        ? 'bg-white text-[#901b20] shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                    title="List View"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Refresh Button */}
+                <button
+                  onClick={refresh}
+                  disabled={loading}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50"
+                  title="Refresh achievements"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </button>
+                  <svg 
+                    className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-        <AchievementFilters
-          selectedType={selectedType}
-          searchQuery={searchQuery}
-          onTypeChange={handleTypeFilter}
-          onSearchChange={handleSearchChange}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-        />
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -235,38 +237,59 @@ const ViewAchievements = () => {
 
           {/* Empty State or Content */}
           {!loading && !error && (
-            <>
-              {filteredAchievements.length === 0 ? (
-            /* Empty State */
-            <div className="text-center py-10">
-              <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No achievements found</h3>
-              <p className="mt-1 text-xs text-gray-500">
-                {searchQuery || selectedType !== 'all' 
-                  ? 'Try adjusting your search or filters.'
-                  : 'Be the first to share an achievement with the community.'
+            filteredAchievements.length === 0 ? (
+              /* Empty State */
+              <div className="text-center py-16">
+                <div className="text-6xl mb-4">🎯</div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">No achievements yet</h3>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  Be the first to share an amazing achievement with the community and inspire others!
+                </p>
+                <button
+                  onClick={handleCreateNew}
+                  className="bg-[#901b20] text-white px-6 py-3 text-base rounded-xl font-semibold hover:bg-[#a83236] transition-all duration-200 transform hover:-translate-y-0.5 shadow-lg"
+                >
+                  🚀 Share Your First Achievement
+                </button>
+              </div>
+            ) : (
+              /* Achievements Grid/List with Infinite Scroll */
+              <InfiniteScroll
+                dataLength={filteredAchievements.length}
+                next={loadMore}
+                hasMore={hasMore}
+                loader={
+                  <div className="flex flex-col justify-center items-center py-8 mt-6">
+                    <div className="relative">
+                      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#901b20]"></div>
+                      <div className="absolute inset-0 rounded-full border-t-2 border-[#901b20]/20"></div>
+                    </div>
+                    <p className="text-base font-medium text-gray-700 mt-3">Loading more achievements...</p>
+                    <p className="text-sm text-gray-500 mt-1">Discovering amazing accomplishments ✨</p>
+                  </div>
                 }
-              </p>
-              {(!searchQuery && selectedType === 'all') && (
-                <div className="mt-4">
-                  <button
-                    onClick={handleCreateNew}
-                    className="bg-[#901b20] text-white px-3 py-1.5 text-sm rounded-lg font-medium hover:bg-[#a83236] transition-colors"
-                  >
-                    Share Your Achievement
-                  </button>
-                </div>
-              )}
-            </div>          ) : (
-            /* Achievements Grid/List with Lazy Loading */
-            <>
-              <motion.div
-                layout
+                endMessage={
+                  <div className="text-center py-8 mt-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl mx-4">
+                    <div className="text-4xl mb-3">🎊</div>
+                    <p className="text-lg font-semibold text-gray-800 mb-2">You've seen them all!</p>
+                    <p className="text-sm text-gray-600 mb-4">
+                      {pagination 
+                        ? `Explored all ${pagination.total} amazing achievements`
+                        : `Browsed through ${filteredAchievements.length} inspiring stories`
+                      }
+                    </p>
+                    <button
+                      onClick={() => handleTabSwitch(ACHIEVEMENT_SOURCES.ALL)}
+                      className="bg-[#901b20] text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-[#a83236] transition-colors"
+                    >
+                      🔄 Refresh Feed
+                    </button>
+                  </div>
+                }
+                scrollThreshold={0.8}
                 className={`
                   ${viewMode === 'grid' 
-                    ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4' 
+                    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6' 
                     : 'space-y-3'
                   }
                 `}
@@ -281,11 +304,10 @@ const ViewAchievements = () => {
                       className={viewMode === 'list' ? 'w-full' : ''}
                       showUser={true}
                     />
-                  ))}                </AnimatePresence>
-              </motion.div>
-            </>
-          )}
-            </>
+                  ))}
+                </AnimatePresence>
+              </InfiniteScroll>
+            )
           )}
         </div>
       </div>
