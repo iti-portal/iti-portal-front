@@ -98,11 +98,14 @@ export const deleteComment = async (commentId) => {
     // Use localhost instead of 127.0.0.1 to match your working API calls
     const url = `http://localhost:8000/api/achievements/comment/${commentId}`;
     
+    console.log('🗑️ Attempting to delete comment:', commentId, 'URL:', url);
+    
     const response = await fetch(url, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
 
+    console.log('🗑️ Delete comment response status:', response.status, response.statusText);
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -110,7 +113,10 @@ export const deleteComment = async (commentId) => {
       throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
-    return await handleApiResponse(response);
+    const result = await handleApiResponse(response);
+    console.log('✅ Delete comment success response:', result);
+    
+    return result;
   } catch (error) {
     console.error('❌ Delete comment error:', error);
     throw new Error(`Failed to delete comment: ${error.message}`);

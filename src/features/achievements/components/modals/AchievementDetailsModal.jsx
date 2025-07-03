@@ -199,6 +199,24 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   const handleDeleteComment = async (commentData, commentIndex) => {
     const comment = achievement.comments[commentIndex];
     
+    // Check permissions: only achievement owner or comment author can delete
+    const isAchievementOwner = user && achievement.user_id === user.id;
+    const isCommentAuthor = user && comment.user_profile?.user_id === user.id;
+    
+    console.log('🗑️ Delete attempt permission check:', {
+      currentUserId: user?.id,
+      achievementOwnerId: achievement.user_id,
+      commentAuthorId: comment.user_profile?.user_id,
+      commentId: comment.id,
+      isAchievementOwner,
+      isCommentAuthor
+    });
+    
+    if (!isAchievementOwner && !isCommentAuthor) {
+      alert('You can only delete your own comments or comments on your achievements.');
+      return;
+    }
+    
     // Check if comment has an ID for deletion
     if (comment.id) {
       const confirmDelete = window.confirm('Are you sure you want to delete this comment?');
@@ -234,6 +252,29 @@ Created: ${new Date(comment.created_at).toLocaleString()}
 
 This feature requires the backend to provide comment IDs.`);
     }
+  };
+
+  // Helper function to check if user can delete a comment
+  const canDeleteComment = (comment) => {
+    if (!user) return false;
+    
+    // Achievement owner can delete any comment on their achievement
+    const isAchievementOwner = achievement.user_id === user.id;
+    
+    // Comment author can delete their own comment
+    // Check user_id from user_profile since that's how the API returns it
+    const isCommentAuthor = comment.user_profile?.user_id === user.id;
+    
+    console.log('🔍 Delete permission check:', {
+      currentUserId: user.id,
+      achievementOwnerId: achievement.user_id,
+      commentAuthorId: comment.user_profile?.user_id,
+      isAchievementOwner,
+      isCommentAuthor,
+      canDelete: isAchievementOwner || isCommentAuthor
+    });
+    
+    return isAchievementOwner || isCommentAuthor;
   };
 
   // Helper to format dates
@@ -431,16 +472,18 @@ This feature requires the backend to provide comment IDs.`);
                                   </div>
                                   <p className="text-sm mt-1 text-gray-700 whitespace-pre-line break-words">{comment.content}</p>
                                   
-                                  {/* Delete button - shows on hover */}
-                                  <button
-                                    onClick={() => handleDeleteComment(comment, index)}
-                                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white"
-                                    title="Delete comment"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                  </button>
+                                  {/* Delete button - shows on hover only if user has permission */}
+                                  {canDeleteComment(comment) && (
+                                    <button
+                                      onClick={() => handleDeleteComment(comment, index)}
+                                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white"
+                                      title="Delete comment"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                      </svg>
+                                    </button>
+                                  )}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-1 flex items-center">
                                   {formatDate(comment.created_at)}
