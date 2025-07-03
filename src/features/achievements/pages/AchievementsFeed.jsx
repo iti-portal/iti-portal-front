@@ -211,7 +211,7 @@ const AchievementsFeed = () => {
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between py-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Achievements</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Achievements</h1>
               <p className="text-gray-600 mt-1">Showcase your accomplishments and milestones</p>
             </div>
             <div className="flex items-center space-x-3">

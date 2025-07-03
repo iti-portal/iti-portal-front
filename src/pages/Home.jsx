@@ -15,7 +15,7 @@ import Navbar from '../components/Layout/Navbar';
 import { 
   HeroSection, 
   JobRecommendations, 
-  MyAchievements, 
+  PopularAchievements, 
   RoleCard, 
   FeatureCard, 
   TestimonialCard, 
@@ -36,8 +36,8 @@ const Home = () => {
       {/* Job Recommendations Section */}
       <JobRecommendations />
 
-      {/* My Progress Section */}
-      <MyAchievements />
+      {/* Popular Achievements Section */}
+      <PopularAchievements />
 
       {/* Articles & Insights Section */}
       <ArticlesInsights />
