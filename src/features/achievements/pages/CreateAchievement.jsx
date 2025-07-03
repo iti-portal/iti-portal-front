@@ -12,9 +12,11 @@ import BaseAchievementForm from '../components/forms/BaseAchievementForm';
 import { useAchievementForm } from '../hooks/useAchievementForm';
 import { createAchievement } from '../../../services/achievementsService';
 import { ACHIEVEMENT_TYPES } from '../types/achievementTypes';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const CreateAchievement = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const {
     formData,
@@ -86,9 +88,10 @@ const CreateAchievement = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <img
-                    src="/avatar.png"
+                    src={user?.profile?.profile_picture || "/avatar.png"}
                     alt="User Avatar"
-                    className="w-10 h-10 rounded-full border-3 border-white object-cover shadow-md"
+                    className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-md hover:border-red-100 transition-colors cursor-pointer"
+                    onClick={() => navigate('/student/profile')}
                   />
                   <div>
                     <h1 className="text-lg font-bold text-white">Share Your Achievement</h1>
