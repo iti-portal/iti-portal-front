@@ -1,3 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --iti-primary: #901b20;
+  --iti-primary-dark: #7a1619;
+  --iti-primary-light: #c41c24;
+  --iti-accent: #f59e0b;
+  --iti-secondary: #fef3c7;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Custom scrollbar styles */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--iti-primary), #dc2626);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--iti-primary-dark), #b91c1c);
+}
+
+/* Firefox scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--iti-primary) #f1f5f9;
+}
+
+/* ITI Gradient utilities */
+.bg-iti-gradient {
+  background: linear-gradient(135deg, var(--iti-primary) 0%, var(--iti-primary-light) 100%);
+}
+
+.bg-iti-gradient-dark {
+  background: linear-gradient(135deg, var(--iti-primary-dark) 0%, var(--iti-primary) 100%);
+}
+
+.bg-iti-gradient-light {
+  background: linear-gradient(135deg, #fef3c7 0%, #fef3c7 100%);
+}
+
+.bg-iti-gradient-text {
+  background: linear-gradient(135deg, var(--iti-primary) 0%, var(--iti-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hover\:bg-iti-gradient:hover {
+  background: linear-gradient(135deg, var(--iti-primary) 0%, var(--iti-primary-light) 100%);
+}
+
+.hover\:bg-iti-gradient-dark:hover {
+  background: linear-gradient(135deg, var(--iti-primary-dark) 0%, var(--iti-primary) 100%);
+}
+
+/* Modal styles */
+.modal-overlay {
+  z-index: 99999 !important;
+}
+
+.modal-content {
+  z-index: 100000 !important;
+}
+
+/* Ensure modal is above all other elements */
+.modal-open {
+  overflow: hidden !important;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
