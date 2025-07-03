@@ -21,8 +21,8 @@ import {
   TestimonialCard, 
   StatsSection,
   ArticlesInsights,
-  FeaturedCompanies,
-  CommunityInsights
+  // FeaturedCompanies,
+  // CommunityInsights
 } from '../components/Home';
 
 const Home = () => {
@@ -43,10 +43,10 @@ const Home = () => {
       <ArticlesInsights />
 
       {/* Featured Companies Section */}
-      <FeaturedCompanies />
+      {/* <FeaturedCompanies /> */}
 
       {/* Community Insights Section */}
-      <CommunityInsights />
+      {/* <CommunityInsights /> */}
 
       {/* User Roles Section */}
       <section className="py-20 px-4">
@@ -58,7 +58,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center align-center">
             <RoleCard
               icon={FaGraduationCap}
               title="Students"
@@ -93,18 +93,6 @@ const Home = () => {
               iconColor="text-purple-600"
               bgColor="bg-purple-100"
               textColor="text-purple-600"
-            />
-            
-            <RoleCard
-              icon={FaUsers}
-              title="Staff"
-              description="Manage programs, track student progress, and facilitate connections"
-              linkTo="/register?role=staff"
-              linkText="Join as Staff"
-              borderColor="border-iti-primary"
-              iconColor="text-iti-primary"
-              bgColor="bg-red-100"
-              textColor="text-iti-primary"
             />
           </div>
         </div>

@@ -2,7 +2,6 @@
 
 export { default as HeroSection } from './HeroSection';
 export { default as JobRecommendations } from './JobRecommendations';
-export { default as MyAchievements } from './MyAchievements';
 export { default as PopularAchievements } from './PopularAchievements';
 export { default as RoleCard } from './RoleCard';
 export { default as FeatureCard } from './FeatureCard';

@@ -11,6 +11,14 @@ export {
   updateCoverPhoto
 } from './profileService';
 
+// Articles service exports
+export {
+  getPopularArticles,
+  getArticles,
+  getArticle,
+  toggleArticleLike
+} from './articlesService';
+
 // Education service exports
 export {
   addEducation, 
