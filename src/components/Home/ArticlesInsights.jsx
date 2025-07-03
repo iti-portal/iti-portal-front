@@ -31,7 +31,7 @@ const ArticleCard = ({ article, index }) => {
         )}
         <div className="absolute top-4 left-4">
           <span className="bg-iti-primary text-white px-3 py-1 rounded-full text-xs font-medium">
-            Technology
+            {article.status}
           </span>
         </div>
       </div>
