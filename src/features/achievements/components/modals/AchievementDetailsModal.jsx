@@ -443,9 +443,11 @@ This feature requires the backend to provide comment IDs.`);
                     {/* Comment list - scrollable and takes remaining space */}
                     <div className="flex-1 border border-gray-200 rounded-lg overflow-y-auto"
                          style={{ minHeight: '200px' }}>
-                      {achievement.comments && achievement.comments.length > 0 ? (
+                      {achievement.comments && achievement.comments.filter(comment => comment.user_profile !== null).length > 0 ? (
                         <div className="space-y-4 p-4">
-                          {achievement.comments.map((comment, index) => (
+                          {achievement.comments
+                            .filter(comment => comment.user_profile !== null) // Filter out comments with null user_profile
+                            .map((comment, index) => (
                             <div key={index} className="flex">
                               {/* Comment avatar */}
                               <div className="mr-3 flex-shrink-0">
@@ -580,9 +582,11 @@ This feature requires the backend to provide comment IDs.`);
                 
                 {/* Likes List */}
                 <div className="flex-1 overflow-y-auto p-4">
-                  {achievement.likes && achievement.likes.length > 0 ? (
+                  {achievement.likes && achievement.likes.filter(like => like.user_profile !== null).length > 0 ? (
                     <div className="space-y-3">
-                      {achievement.likes.map((like, index) => (
+                      {achievement.likes
+                        .filter(like => like.user_profile !== null) // Filter out likes with null user_profile
+                        .map((like, index) => (
                         <div key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
                           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
                             {like.user_profile?.profile_picture ? (
