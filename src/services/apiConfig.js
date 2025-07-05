@@ -49,7 +49,7 @@ export const handleApiResponse = async (response) => {
   if (!response.ok) {
     // Handle validation errors (422) by showing all error details
     if (response.status === 422 && result.errors) {
-      console.log('Validation errors from server:', result.errors);
+      console.error('📛 Validation errors:', result.errors);
       
       const errorMessages = [];
       
@@ -73,6 +73,7 @@ export const handleApiResponse = async (response) => {
       
       throw new Error(errorMessage);
     } else {
+      console.error('❌ API error:', result);
       throw new Error(result.message || 'API request failed');
     }
   }

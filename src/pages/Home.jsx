@@ -12,20 +12,54 @@ import {
   FaArrowRight
 } from 'react-icons/fa';
 import Navbar from '../components/Layout/Navbar';
+import useScrollAnimation from '../hooks/useScrollAnimation';
 import { 
   HeroSection, 
   JobRecommendations, 
-  MyAchievements, 
+  PopularAchievements, 
   RoleCard, 
   FeatureCard, 
   TestimonialCard, 
   StatsSection,
   ArticlesInsights,
-  FeaturedCompanies,
-  CommunityInsights
+  // FeaturedCompanies,
+  // CommunityInsights
 } from '../components/Home';
 
 const Home = () => {
+  // Scroll animations for different sections
+  const { ref: achievementsRef, animationClasses: achievementsClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: 100,
+    threshold: 0.01  // Lower threshold so it triggers earlier
+  });
+
+  const { ref: articlesRef, animationClasses: articlesClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: 200,
+    threshold: 0.01  // Lower threshold so it triggers earlier
+  });
+
+  const { ref: rolesRef, animationClasses: rolesClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: 0
+  });
+
+  const { ref: featuresRef, animationClasses: featuresClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: 100
+  });
+
+  const { ref: testimonialsRef, animationClasses: testimonialsClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: 200
+  });
+
+  const { ref: ctaRef, animationClasses: ctaClasses } = useScrollAnimation({
+    animationType: 'scaleIn',
+    delay: 0
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <Navbar />
@@ -36,20 +70,24 @@ const Home = () => {
       {/* Job Recommendations Section */}
       <JobRecommendations />
 
-      {/* My Progress Section */}
-      <MyAchievements />
+      {/* Popular Achievements Section */}
+      <div ref={achievementsRef} className={achievementsClasses}>
+        <PopularAchievements />
+      </div>
 
       {/* Articles & Insights Section */}
-      <ArticlesInsights />
+      <div ref={articlesRef} className={articlesClasses}>
+        <ArticlesInsights />
+      </div>
 
       {/* Featured Companies Section */}
-      <FeaturedCompanies />
+      {/* <FeaturedCompanies /> */}
 
       {/* Community Insights Section */}
-      <CommunityInsights />
+      {/* <CommunityInsights /> */}
 
       {/* User Roles Section */}
-      <section className="py-20 px-4">
+      <section ref={rolesRef} className={`py-20 px-4 ${rolesClasses}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">Who We Serve</h2>
@@ -58,7 +96,7 @@ const Home = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center align-center">
             <RoleCard
               icon={FaGraduationCap}
               title="Students"
@@ -94,24 +132,12 @@ const Home = () => {
               bgColor="bg-purple-100"
               textColor="text-purple-600"
             />
-            
-            <RoleCard
-              icon={FaUsers}
-              title="Staff"
-              description="Manage programs, track student progress, and facilitate connections"
-              linkTo="/register?role=staff"
-              linkText="Join as Staff"
-              borderColor="border-iti-primary"
-              iconColor="text-iti-primary"
-              bgColor="bg-red-100"
-              textColor="text-iti-primary"
-            />
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-gray-50">
+      <section ref={featuresRef} className={`py-20 px-4 bg-gray-50 ${featuresClasses}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">Platform Features</h2>
@@ -176,7 +202,7 @@ const Home = () => {
       <StatsSection />
 
       {/* Testimonials */}
-      <section className="py-20 px-4">
+      <section ref={testimonialsRef} className={`py-20 px-4 ${testimonialsClasses}`}>
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-800 mb-4">What Our Community Says</h2>
@@ -200,31 +226,6 @@ const Home = () => {
               name="Omar Khaled"
               role="Senior Developer"
             />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 px-4 bg-gradient-to-r from-iti-primary to-iti-primary-dark text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Start Your Journey?</h2>
-          <p className="text-xl mb-8">
-            Join thousands of students, alumni, and companies building the future of tech in Egypt
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link 
-              to="/register" 
-              className="inline-flex items-center px-8 py-4 bg-white text-iti-primary rounded-lg font-semibold hover:bg-gray-100 transition-colors duration-200"
-            >
-              Get Started Today
-              <FaArrowRight className="ml-2" />
-            </Link>
-            <Link 
-              to="/login" 
-              className="inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-lg font-semibold hover:bg-white hover:text-iti-primary transition-colors duration-200"
-            >
-              Sign In
-            </Link>
           </div>
         </div>
       </section>

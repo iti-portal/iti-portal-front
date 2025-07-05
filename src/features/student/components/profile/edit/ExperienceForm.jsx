@@ -16,7 +16,6 @@ function ExperienceForm({ onSubmit, initialData = null }) {
       // Format as YYYY-MM-DD for date input
       return date.toISOString().split('T')[0];
     } catch (error) {
-      console.log('Date formatting error:', error);
       return '';
     }
   };

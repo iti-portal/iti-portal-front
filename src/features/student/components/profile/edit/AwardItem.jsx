@@ -45,7 +45,6 @@ function AwardItem({ award, onEdit, onDelete, onImageUpdate, onImageAdd, onImage
                   alt={award.title || award.name || 'Award'} 
                   className="w-20 h-20 object-cover rounded-lg border border-gray-200 group-hover:opacity-75 transition-opacity"
                   onError={(e) => {
-                    console.log('Image load error for award:', award);
                     e.target.style.display = 'none';
                   }}
                 />

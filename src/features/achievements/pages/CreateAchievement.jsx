@@ -10,10 +10,13 @@ import Navbar from '../../../components/Layout/Navbar';
 import AchievementTypeSelector from '../components/common/AchievementTypeSelector';
 import BaseAchievementForm from '../components/forms/BaseAchievementForm';
 import { useAchievementForm } from '../hooks/useAchievementForm';
+import { createAchievement } from '../../../services/achievementsService';
 import { ACHIEVEMENT_TYPES } from '../types/achievementTypes';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const CreateAchievement = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const {
     formData,
@@ -34,26 +37,30 @@ const CreateAchievement = () => {
     e.preventDefault();
     
     if (!isValid) {
-      console.log('Form validation failed:', errors);
+
       return;
     }
 
     try {
       const submissionData = getFormDataForSubmission();
-      console.log('Submitting achievement:', submissionData);
       
-      // TODO: Replace with actual API call
-      // await achievementService.createAchievement(submissionData);
       
-      // Show success message
-      alert(`${formData.type} achievement created successfully!`);
+      // Create the achievement using the API
+      const result = await createAchievement(submissionData);
       
-      // Navigate back or to achievements list
-      navigate('/achievements'); // or navigate(-1) to go back
+      if (result.success) {
+        // Show success message
+        alert(`${formData.type} achievement created successfully!`);
+        
+        // Navigate back to my achievements page
+        navigate('/my-achievements');
+      } else {
+        throw new Error(result.message || 'Failed to create achievement');
+      }
       
     } catch (error) {
       console.error('Error creating achievement:', error);
-      alert('Failed to create achievement. Please try again.');
+      alert(`Failed to create achievement: ${error.message}`);
     }
   };
 
@@ -81,9 +88,10 @@ const CreateAchievement = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <img
-                    src="/avatar.png"
+                    src={user?.profile?.profile_picture || "/avatar.png"}
                     alt="User Avatar"
-                    className="w-10 h-10 rounded-full border-3 border-white object-cover shadow-md"
+                    className="w-10 h-10 rounded-full border-2 border-white object-cover shadow-md hover:border-red-100 transition-colors cursor-pointer"
+                    onClick={() => navigate('/student/profile')}
                   />
                   <div>
                     <h1 className="text-lg font-bold text-white">Share Your Achievement</h1>

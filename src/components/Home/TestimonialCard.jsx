@@ -2,27 +2,34 @@
 
 import React from 'react';
 import { FaQuoteLeft } from 'react-icons/fa';
+import useScrollAnimation from '../../hooks/useScrollAnimation';
 
-const TestimonialCard = ({ quote, name, role, avatar }) => (
-  <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-    <FaQuoteLeft className="text-iti-primary text-2xl mb-4" />
-    
-    <p className="text-iti-primary mb-6 italic">"{quote}"</p>
-    
-    <div className="flex items-center">
-      <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-4">
-        {avatar ? (
-          <img src={avatar} alt={name} className="w-12 h-12 rounded-full object-cover" />
-        ) : (
-          <span className="text-gray-500 font-medium">{name.charAt(0)}</span>
-        )}
+const TestimonialCard = ({ 
+  quote, 
+  name, 
+  role,
+  index = 0
+}) => {
+  const { ref, animationClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: index * 150
+  });
+
+  return (
+    <div 
+      ref={ref} 
+      className={`bg-white rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300 ${animationClasses}`}
+    >
+      <div className="text-iti-primary mb-4">
+        <FaQuoteLeft className="text-2xl" />
       </div>
-      <div>
+      <p className="text-gray-700 italic mb-6">"{quote}"</p>
+      <div className="border-t pt-4">
         <h4 className="font-semibold text-gray-800">{name}</h4>
-        <p className="text-gray-600 text-sm">{role}</p>
+        <p className="text-sm text-gray-600">{role}</p>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default TestimonialCard;

@@ -24,4 +24,4 @@ import {
   deleteProject
 } from './profileService';
 
-console.log('All imports successful');
+

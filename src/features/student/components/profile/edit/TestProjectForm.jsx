@@ -8,7 +8,6 @@ function TestProjectForm() {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    console.log('Selected files:', files);
     
     const newImages = files.map((file, index) => ({
       id: Date.now() + index,
@@ -17,11 +16,9 @@ function TestProjectForm() {
       altText: `Image ${images.length + index + 1}`
     }));
 
-    console.log('New images:', newImages);
     
     setImages(prev => {
       const updated = [...prev, ...newImages];
-      console.log('Updated images array:', updated);
       return updated;
     });
 

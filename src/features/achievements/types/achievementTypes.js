@@ -90,7 +90,7 @@ export const createJobAchievement = () => ({
 export const createCertificateAchievement = () => ({
   ...createBaseAchievement(),
   type: ACHIEVEMENT_TYPES.CERTIFICATE,
-  issue_date: '',
+  start_date: '',
   expiry_date: '',
   organization: '',
   url: '',
@@ -101,7 +101,7 @@ export const createCertificateAchievement = () => ({
 export const createAwardAchievement = () => ({
   ...createBaseAchievement(),
   type: ACHIEVEMENT_TYPES.AWARD,
-  received_date: '',
+  start_date: '',
   organization: '',
   category: '',
   prize_value: '',
@@ -114,18 +114,18 @@ export const createAwardAchievement = () => ({
 export const VALIDATION_RULES = {
   [ACHIEVEMENT_TYPES.PROJECT]: {
     required: ['title', 'description', 'start_date'],
-    optional: ['end_date', 'url', 'technologies', 'team_size']
+    optional: ['end_date', 'url', 'technologies', 'team_size', 'image']
   },
   [ACHIEVEMENT_TYPES.JOB]: {
-    required: ['title', 'description', 'start_date', 'organization', 'position'],
-    optional: ['end_date', 'responsibilities', 'employment_type', 'location']
+    required: ['title', 'organization', 'start_date'],
+    optional: ['description', 'end_date', 'responsibilities', 'employment_type', 'location']
   },
   [ACHIEVEMENT_TYPES.CERTIFICATE]: {
-    required: ['title', 'organization', 'issue_date'],
-    optional: ['description', 'expiry_date', 'url', 'credential_id', 'skills']
+    required: ['title', 'description', 'organization', 'start_date'],
+    optional: ['expiry_date', 'url', 'credential_id', 'skills', 'image']
   },
   [ACHIEVEMENT_TYPES.AWARD]: {
-    required: ['title', 'organization', 'received_date'],
-    optional: ['description', 'category', 'prize_value', 'competition_name']
+    required: ['title', 'organization', 'start_date'],
+    optional: ['description', 'category', 'prize_value', 'competition_name', 'image']
   }
 };

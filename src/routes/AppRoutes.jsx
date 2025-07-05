@@ -12,7 +12,7 @@ import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
 import RoleBasedRoute from './RoleBasedRoute';
 import { ProfilePage, EditProfilePage } from '../features/student';
-import { CreateAchievement, ViewAchievements } from '../features/achievements';
+import { CreateAchievement, ViewAchievements, MyAchievements } from '../features/achievements';
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
 import ApplicationForm from '../features/student/components/applications/ApplicationForm';
@@ -117,6 +117,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <ViewAchievements />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/my-achievements"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <MyAchievements />
           </PrivateRoute>
         }
       />

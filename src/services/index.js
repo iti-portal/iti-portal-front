@@ -11,6 +11,14 @@ export {
   updateCoverPhoto
 } from './profileService';
 
+// Articles service exports
+export {
+  getPopularArticles,
+  getArticles,
+  getArticle,
+  toggleArticleLike
+} from './articlesService';
+
 // Education service exports
 export {
   addEducation, 
@@ -58,6 +66,17 @@ export {
   deleteProjectImage,
   deleteProject 
 } from './projectsService';
+
+// Achievements service exports
+export {
+  getAllAchievements,
+  getConnectionsAchievements,
+  getPopularAchievements,
+  getAchievementById,
+  createAchievement,
+  updateAchievement,
+  deleteAchievement
+} from './achievementsService';
 
 // API config exports (for advanced usage)
 export { 
