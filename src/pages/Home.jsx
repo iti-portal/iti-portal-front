@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Logo from '../components/Common/Logo';
 import { 
   FaGraduationCap, 
   FaBuilding, 
@@ -147,13 +148,13 @@ const Home = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
+            {/* <FeatureCard
               icon={FaLaptopCode}
               title="Portfolio Showcase"
               description="Display your projects, skills, and achievements in a professional portfolio"
               iconColor="text-blue-600"
               bgColor="bg-blue-100"
-            />
+            /> */}
             
             <FeatureCard
               icon={FaBriefcase}
@@ -171,13 +172,13 @@ const Home = () => {
               bgColor="bg-yellow-100"
             />
             
-            <FeatureCard
+            {/* <FeatureCard
               icon={FaChartLine}
               title="Progress Analytics"
               description="Get insights into your learning journey and career growth"
               iconColor="text-purple-600"
               bgColor="bg-purple-100"
-            />
+            /> */}
             
             <FeatureCard
               icon={FaUsers}
@@ -187,13 +188,13 @@ const Home = () => {
               bgColor="bg-indigo-100"
             />
             
-            <FeatureCard
+            {/* <FeatureCard
               icon={FaLaptopCode}
               title="Freelance Projects"
               description="Find freelance opportunities and build your independent career"
               iconColor="text-pink-600"
               bgColor="bg-pink-100"
-            />
+            /> */}
           </div>
         </div>
       </section>
@@ -211,20 +212,20 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TestimonialCard
               quote="ITI Portal helped me land my dream job at a top tech company. The platform made it easy to showcase my projects and connect with recruiters."
-              name="Ahmed Mohamed"
-              role="Software Engineer"
+              name="Mohammed Essam"
+              role="Backend Developer"
             />
             
             <TestimonialCard
               quote="As a company, we've found amazing talent through ITI Portal. The students are well-prepared and passionate about technology."
-              name="Sarah Hassan"
-              role="HR Director"
+              name="Nihal Zain"
+              role="Frontend Developer"
             />
             
             <TestimonialCard
               quote="The alumni network on ITI Portal is incredible. I've been able to mentor students and grow my professional connections."
-              name="Omar Khaled"
-              role="Senior Developer"
+              name="Omar Morad"
+              role="Backend Developer"
             />
           </div>
         </div>
@@ -235,6 +236,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
+              <Logo size="small" className="!mb-0 !mx-0 h-6 sm:h-8" />
               <h3 className="text-lg font-bold mb-4">ITI Portal</h3>
               <p className="text-gray-400">
                 Connecting Egypt's tech community through education, career opportunities, and professional growth.

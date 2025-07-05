@@ -107,7 +107,7 @@ const ArticlesInsights = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Popular Articles & Insights</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">Popular Articles</h2>
               <p className="text-gray-600">Stay updated with the latest in technology and career development</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ const ArticlesInsights = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">Popular Articles & Insights</h2>
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">Popular Articles</h2>
               <p className="text-gray-600">Stay updated with the latest in technology and career development</p>
             </div>
           </div>
@@ -169,7 +169,7 @@ const ArticlesInsights = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">Popular Articles & Insights</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Popular Articles</h2>
             <p className="text-gray-600">Stay updated with the latest in technology and career development</p>
           </div>
           <button className="flex items-center text-iti-primary hover:text-iti-primary-dark font-medium transition-colors">
