@@ -88,6 +88,96 @@
   background: linear-gradient(135deg, var(--iti-primary-dark) 0%, var(--iti-primary) 100%);
 }
 
+/* Animation delay utilities */
+.animation-delay-75 { animation-delay: 75ms; }
+.animation-delay-100 { animation-delay: 100ms; }
+.animation-delay-150 { animation-delay: 150ms; }
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-300 { animation-delay: 300ms; }
+.animation-delay-500 { animation-delay: 500ms; }
+.animation-delay-700 { animation-delay: 700ms; }
+.animation-delay-1000 { animation-delay: 1s; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
+/* Enhanced visual effects */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.neon-glow {
+  box-shadow: 
+    0 0 5px rgba(59, 130, 246, 0.5),
+    0 0 10px rgba(59, 130, 246, 0.3),
+    0 0 15px rgba(59, 130, 246, 0.2),
+    0 0 20px rgba(59, 130, 246, 0.1);
+}
+
+.neon-glow:hover {
+  box-shadow: 
+    0 0 5px rgba(59, 130, 246, 0.8),
+    0 0 10px rgba(59, 130, 246, 0.6),
+    0 0 15px rgba(59, 130, 246, 0.4),
+    0 0 20px rgba(59, 130, 246, 0.3),
+    0 0 25px rgba(59, 130, 246, 0.2);
+}
+
+.gradient-border {
+  position: relative;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899) border-box;
+  border: 2px solid transparent;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: all 0.3s ease;
+}
+
+button, a, .card, .interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hero section particle effect */
+.hero-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.hero-particles::before,
+.hero-particles::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: float 3s ease-in-out infinite;
+}
+
+.hero-particles::before {
+  top: 20%;
+  left: 20%;
+  animation-delay: 1s;
+}
+
+.hero-particles::after {
+  top: 60%;
+  right: 30%;
+  animation-delay: 2s;
+}
+
 /* Modal styles */
 .modal-overlay {
   z-index: 99999 !important;

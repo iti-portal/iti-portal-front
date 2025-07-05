@@ -42,7 +42,7 @@ const AppRoutes = () => {
         path="/"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <Home />
+            <Home/>
           </PrivateRoute>
         }
       />
