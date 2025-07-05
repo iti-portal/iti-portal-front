@@ -19,7 +19,7 @@ import ApplicationForm from '../features/student/components/applications/Applica
 import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
-
+import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -155,6 +155,7 @@ const AppRoutes = () => {
   }
    />
      <Route path="/company/jobs/:jobId/applications" element={<CompanyJobApplicationsPage />} />
+     <Route path="/admin/applications" element={<AdminApplicationsPage />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

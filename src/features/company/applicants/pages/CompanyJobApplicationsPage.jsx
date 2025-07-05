@@ -1,19 +1,20 @@
 // src/features/company/applicants/pages/CompanyJobApplicationsPage.jsx
 // This page allows a company to manage applications for a specific job.
 // Filtering and searching are now handled on the frontend.
+// This version includes a custom modal for confirmations and alerts,
+// and has been cleaned up by removing unnecessary console logs and imports.
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-// Import the new CompanyApplicationCard component
+// Import the CompanyApplicationCard component
 import CompanyApplicationCard from '../../applicants/components/CompanyApplicationCard'; 
 
 // Importing icons from lucide-react
 import { 
     Loader2, XCircle, Briefcase, Users, BarChart2, Calendar, 
-    Info, Clock, CalendarCheck, Award, ExternalLink, Search, SlidersHorizontal,
-    CheckCircle 
+    Info, Clock, CalendarCheck, Search, SlidersHorizontal, CheckCircle 
 } from 'lucide-react'; 
 
 const CompanyJobApplicationsPage = () => {
@@ -32,6 +33,39 @@ const CompanyJobApplicationsPage = () => {
     const [activeFilter, setActiveFilter] = useState('all'); // Filter for applications list (frontend)
     const [searchQuery, setSearchQuery] = useState(''); // State for search input (frontend)
     const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false); // State for advanced filter modal/sidebar
+
+    // Modal states for custom alerts/confirmations
+    const [showModal, setShowModal] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalAction, setModalAction] = useState(null); // Function to execute on confirm
+    const [isConfirmModal, setIsConfirmModal] = useState(false); // True for confirmation, false for alert
+
+    // Function to show the custom modal
+    const openModal = useCallback((title, message, isConfirm = false, onConfirm = null) => {
+        setModalTitle(title);
+        setModalMessage(message);
+        setIsConfirmModal(isConfirm);
+        setModalAction(() => onConfirm); // Store the callback
+        setShowModal(true);
+    }, []);
+
+    // Function to close the custom modal
+    const closeModal = useCallback(() => {
+        setShowModal(false);
+        setModalTitle('');
+        setModalMessage('');
+        setModalAction(null);
+        setIsConfirmModal(false);
+    }, []);
+
+    // Function to handle modal confirmation
+    const handleModalConfirm = useCallback(() => {
+        if (modalAction) {
+            modalAction(); // Execute the stored action
+        }
+        closeModal();
+    }, [modalAction, closeModal]);
 
     // Function to fetch job details (title, etc.) independently
     const fetchJobDetails = useCallback(async () => {
@@ -63,15 +97,13 @@ const CompanyJobApplicationsPage = () => {
 
         const token = localStorage.getItem('token');
         if (!token) {
-            setError('Authentication token not found. Please log in again.');
+            openModal('Authentication Error', 'Authentication token not found. Please log in again.', false, () => navigate('/login'));
             setIsLoading(false);
-            navigate('/login');
             return;
         }
 
         try {
             // 1. Fetch ALL Applications for this jobId
-            // Removed activeFilter and searchQuery from backend URL
             const applicationsUrl = `http://localhost:8000/api/company/applications?job_id=${jobId}&include_match_score=true`;
             
             const applicationsResponse = await axios.get(applicationsUrl, {
@@ -82,7 +114,6 @@ const CompanyJobApplicationsPage = () => {
                 setAllApplications(applicationsResponse.data.data); // Store all applications
                 setError(null); 
             } else {
-                // If backend returns success:false, it's still an error for the initial fetch
                 setAllApplications([]); 
                 setError(applicationsResponse.data.message || 'Failed to fetch applications due to an unknown issue.');
             }
@@ -105,8 +136,7 @@ const CompanyJobApplicationsPage = () => {
                 const errorMessage = err.response.data?.message || 'Server error occurred. Please try again.';
                 
                 if (err.response.status === 401) {
-                    setError('Session expired. Please log in again.');
-                    navigate('/login');
+                    openModal('Session Expired', 'Your session has expired. Please log in again.', false, () => navigate('/login'));
                 } else if (err.response.status === 404 && errorMessage.includes('Job or applications not found for this job ID')) {
                     setError(errorMessage); 
                 } else {
@@ -121,7 +151,7 @@ const CompanyJobApplicationsPage = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [jobId, navigate]); 
+    }, [jobId, navigate, openModal]); 
 
     // Effect to fetch job details (runs once per jobId)
     useEffect(() => {
@@ -137,8 +167,7 @@ const CompanyJobApplicationsPage = () => {
     const handleDownloadCV = useCallback(async (applicationId) => {
         const token = localStorage.getItem('token');
         if (!token) {
-            setError('Authentication token not found. Please log in again.');
-            navigate('/login');
+            openModal('Authentication Error', 'Authentication token not found. Please log in again.', false, () => navigate('/login'));
             return;
         }
 
@@ -169,54 +198,69 @@ const CompanyJobApplicationsPage = () => {
             link.click();
             link.parentNode.removeChild(link);
             window.URL.revokeObjectURL(url); 
+            openModal('Success', 'CV downloaded successfully!');
         } catch (err) {
-            setError('Failed to download CV. Please try again.');
-            console.error('CV download error:', err);
-            if (err.response && err.response.status === 401) {
-                navigate('/login');
+            let errorMessage = 'Failed to download CV. Please try again.';
+            if (err.response) {
+                if (err.response.data && err.response.data.message) {
+                    errorMessage = err.response.data.message;
+                } else if (err.response.status === 404) {
+                    errorMessage = 'CV file not found on the server.';
+                } else if (err.response.status === 401) {
+                    errorMessage = 'Unauthorized to download CV. Please log in again.';
+                    openModal('Authentication Error', errorMessage, false, () => navigate('/login'));
+                    return;
+                } else {
+                    errorMessage = `Server error: ${err.response.status}.`;
+                }
+            } else if (err.request) {
+                errorMessage = 'No response from server. Please check your internet connection.';
+            } else {
+                errorMessage = `An unexpected error occurred: ${err.message}.`;
             }
+            openModal('Error', errorMessage);
+            console.error('CV download error:', err); // Keep console.error for debugging
         }
-    }, [navigate]);
+    }, [navigate, openModal]);
 
     // Handler for updating application status (passed to CompanyApplicationCard)
     // Uses the PATCH /api/company/applications/{id}/status endpoint
     const handleUpdateApplicationStatus = useCallback(async (applicationId, newStatus) => {
-        if (!window.confirm(`Are you sure you want to change this application's status to ${newStatus.toUpperCase()}?`)) {
-            return;
-        }
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError('Authentication token not found. Please log in again.');
-            navigate('/login');
-            return;
-        }
-
-        setIsLoading(true); 
-        try {
-            const response = await axios.patch(`http://localhost:8000/api/company/applications/${applicationId}/status`, 
-                { status: newStatus }, 
-                {
-                    headers: { 'Authorization': `Bearer ${token}` }
+        openModal(
+            'Confirm Status Change',
+            `Are you sure you want to change this application's status to ${newStatus.toUpperCase()}?`,
+            true,
+            async () => {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    openModal('Authentication Error', 'Authentication token not found. Please log in again.', false, () => navigate('/login'));
+                    return;
                 }
-            );
 
-            if (response.data.success) {
-                alert(`Application status updated to ${newStatus.toUpperCase()} successfully!`);
-                fetchJobApplicationsAndStats(); // Re-fetch all applications to update UI
-            } else {
-                setError(response.data.message || 'Failed to update application status.');
+                setIsLoading(true); 
+                try {
+                    const response = await axios.patch(`http://localhost:8000/api/company/applications/${applicationId}/status`, 
+                        { status: newStatus }, 
+                        {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        }
+                    );
+
+                    if (response.data.success) {
+                        openModal('Success', `Application status updated to ${newStatus.toUpperCase()} successfully!`);
+                        fetchJobApplicationsAndStats(); // Re-fetch all applications to update UI
+                    } else {
+                        openModal('Error', response.data.message || 'Failed to update application status.');
+                    }
+                } catch (err) {
+                    openModal('Error', err.response?.data?.message || 'Error updating application status. Please try again.');
+                    console.error('Update status error:', err);
+                } finally {
+                    setIsLoading(false);
+                }
             }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Error updating application status. Please try again.');
-            console.error('Update status error:', err);
-            if (err.response && err.response.status === 401) {
-                navigate('/login');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    }, [fetchJobApplicationsAndStats, navigate]);
+        );
+    }, [fetchJobApplicationsAndStats, navigate, openModal]);
 
     // Memoized job title for display in the header
     const jobTitle = useMemo(() => {
@@ -260,7 +304,7 @@ const CompanyJobApplicationsPage = () => {
 
 
     return (
-        <div className="min-h-screen  py-10">
+        <div className="min-h-screen py-10">
             <div className="container mx-auto p-6 bg-white rounded-xl shadow-lg max-w-6xl">
                 {/* Page Header: Job Title */}
                 <h2 className="text-4xl font-extrabold bg-iti-gradient-text text-center mb-8 pb-4 border-b-2 border-gray-200">
@@ -419,6 +463,33 @@ const CompanyJobApplicationsPage = () => {
                     </>
                 )}
             </div>
+
+            {/* Custom Modal Component */}
+            {showModal && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full mx-auto">
+                        <h3 className="text-lg font-bold text-gray-900 mb-4">{modalTitle}</h3>
+                        <p className="text-gray-700 mb-6">{modalMessage}</p>
+                        <div className="flex justify-end space-x-3">
+                            {isConfirmModal && (
+                                <button
+                                    onClick={closeModal}
+                                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition duration-200"
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                            <button
+                                onClick={handleModalConfirm}
+                                className={`px-4 py-2 rounded-md transition duration-200 
+                                    ${isConfirmModal ? 'bg-iti-primary text-white hover:bg-iti-primary-dark' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                            >
+                                {isConfirmModal ? 'Confirm' : 'OK'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
