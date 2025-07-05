@@ -115,7 +115,6 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-between ml-4 xl:ml-6">
         <nav className="flex items-center gap-2 xl:gap-4 text-xs xl:text-sm font-medium">
           <Link to="/" className={getLinkClasses('/')}>Home</Link>
-          <Link to="/student/profile" className={getLinkClasses('/profile')}>Profile</Link>
           <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
           <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
           {user?.role === USER_ROLES.ADMIN && (
@@ -209,20 +208,6 @@ const Navbar = () => {
                 >
                   <span className="material-icons text-lg mr-3">edit</span>
                   Edit Profile
-                </button>
-                
-                <button 
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    handleRefreshProfile();
-                  }}
-                  disabled={refreshingProfile}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left disabled:opacity-50"
-                >
-                  <span className="material-icons text-lg mr-3">
-                    {refreshingProfile ? 'hourglass_empty' : 'refresh'}
-                  </span>
-                  {refreshingProfile ? 'Refreshing...' : 'Refresh Profile'}
                 </button>
                 
                 <div className="border-t border-gray-200 mt-2 pt-2">

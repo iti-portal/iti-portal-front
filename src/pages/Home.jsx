@@ -2,6 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../components/Common/Logo';
 import { 
+  EnvelopeIcon,
+  PhoneIcon,
+  MapPinIcon,
+  AtSymbolIcon,        // Alternative for email
+  LinkIcon,            // Alternative for LinkedIn
+  CodeBracketIcon      // Alternative for GitHub
+} from '@heroicons/react/24/outline';
+import { FaFacebook, FaTwitter, FaLinkedin } from 'react-icons/fa';
+
+// Social media icons (using available alternatives)
+import { 
+  ArrowTopRightOnSquareIcon as ShareIcon 
+} from '@heroicons/react/24/outline';
+
+import { 
   FaGraduationCap, 
   FaBuilding, 
   FaUserGraduate, 
@@ -211,19 +226,19 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TestimonialCard
-              quote="ITI Portal helped me land my dream job at a top tech company. The platform made it easy to showcase my projects and connect with recruiters."
+              quote="ITI Portal helped me master microservices architecture and land my backend role at a Fortune 500 company. The system design challenges were particularly valuable."
               name="Mohammed Essam"
               role="Backend Developer"
             />
             
             <TestimonialCard
-              quote="As a company, we've found amazing talent through ITI Portal. The students are well-prepared and passionate about technology."
+              quote="Through ITI Portal, I found backend developers who truly understand scalable systems. Their database optimization skills saved our project months of development time"
               name="Nihal Zain"
               role="Frontend Developer"
             />
             
             <TestimonialCard
-              quote="The alumni network on ITI Portal is incredible. I've been able to mentor students and grow my professional connections."
+              quote="The backend community on ITI Portal helped me transition from junior to lead developer. The API design workshops transformed my career trajectory."
               name="Omar Morad"
               role="Backend Developer"
             />
@@ -231,47 +246,63 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12 px-4">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <Logo size="small" className="!mb-0 !mx-0 h-6 sm:h-8" />
-              <h3 className="text-lg font-bold mb-4">ITI Portal</h3>
-              <p className="text-gray-400">
-                Connecting Egypt's tech community through education, career opportunities, and professional growth.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Platform</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link to="/features" className="hover:text-white transition-colors">Features</Link></li>
-                <li><Link to="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link to="/support" className="hover:text-white transition-colors">Support</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Community</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link to="/students" className="hover:text-white transition-colors">Students</Link></li>
-                <li><Link to="/alumni" className="hover:text-white transition-colors">Alumni</Link></li>
-                <li><Link to="/companies" className="hover:text-white transition-colors">Companies</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link to="/careers" className="hover:text-white transition-colors">Careers</Link></li>
-                <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 ITI Portal. All rights reserved.</p>
-          </div>
+<footer className="bg-gray-800 text-white py-12 px-4 border-t border-gray-200">
+  <div className="max-w-7xl mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Left Column - Logo and Description */}
+      <div className="space-y-4">
+        <div className="flex items-center">
+          <Logo className="h-12 w-auto" />
+          <span className="ml-3 text-2xl font-bold text-white">Information Technology Institute</span>
         </div>
-      </footer>
+        <p className="text-gray-300">
+          Connecting Egypt's tech talent with opportunities and knowledge. Over 30 years, ITI has continuously updated its training portfolio through close monitoring of future global tech trends and alignment with the country's national and mega projects. This strategic approach has helped sustain an 85% employment rate for graduates even before their graduation.
+        </p>
+      </div>
+
+      {/* Middle Column - Quick Links */}
+<div className="md:pl-8">
+  <h3 className="text-lg font-bold text-white mb-4">QUICK LINKS</h3>
+  <ul className="space-y-3">
+    <li>
+      <Link to="/" className="text-gray-300 hover:text-white">Home</Link>
+    </li>
+    <li>
+      <Link to="/achievements" className="text-gray-300 hover:text-white">Achievements</Link>
+    </li>
+    <li>
+      <Link to="/articles" className="text-gray-300 hover:text-white">Articles</Link>
+    </li>
+    <li>
+      <Link to="" className="text-gray-300 hover:text-white">Jobs</Link>
+    </li>
+  </ul>
+</div>
+
+      {/* Right Column - Contact Info */}
+      <div>
+        <h3 className="text-lg font-bold text-white mb-4">KEEP IN TOUCH</h3>
+        <div className="flex space-x-4 mt-4">
+          <a href="https://www.facebook.com/ITI.eg" target='_blanck' className="text-gray-300 hover:text-white">
+            <FaFacebook className="h-6 w-6" />
+          </a>
+          <a href="https://www.linkedin.com/school/information-technology-institute-iti-/?originalSubdomain=eg" target='_blanck' className="text-gray-300 hover:text-white">
+            <FaTwitter className="h-6 w-6" />
+          </a>
+          <a href="https://x.com/iti_channel" target='_blanck' className="text-gray-300 hover:text-white">
+            <FaLinkedin className="h-6 w-6" />
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {/* Copyright */}
+    <div className="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+      <p>© {new Date().getFullYear()} Information Technology Institute. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
     </div>
   );
 };
