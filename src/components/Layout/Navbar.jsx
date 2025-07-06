@@ -136,11 +136,8 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/jobs')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Jobs</Link>
-              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/company')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Company</Link>
-              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/network')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Network</Link>
-              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/achievements')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Achievements</Link>
-              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/articles')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Articles</Link>
+              <Link to="/about" className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">About Us</Link>
+              <Link to="/contact" className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Contact Us</Link>
             </>
           )}
         </nav>
@@ -508,98 +505,137 @@ const Navbar = () => {
                 <span className="material-icons text-lg mr-3 align-middle">home</span>
                 Home
               </Link>
-              <Link to="/student/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">person</span>
-                Profile
-              </Link>
-              <Link to="/jobs" className={getLinkClasses('/jobs', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">work</span>
-                Jobs
-              </Link>
-              <Link to="/company" className={getLinkClasses('/company', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">business</span>
-                Company
-              </Link>
-              {user?.role === USER_ROLES.ADMIN && (
-                <Link to="/admin/dashboard" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
-                  <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
-                  Admin
-                </Link>
+              {user ? (
+                <>
+                  <Link to="/student/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">person</span>
+                    Profile
+                  </Link>
+                  <Link to="/jobs" className={getLinkClasses('/jobs', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">work</span>
+                    Jobs
+                  </Link>
+                  <Link to="/company" className={getLinkClasses('/company', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">business</span>
+                    Company
+                  </Link>
+                  {user?.role === USER_ROLES.ADMIN && (
+                    <Link to="/admin/dashboard" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
+                      <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
+                      Admin
+                    </Link>
+                  )}
+                  <Link to="/network" className={getLinkClasses('/network', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">group</span>
+                    Network
+                  </Link>              <Link to="/achievements" className={getLinkClasses('/achievements', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">emoji_events</span>
+                    Achievements
+                  </Link>
+                  <Link to="/my-achievements" className={getLinkClasses('/my-achievements', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">star</span>
+                    My Achievements
+                  </Link>
+                  <Link to="/articles" className={getLinkClasses('/articles', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">article</span>
+                    Articles
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/about" className={getLinkClasses('/about', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">info</span>
+                    About Us
+                  </Link>
+                  <Link to="/contact" className={getLinkClasses('/contact', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">contact_mail</span>
+                    Contact Us
+                  </Link>
+                </>
               )}
-              <Link to="/network" className={getLinkClasses('/network', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">group</span>
-                Network
-              </Link>              <Link to="/achievements" className={getLinkClasses('/achievements', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">emoji_events</span>
-                Achievements
-              </Link>
-              <Link to="/my-achievements" className={getLinkClasses('/my-achievements', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">star</span>
-                My Achievements
-              </Link>
-              <Link to="/articles" className={getLinkClasses('/articles', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">article</span>
-                Articles
-              </Link>
             </nav>
             
-            {/* Search and Actions */}
-            <div className="p-4 border-t border-gray-200 space-y-3">
-              <input
-                type="text"
-                placeholder="Search ITI Portal..."
-                className="border border-[#901b20] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-full"
-              />
-              <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition text-sm w-full">
-                <span className="material-icons text-lg mr-2 align-middle">add</span>
-                Post Job
-              </button>
-            </div>
+            {/* Search and Actions - Only for authenticated users */}
+            {user && (
+              <div className="p-4 border-t border-gray-200 space-y-3">
+                <input
+                  type="text"
+                  placeholder="Search ITI Portal..."
+                  className="border border-[#901b20] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-full"
+                />
+                <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition text-sm w-full">
+                  <span className="material-icons text-lg mr-2 align-middle">add</span>
+                  Post Job
+                </button>
+              </div>
+            )}
             
-            {/* User Section */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-3 mb-3">
-                <Link to="/student/profile" onClick={() => setMenuOpen(false)}>
-                  <img
-                    src={user?.profile?.profile_picture || "/avatar.png"}
-                    alt="User"
-                    className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
-                  />
-                </Link>
-                <div className="flex-1">
-                  <div className="font-semibold text-gray-800 text-sm">
-                    {user?.profile?.first_name && user?.profile?.last_name 
-                      ? `${user.profile.first_name} ${user.profile.last_name}` 
-                      : user?.name || 'User'}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {user?.email || 'No email available'}
+            {/* User Section - Only for authenticated users */}
+            {user && (
+              <div className="p-4 border-t border-gray-200 bg-gray-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <Link to="/student/profile" onClick={() => setMenuOpen(false)}>
+                    <img
+                      src={user?.profile?.profile_picture || "/avatar.png"}
+                      alt="User"
+                      className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+                    />
+                  </Link>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-800 text-sm">
+                      {user?.profile?.first_name && user?.profile?.last_name 
+                        ? `${user.profile.first_name} ${user.profile.last_name}` 
+                        : user?.name || 'User'}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {user?.email || 'No email available'}
+                    </div>
                   </div>
                 </div>
+                <div className="flex items-center justify-around pt-2 border-t border-gray-200">
+                  <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
+                    <span className="material-icons text-gray-500">notifications_none</span>
+                    <span className="text-xs text-gray-600">Notifications</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
+                    <span className="material-icons text-gray-500">settings</span>
+                    <span className="text-xs text-gray-600">Settings</span>
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    disabled={logoutLoading}
+                    className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-icons text-gray-500">
+                      {logoutLoading ? 'hourglass_empty' : 'logout'}
+                    </span>
+                    <span className="text-xs text-gray-600">
+                      {logoutLoading ? 'Logging out...' : 'Logout'}
+                    </span>
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center justify-around pt-2 border-t border-gray-200">
-                <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                  <span className="material-icons text-gray-500">notifications_none</span>
-                  <span className="text-xs text-gray-600">Notifications</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                  <span className="material-icons text-gray-500">settings</span>
-                  <span className="text-xs text-gray-600">Settings</span>
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  disabled={logoutLoading}
-                  className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+            
+            {/* Login/Register Section - Only for unauthenticated users */}
+            {!user && (
+              <div className="p-4 border-t border-gray-200 space-y-3">
+                <Link 
+                  to="/login" 
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition text-sm text-center"
                 >
-                  <span className="material-icons text-gray-500">
-                    {logoutLoading ? 'hourglass_empty' : 'logout'}
-                  </span>
-                  <span className="text-xs text-gray-600">
-                    {logoutLoading ? 'Logging out...' : 'Logout'}
-                  </span>
-                </button>
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full border border-[#901b20] text-[#901b20] px-4 py-2 rounded-lg font-semibold hover:bg-[#901b20] hover:text-white transition text-sm text-center"
+                >
+                  Register
+                </Link>
               </div>
-            </div>
+            )}
           </div>
           
           {/* Overlay */}
