@@ -10,6 +10,22 @@ import {
 } from './apiConfig';
 
 /**
+ * Get all available skills for autocomplete/search
+ */
+export const getAllSkills = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/skills`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+
+    return await handleApiResponse(response);
+  } catch (error) {
+    handleNetworkError(error);
+  }
+};
+
+/**
  * Add a new user skill
  */
 export const addUserSkill = async (skillName) => {
@@ -54,3 +70,5 @@ export const deleteUserSkill = async (skillId) => {
     handleNetworkError(error);
   }
 };
+
+
