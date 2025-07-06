@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import AchievementDetailsModal from '../../components/modals/AchievementDetailsModal';
 
 // Get the base URL for images (remove /api part for storage URLs)
@@ -206,12 +207,25 @@ const AchievementCard = ({
 
   return (
     <>
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        whileHover={{ 
+          scale: 1.03, 
+          y: -8,
+          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+          transition: { duration: 0.3, ease: "easeOut" }
+        }}
+        whileTap={{ 
+          scale: 0.98,
+          transition: { duration: 0.1 }
+        }}
         onClick={handleView}
         className={`
           bg-white rounded-lg border border-gray-200 hover:border-gray-300
-          transition-all duration-200 cursor-pointer group overflow-hidden hover:shadow-md
-          ${viewMode === 'list' ? 'flex items-center space-x-4 p-4' : `${compact ? 'p-4' : 'p-6'}`} ${className}
+          transition-all duration-300 cursor-pointer group overflow-hidden
+          ${viewMode === 'list' ? 'flex items-center space-x-4 p-4' : `${compact ? 'p-4 h-80' : 'p-6 h-96'} flex flex-col`} ${className}
         `}
       >
       {viewMode === 'list' ? (
@@ -412,7 +426,7 @@ const AchievementCard = ({
           </div>
 
           {/* Content Section */}
-          <div className="space-y-3">
+          <div className="flex flex-col flex-1 space-y-3">
             {/* User Information - moved to top */}
             {(achievement.user_profile || achievement.user) && showUser && (
               <div className="flex items-center space-x-3 mb-4">
@@ -464,13 +478,13 @@ const AchievementCard = ({
 
             {/* Description */}
             {achievement.description && (
-              <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
+              <p className="text-gray-700 text-sm leading-relaxed line-clamp-3 flex-1">
                 {achievement.description}
               </p>
             )}
 
             {/* Meta Information */}
-            <div className="flex items-center justify-end text-xs text-gray-500 pt-2">
+            <div className="flex items-center justify-end text-xs text-gray-500 pt-2 mt-auto">
               {/* Social Stats */}
               <div className="flex items-center space-x-4">
                 {(likeCount > 0 || isLiked) && (
@@ -537,23 +551,32 @@ const AchievementCard = ({
 
           {/* Hidden Action Buttons for hover interactions */}
           {(onLike || onComment) && (
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity pt-3 mt-3 border-t border-gray-100">
+            <motion.div 
+              className="opacity-0 group-hover:opacity-100 transition-opacity pt-3 mt-3 border-t border-gray-100"
+              initial={{ y: 10 }}
+              animate={{ y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   {onLike && (
-                    <button
+                    <motion.button
                       onClick={handleLike}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       className={`flex items-center space-x-1 text-xs transition-colors px-2 py-1 rounded ${
                         isLiked 
                           ? 'text-red-600 bg-red-50' 
                           : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
                       }`}
                     >
-                      <svg 
+                      <motion.svg 
                         className="w-4 h-4" 
                         fill={isLiked ? "currentColor" : "none"} 
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
+                        animate={isLiked ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                        transition={{ duration: 0.3 }}
                       >
                         <path 
                           strokeLinecap="round" 
@@ -561,29 +584,31 @@ const AchievementCard = ({
                           strokeWidth={2} 
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
                         />
-                      </svg>
+                      </motion.svg>
                       <span>{isLiked ? 'Liked' : 'Like'}</span>
-                    </button>
+                    </motion.button>
                   )}
 
                   {onComment && (
-                    <button
+                    <motion.button
                       onClick={handleComment}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       className="flex items-center space-x-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors px-2 py-1 rounded"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                       <span>Comment</span>
-                    </button>
+                    </motion.button>
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
           )}
         </>
       )}
-    </div>
+    </motion.div>
       
       {/* Achievement Details Modal */}
       <AchievementDetailsModal 
