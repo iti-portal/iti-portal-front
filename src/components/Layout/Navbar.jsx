@@ -95,8 +95,8 @@ const Navbar = () => {
     
     if (isDesktop) {
       return isActive 
-        ? "text-[#901b20] border-b-2 border-[#901b20] pb-1 whitespace-nowrap font-semibold"
-        : "text-gray-700 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-200";
+        ? "text-[#901b20] font-semibold border-b-2 border-[#901b20] pb-1 whitespace-nowrap"
+        : "text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300";
     } else {
       // Mobile sidebar styles
       return isActive
@@ -105,7 +105,15 @@ const Navbar = () => {
     }
   };
 
-  return (    <header className="w-full bg-white shadow-sm border-b px-2 sm:px-4 py-2 flex items-center justify-between relative">
+  // Function to handle protected navigation
+  const handleProtectedNavigation = (e, path) => {
+    if (!user) {
+      e.preventDefault();
+      navigate('/login');
+    }
+  };
+
+  return (    <header className="w-full bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20 px-2 sm:px-4 py-2 flex items-center justify-between fixed z-50 top-0 left-0">
       {/* Logo - Always visible on left */}
       <div className="flex items-center gap-1 sm:gap-2 font-bold text-sm sm:text-base lg:text-lg text-[#901b20] flex-shrink-0">
         <Logo size="small" className="!mb-0 !mx-0 h-6 sm:h-8" />
@@ -115,47 +123,79 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-between ml-4 xl:ml-6">
         <nav className="flex items-center gap-2 xl:gap-4 text-xs xl:text-sm font-medium">
           <Link to="/" className={getLinkClasses('/')}>Home</Link>
-          <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
-          <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
-          {user?.role === USER_ROLES.ADMIN && (
-            <Link to="/admin/dashboard" className={getLinkClasses('/admin')}>Admin</Link>
+          {user ? (
+            <>
+              <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
+              <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
+              {user?.role === USER_ROLES.ADMIN && (
+                <Link to="/admin/dashboard" className={getLinkClasses('/admin')}>Admin</Link>
+              )}
+              <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
+              <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
+              <Link to="/articles" className={getLinkClasses('/articles')}>Articles</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/jobs')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Jobs</Link>
+              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/company')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Company</Link>
+              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/network')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Network</Link>
+              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/achievements')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Achievements</Link>
+              <Link to="/login" onClick={(e) => handleProtectedNavigation(e, '/articles')} className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Articles</Link>
+            </>
           )}
-          <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
-          <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
-          <Link to="/articles" className={getLinkClasses('/articles')}>Articles</Link>
         </nav>
         <div className="flex items-center gap-2 xl:gap-4">
-          <input
-            type="text"
-            placeholder="Search ITI Portal..."
-            className="border border-[#901b20] rounded px-2 xl:px-3 py-1 text-xs xl:text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-32 xl:w-64"
-          />
-          <button className="bg-[#901b20] text-white px-2 xl:px-4 py-1 xl:py-2 rounded font-semibold hover:bg-[#a83236] transition text-xs xl:text-sm whitespace-nowrap">
-            Post Job
-          </button>
-          <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">notifications_none</span>
-          <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
-          <button
-            onClick={handleLogout}
-            disabled={logoutLoading}
-            className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg xl:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            title={logoutLoading ? 'Logging out...' : 'Logout'}
-          >
-            {logoutLoading ? 'hourglass_empty' : 'logout'}
-          </button>
-          <div className="relative" ref={desktopDropdownRef}>
-            <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="focus:outline-none"
-            >            <img
-              src={user?.profile?.profile_picture || "/avatar.png"}
-              alt="User"
-              className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
-            />
-            </button>
-            
-            {/* Profile Dropdown */}
-            {profileDropdownOpen && (
+          {user ? (
+            <>
+              <input
+                type="text"
+                placeholder="Search ITI Portal..."
+                className="border border-[#901b20] rounded px-2 xl:px-3 py-1 text-xs xl:text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-32 xl:w-64"
+              />
+              <button className="bg-[#901b20] text-white px-2 xl:px-4 py-1 xl:py-2 rounded font-semibold hover:bg-[#a83236] transition text-xs xl:text-sm whitespace-nowrap">
+                Post Job
+              </button>
+              <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">notifications_none</span>
+              <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
+              <button
+                onClick={handleLogout}
+                disabled={logoutLoading}
+                className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg xl:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={logoutLoading ? 'Logging out...' : 'Logout'}
+              >
+                {logoutLoading ? 'hourglass_empty' : 'logout'}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link 
+                to="/login" 
+                className="text-gray-800 hover:text-[#901b20] hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg font-medium transition-all duration-300 border border-white/30 hover:border-[#901b20]/50 hover:shadow-md"
+              >
+                Login
+              </Link>
+              <Link 
+                to="/register" 
+                className="bg-gradient-to-r from-[#901b20] to-[#a83236] text-white px-4 py-2 rounded-lg font-semibold hover:from-[#a83236] hover:to-[#901b20] transition-all duration-300 shadow-lg hover:shadow-xl border border-transparent hover:border-white/20 backdrop-blur-sm"
+              >
+                Register
+              </Link>
+            </>
+          )}
+          {user && (
+            <div className="relative" ref={desktopDropdownRef}>
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="focus:outline-none"
+              >            <img
+                src={user?.profile?.profile_picture || "/avatar.png"}
+                alt="User"
+                className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+              />
+              </button>
+              
+              {/* Profile Dropdown */}
+              {profileDropdownOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                 <div className="px-4 py-2 border-b border-gray-200">
                   <div className="font-semibold text-gray-800 text-sm">
@@ -227,7 +267,8 @@ const Navbar = () => {
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

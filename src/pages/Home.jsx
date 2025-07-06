@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Layout/Navbar';
 import Logo from '../components/Common/Logo';
+import { useAuth } from '../contexts/AuthContext';
 import { 
   FaGraduationCap, 
   FaBuilding, 
@@ -32,6 +33,9 @@ import {
 } from '../components/Home';
 
 const Home = () => {
+  // Authentication context
+  const { user, isAuthenticated } = useAuth();
+
   // Counter animation hook
   const useCounter = (end, duration = 2000, start = 0) => {
     const [count, setCount] = useState(start);
@@ -208,142 +212,148 @@ const Home = () => {
         </div>
       </section>
 
-      {/* AI Recommendations Section */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-slate-100 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center px-3 py-1 bg-[#203947]/10 text-[#203947] rounded-full text-xs font-medium mb-4 backdrop-blur-sm border border-[#203947]/20">
-              <FaRocket className="mr-2 text-sm" />
-              AI-Powered Recommendations
+      {/* AI Recommendations Section - Only for authenticated users */}
+      {isAuthenticated && (
+        <section className="py-16 bg-gradient-to-br from-gray-50 via-blue-50 to-slate-100 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center px-3 py-1 bg-[#203947]/10 text-[#203947] rounded-full text-xs font-medium mb-4 backdrop-blur-sm border border-[#203947]/20">
+                <FaRocket className="mr-2 text-sm" />
+                AI-Powered Recommendations
+              </div>
+              <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">
+                Smart Career <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#f59e0b]">Guidance</span>
+              </h2>
+              <p className="text-base lg:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Our AI analyzes your skills, preferences, and career goals to provide personalized recommendations for courses, projects, and job opportunities
+              </p>
             </div>
-            <h2 className="text-2xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Smart Career <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#f59e0b]">Guidance</span>
-            </h2>
-            <p className="text-base lg:text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-              Our AI analyzes your skills, preferences, and career goals to provide personalized recommendations for courses, projects, and job opportunities
-            </p>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Skill Assessment */}
+              <div className="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#f59e0b] to-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-all duration-300">
+                  <FaChartLine className="text-white text-lg" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#f59e0b] transition-colors">Skill Assessment</h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  AI-powered analysis of your technical skills and competencies to identify strengths and areas for improvement
+                </p>
+                <div className="flex items-center text-[#f59e0b] font-medium text-sm group-hover:text-orange-600 transition-colors">
+                  <span>Take Assessment</span>
+                  <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-xs" />
+                </div>
+              </div>
+
+              {/* Personalized Learning Path */}
+              <div className="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#901b20] to-red-700 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-all duration-300">
+                  <FaLaptopCode className="text-white text-lg" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#901b20] transition-colors">Learning Path</h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  Customized learning journey with courses, projects, and milestones tailored to your career objectives
+                </p>
+                <div className="flex items-center text-[#901b20] font-medium text-sm group-hover:text-red-700 transition-colors">
+                  <span>Start Learning</span>
+                  <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-xs" />
+                </div>
+              </div>
+
+              {/* Career Matching */}
+              <div className="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
+                <div className="w-12 h-12 bg-gradient-to-br from-[#203947] to-slate-700 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-all duration-300">
+                  <FaBriefcase className="text-white text-lg" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#203947] transition-colors">Career Matching</h3>
+                <p className="text-gray-600 text-sm leading-relaxed mb-4">
+                  Smart job recommendations based on your skills, interests, and market demand in Egypt's tech sector
+                </p>
+                <div className="flex items-center text-[#203947] font-medium text-sm group-hover:text-slate-700 transition-colors">
+                  <span>Find Opportunities</span>
+                  <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-xs" />
+                </div>
+              </div>
+            </div>
+
+            {/* AI Stats with animated counters */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12 max-w-2xl mx-auto">
+              <div ref={accuracyRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="text-lg lg:text-xl font-bold text-[#f59e0b] group-hover:text-orange-600 transition-colors">
+                  {accuracyRate}%
+                </div>
+                <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">Accuracy Rate</div>
+              </div>
+              <div ref={careerPathsRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="text-lg lg:text-xl font-bold text-[#901b20] group-hover:text-red-700 transition-colors">
+                  {careerPaths.toLocaleString()}+
+                </div>
+                <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">Career Paths</div>
+              </div>
+              <div ref={skillCategoriesRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="text-lg lg:text-xl font-bold text-[#203947] group-hover:text-slate-700 transition-colors">
+                  {skillCategories}+
+                </div>
+                <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">Skill Categories</div>
+              </div>
+              <div ref={aiSupportRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
+                <div className="text-lg lg:text-xl font-bold text-[#f59e0b] group-hover:text-orange-600 transition-colors">
+                  {aiSupport}/7
+                </div>
+                <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">AI Support</div>
+              </div>
+            </div>
           </div>
+        </section>
+      )}
+
+      {/* Modern Popular Achievements Section - Only for authenticated users */}
+      {isAuthenticated && (
+        <section className="py-20 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Skill Assessment */}
-            <div className="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#f59e0b] to-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-all duration-300">
-                <FaChartLine className="text-white text-lg" />
+          <div ref={achievementsRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${achievementsClasses}`}>
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center px-4 py-2 bg-[#901b20]/10 text-[#901b20] rounded-full text-sm font-medium mb-6 animate-fadeIn">
+                <FaTrophy className="mr-2" />
+                Community Achievements
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#f59e0b] transition-colors">Skill Assessment</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                AI-powered analysis of your technical skills and competencies to identify strengths and areas for improvement
+              <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
+                Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] via-[#f59e0b] to-[#203947]">Achievements</span>
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
+                Celebrate outstanding accomplishments from our thriving tech community and get inspired by their success stories
               </p>
-              <div className="flex items-center text-[#f59e0b] font-medium text-sm group-hover:text-orange-600 transition-colors">
-                <span>Take Assessment</span>
-                <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-xs" />
-              </div>
             </div>
+            <div className="animate-fadeInUp animation-delay-500">
+              <PopularAchievements />
+            </div>
+          </div>
+        </section>
+      )}
 
-            {/* Personalized Learning Path */}
-            <div className="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#901b20] to-red-700 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-all duration-300">
-                <FaLaptopCode className="text-white text-lg" />
+      {/* Modern Articles Section - Only for authenticated users */}
+      {isAuthenticated && (
+        <section className="py-20 bg-white relative overflow-hidden">
+          
+          <div ref={articlesRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${articlesClasses}`}>
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center px-4 py-2 bg-[#203947]/10 text-[#203947] rounded-full text-sm font-medium mb-6 animate-fadeIn">
+                <FaLaptopCode className="mr-2" />
+                Tech Insights
               </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#901b20] transition-colors">Learning Path</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                Customized learning journey with courses, projects, and milestones tailored to your career objectives
+              <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
+                Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#203947] via-[#901b20] to-[#f59e0b]">Insights</span>
+              </h2>
+              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
+                Stay ahead with cutting-edge technology trends, career insights, and industry knowledge from thought leaders
               </p>
-              <div className="flex items-center text-[#901b20] font-medium text-sm group-hover:text-red-700 transition-colors">
-                <span>Start Learning</span>
-                <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-xs" />
-              </div>
             </div>
-
-            {/* Career Matching */}
-            <div className="group relative bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#203947] to-slate-700 rounded-xl flex items-center justify-center mb-4 group-hover:scale-105 transition-all duration-300">
-                <FaBriefcase className="text-white text-lg" />
-              </div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-[#203947] transition-colors">Career Matching</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                Smart job recommendations based on your skills, interests, and market demand in Egypt's tech sector
-              </p>
-              <div className="flex items-center text-[#203947] font-medium text-sm group-hover:text-slate-700 transition-colors">
-                <span>Find Opportunities</span>
-                <FaArrowRight className="ml-2 group-hover:translate-x-1 transition-transform text-xs" />
-              </div>
+            <div className="animate-fadeInUp animation-delay-500">
+              <ArticlesInsights />
             </div>
           </div>
-
-          {/* AI Stats with animated counters */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-12 max-w-2xl mx-auto">
-            <div ref={accuracyRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
-              <div className="text-lg lg:text-xl font-bold text-[#f59e0b] group-hover:text-orange-600 transition-colors">
-                {accuracyRate}%
-              </div>
-              <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">Accuracy Rate</div>
-            </div>
-            <div ref={careerPathsRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
-              <div className="text-lg lg:text-xl font-bold text-[#901b20] group-hover:text-red-700 transition-colors">
-                {careerPaths.toLocaleString()}+
-              </div>
-              <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">Career Paths</div>
-            </div>
-            <div ref={skillCategoriesRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
-              <div className="text-lg lg:text-xl font-bold text-[#203947] group-hover:text-slate-700 transition-colors">
-                {skillCategories}+
-              </div>
-              <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">Skill Categories</div>
-            </div>
-            <div ref={aiSupportRef} className="text-center group hover:scale-105 transition-all duration-300 cursor-pointer">
-              <div className="text-lg lg:text-xl font-bold text-[#f59e0b] group-hover:text-orange-600 transition-colors">
-                {aiSupport}/7
-              </div>
-              <div className="text-gray-600 text-xs group-hover:text-gray-700 transition-colors">AI Support</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Modern Popular Achievements Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
-        
-        <div ref={achievementsRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${achievementsClasses}`}>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-[#901b20]/10 text-[#901b20] rounded-full text-sm font-medium mb-6 animate-fadeIn">
-              <FaTrophy className="mr-2" />
-              Community Achievements
-            </div>
-            <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
-              Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] via-[#f59e0b] to-[#203947]">Achievements</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
-              Celebrate outstanding accomplishments from our thriving tech community and get inspired by their success stories
-            </p>
-          </div>
-          <div className="animate-fadeInUp animation-delay-500">
-            <PopularAchievements />
-          </div>
-        </div>
-      </section>
-
-      {/* Modern Articles Section */}
-      <section className="py-20 bg-white relative overflow-hidden">
-        
-        <div ref={articlesRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${articlesClasses}`}>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-[#203947]/10 text-[#203947] rounded-full text-sm font-medium mb-6 animate-fadeIn">
-              <FaLaptopCode className="mr-2" />
-              Tech Insights
-            </div>
-            <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
-              Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#203947] via-[#901b20] to-[#f59e0b]">Insights</span>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
-              Stay ahead with cutting-edge technology trends, career insights, and industry knowledge from thought leaders
-            </p>
-          </div>
-          <div className="animate-fadeInUp animation-delay-500">
-            <ArticlesInsights />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Featured Companies Section */}
       {/* <FeaturedCompanies /> */}
