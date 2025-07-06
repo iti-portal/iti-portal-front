@@ -358,26 +358,23 @@ const Home = () => {
 
       {/* Modern Popular Achievements Section - Only for authenticated users */}
       {isAuthenticated && (
-        <section className="py-20 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
-          
-          <div ref={achievementsRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${achievementsClasses}`}>
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center px-4 py-2 bg-[#901b20]/10 text-[#901b20] rounded-full text-sm font-medium mb-6 animate-fadeIn">
-                <FaTrophy className="mr-2" />
-                Community Achievements
-              </div>
-              <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
-                Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] via-[#f59e0b] to-[#203947]">Achievements</span>
-              </h2>
-              <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
-                Celebrate outstanding accomplishments from our thriving tech community and get inspired by their success stories
-              </p>
+        <div ref={achievementsRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${achievementsClasses}`}>
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center px-4 py-2 bg-[#901b20]/10 text-[#901b20] rounded-full text-sm font-medium mb-6 animate-fadeIn">
+              <FaTrophy className="mr-2" />
+              Community Achievements
             </div>
-            <div className="animate-fadeInUp animation-delay-500">
-              <PopularAchievements />
-            </div>
+            <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
+              Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] via-[#f59e0b] to-[#203947]">Achievements</span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
+              Celebrate outstanding accomplishments from our thriving tech community and get inspired by their success stories
+            </p>
           </div>
-        </section>
+          <div className="animate-fadeInUp animation-delay-500">
+            <PopularAchievements />
+          </div>
+        </div>
       )}
 
       {/* Modern Articles Section - Only for authenticated users */}
@@ -391,7 +388,7 @@ const Home = () => {
                 Tech Insights
               </div>
               <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
-                Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#203947] via-[#901b20] to-[#f59e0b]">Insights</span>
+                Popular<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#203947] via-[#901b20] to-[#f59e0b]"> Articles</span>
               </h2>
               <p className="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed animate-fadeInUp animation-delay-300">
                 Stay ahead with cutting-edge technology trends, career insights, and industry knowledge from thought leaders
@@ -404,11 +401,7 @@ const Home = () => {
         </section>
       )}
 
-      {/* Featured Companies Section */}
-      {/* <FeaturedCompanies /> */}
 
-      {/* Community Insights Section */}
-      {/* <CommunityInsights /> */}
 
       {/* Modern Who We Serve Section */}
       <section className="py-20 bg-gradient-to-br from-orange-50 via-red-50 to-slate-50 relative overflow-hidden">
@@ -439,13 +432,15 @@ const Home = () => {
                 <p className="text-gray-600 mb-6 leading-relaxed text-sm">
                   Build your profile, showcase projects, and connect with opportunities in Egypt's fastest-growing tech sector.
                 </p>
-                <Link 
-                  to="/register?role=student"
-                  className="inline-flex items-center text-[#901b20] font-semibold hover:text-[#7a1619] transition-colors group/link"
-                >
-                  Join as Student
-                  <FaArrowRight className="ml-2 text-sm group-hover/link:translate-x-2 group-hover/link:scale-110 transition-all duration-300" />
-                </Link>
+                {!isAuthenticated && (
+                  <Link 
+                    to="/register?role=student"
+                    className="inline-flex items-center text-[#901b20] font-semibold hover:text-[#7a1619] transition-colors group/link"
+                  >
+                    Join as Student
+                    <FaArrowRight className="ml-2 text-sm group-hover/link:translate-x-2 group-hover/link:scale-110 transition-all duration-300" />
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -460,13 +455,15 @@ const Home = () => {
                 <p className="text-gray-600 mb-6 leading-relaxed text-sm">
                   Mentor the next generation, share your expertise, and expand your professional network.
                 </p>
-                <Link 
-                  to="/register?role=alumni"
-                  className="inline-flex items-center text-[#f59e0b] font-semibold hover:text-orange-600 transition-colors group/link"
-                >
-                  Join as Alumni
-                  <FaArrowRight className="ml-2 text-sm group-hover/link:translate-x-2 group-hover/link:scale-110 transition-all duration-300" />
-                </Link>
+                {!isAuthenticated && (
+                  <Link 
+                    to="/register?role=alumni"
+                    className="inline-flex items-center text-[#f59e0b] font-semibold hover:text-orange-600 transition-colors group/link"
+                  >
+                    Join as Alumni
+                    <FaArrowRight className="ml-2 text-sm group-hover/link:translate-x-2 group-hover/link:scale-110 transition-all duration-300" />
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -481,13 +478,15 @@ const Home = () => {
                 <p className="text-gray-600 mb-6 leading-relaxed text-sm">
                   Discover exceptional talent, post opportunities, and build your dream tech team.
                 </p>
-                <Link 
-                  to="/register?role=company"
-                  className="inline-flex items-center text-[#203947] font-semibold hover:text-slate-700 transition-colors group/link"
-                >
-                  Join as Company
-                  <FaArrowRight className="ml-2 text-sm group-hover/link:translate-x-2 group-hover/link:scale-110 transition-all duration-300" />
-                </Link>
+                {!isAuthenticated && (
+                  <Link 
+                    to="/register?role=company"
+                    className="inline-flex items-center text-[#203947] font-semibold hover:text-slate-700 transition-colors group/link"
+                  >
+                    Join as Company
+                    <FaArrowRight className="ml-2 text-sm group-hover/link:translate-x-2 group-hover/link:scale-110 transition-all duration-300" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -690,43 +689,93 @@ const Home = () => {
       <section className="py-16 bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] text-white relative overflow-hidden">
         <div ref={ctaRef} className={`relative max-w-4xl mx-auto px-4 text-center z-10 ${ctaClasses}`}>
           <div className="animate-fadeIn">
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300">
-              <FaRocket className="mr-2 text-sm animate-pulse" />
-              Join The Future
-            </div>
-            <h2 className="text-2xl lg:text-4xl font-bold mb-6 text-white animate-fadeInUp animation-delay-200 hover:scale-105 transition-transform duration-300">
-              Ready to Transform Your Career?
-            </h2>
+            {isAuthenticated ? (
+              <>
+                <div className="inline-flex items-center px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300">
+                  <FaTrophy className="mr-2 text-sm animate-pulse text-yellow-400" />
+                  Continue Your Journey
+                </div>
+                <h2 className="text-2xl lg:text-4xl font-bold mb-6 text-white animate-fadeInUp animation-delay-200 hover:scale-105 transition-transform duration-300">
+                  Ready to Transform Your Career?
+                </h2>
+              </>
+            ) : (
+              <>
+                <div className="inline-flex items-center px-4 py-2 bg-white/10 text-white rounded-full text-sm font-medium mb-6 backdrop-blur-sm border border-white/20 hover:bg-white/15 hover:scale-105 transition-all duration-300">
+                  <FaRocket className="mr-2 text-sm animate-pulse" />
+                  Join The Future
+                </div>
+                <h2 className="text-2xl lg:text-4xl font-bold mb-6 text-white animate-fadeInUp animation-delay-200 hover:scale-105 transition-transform duration-300">
+                  Ready to Transform Your Career?
+                </h2>
+              </>
+            )}
           </div>
           
           <div className="animate-fadeInUp animation-delay-400">
-            <p className="text-base lg:text-lg text-orange-100 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Join thousands of students, alumni, and companies building the future of technology in Egypt. 
-              Your next breakthrough is just one click away.
-            </p>
+            {isAuthenticated ? (
+              <p className="text-base lg:text-lg text-orange-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Take the next step in your career journey. Share your achievements, explore new opportunities, 
+                and connect with industry leaders who can help you reach your goals.
+              </p>
+            ) : (
+              <p className="text-base lg:text-lg text-orange-100 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of students, alumni, and companies building the future of technology in Egypt. 
+                Your next breakthrough is just one click away.
+              </p>
+            )}
           </div>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fadeInUp animation-delay-600">
-            <Link 
-              to="/register" 
-              className="group relative px-10 py-4 bg-gradient-to-r from-[#901b20] to-[#f59e0b] text-white rounded-xl font-semibold text-lg hover:from-[#7a1619] hover:to-orange-600 transition-all duration-500 transform hover:scale-110 hover:-translate-y-1 shadow-xl hover:shadow-[#901b20]/40 animate-pulse hover:animate-none"
-            >
-              <span className="relative z-10 flex items-center">
-                Get Started Today
-                <FaArrowRight className="ml-3 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-[#7a1619] to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </Link>
-            
-            <Link 
-              to="/login" 
-              className="group px-10 py-4 border-2 border-white/40 text-white rounded-xl font-semibold text-lg hover:bg-white/15 backdrop-blur-sm transition-all duration-500 hover:border-[#f59e0b] hover:scale-110 hover:-translate-y-1 shadow-lg hover:shadow-white/25"
-            >
-              <span className="flex items-center">
-                Sign In
-                <FaArrowRight className="ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
-              </span>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link 
+                  to="/achievements/create" 
+                  className="group relative px-10 py-4 bg-gradient-to-r from-[#901b20] to-[#f59e0b] text-white rounded-xl font-semibold text-lg hover:from-[#7a1619] hover:to-orange-600 transition-all duration-500 transform hover:scale-110 hover:-translate-y-1 shadow-xl hover:shadow-[#901b20]/40 animate-pulse hover:animate-none"
+                >
+                  <span className="relative z-10 flex items-center">
+                    <FaTrophy className="mr-3 text-yellow-400" />
+                    Share Achievement
+                    <FaArrowRight className="ml-3 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#7a1619] to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </Link>
+                
+                <Link 
+                  to="/jobs" 
+                  className="group px-10 py-4 border-2 border-white/40 text-white rounded-xl font-semibold text-lg hover:bg-white/15 backdrop-blur-sm transition-all duration-500 hover:border-[#f59e0b] hover:scale-110 hover:-translate-y-1 shadow-lg hover:shadow-white/25"
+                >
+                  <span className="flex items-center">
+                    <FaBriefcase className="mr-3" />
+                    Explore Jobs
+                    <FaArrowRight className="ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
+                  </span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/register" 
+                  className="group relative px-10 py-4 bg-gradient-to-r from-[#901b20] to-[#f59e0b] text-white rounded-xl font-semibold text-lg hover:from-[#7a1619] hover:to-orange-600 transition-all duration-500 transform hover:scale-110 hover:-translate-y-1 shadow-xl hover:shadow-[#901b20]/40 animate-pulse hover:animate-none"
+                >
+                  <span className="relative z-10 flex items-center">
+                    Get Started Today
+                    <FaArrowRight className="ml-3 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#7a1619] to-orange-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </Link>
+                
+                <Link 
+                  to="/login" 
+                  className="group px-10 py-4 border-2 border-white/40 text-white rounded-xl font-semibold text-lg hover:bg-white/15 backdrop-blur-sm transition-all duration-500 hover:border-[#f59e0b] hover:scale-110 hover:-translate-y-1 shadow-lg hover:shadow-white/25"
+                >
+                  <span className="flex items-center">
+                    Sign In
+                    <FaArrowRight className="ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 group-hover:scale-110 transition-all duration-300" />
+                  </span>
+                </Link>
+              </>
+            )}
           </div>
           
           {/* Trust indicators with animated counters */}

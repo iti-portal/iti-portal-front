@@ -108,9 +108,9 @@ const PopularAchievements = () => {
 
   if (loading) {
     return (
-      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden rounded-lg">
         {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#203947]/5 via-transparent to-[#901b20]/5"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#203947]/5 via-transparent to-[#901b20]/5 rounded-lg"></div>
         <div className="absolute top-10 right-10 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl"></div>
         
@@ -159,9 +159,9 @@ const PopularAchievements = () => {
 
   if (error) {
     return (
-      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden rounded-lg">
         {/* Background decoration */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#203947]/5 via-transparent to-[#901b20]/5"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#203947]/5 via-transparent to-[#901b20]/5 rounded-lg"></div>
         <div className="absolute top-10 right-10 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl"></div>
         
@@ -196,9 +196,9 @@ const PopularAchievements = () => {
   }
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+    <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden rounded-lg">
       {/* Background decoration */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#203947]/5 via-transparent to-[#901b20]/5"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-[#203947]/5 via-transparent to-[#901b20]/5 rounded-lg"></div>
       <div className="absolute top-10 right-10 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl"></div>
       
@@ -208,12 +208,6 @@ const PopularAchievements = () => {
             <FaTrophy className="text-[#901b20] mr-2" />
             <span className="text-[#901b20] font-semibold text-sm">ACHIEVEMENTS</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#203947]">Achievements</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Celebrate outstanding accomplishments from our community and get inspired by their success stories
-          </p>
         </div>
         
         {achievements.length === 0 ? (

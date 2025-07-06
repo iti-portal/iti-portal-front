@@ -120,7 +120,7 @@ const ArticlesInsights = () => {
 
   if (loading) {
     return (
-      <section className="py-20 px-4 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-l from-[#203947]/5 via-transparent to-[#901b20]/5"></div>
         <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl"></div>
@@ -168,7 +168,7 @@ const ArticlesInsights = () => {
 
   if (error) {
     return (
-      <section className="py-20 px-4 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+      <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-l from-[#203947]/5 via-transparent to-[#901b20]/5"></div>
         <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl"></div>
@@ -178,7 +178,7 @@ const ArticlesInsights = () => {
           <div className="text-center mb-16">
             <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#203947]/10 to-[#901b20]/10 rounded-full mb-6">
               <FaNewspaper className="text-[#901b20] mr-2" />
-              <span className="text-[#901b20] font-semibold text-sm">LATEST INSIGHTS</span>
+              <span className="text-[#901b20] font-semibold text-sm">Popular Articles</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
               Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#203947] to-[#901b20]">Articles</span>
@@ -205,7 +205,7 @@ const ArticlesInsights = () => {
   }
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-br from-white via-gray-50 to-white relative overflow-hidden">
+    <section className="py-20 px-4 bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-l from-[#203947]/5 via-transparent to-[#901b20]/5"></div>
       <div className="absolute top-10 left-10 w-72 h-72 bg-gradient-to-br from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl"></div>
@@ -217,12 +217,6 @@ const ArticlesInsights = () => {
             <FaNewspaper className="text-[#901b20] mr-2" />
             <span className="text-[#901b20] font-semibold text-sm">LATEST INSIGHTS</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            Popular <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#203947] to-[#901b20]">Articles</span>
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Stay updated with the latest insights in technology and career development from industry experts
-          </p>
         </div>
         
         {articles.length === 0 ? (
