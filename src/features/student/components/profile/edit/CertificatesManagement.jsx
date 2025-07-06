@@ -7,14 +7,21 @@ import CertificateSection from './CertificateSection.jsx';
 import CertificateForm from './CertificateForm.jsx';
 import { addCertificate, updateCertificate, deleteCertificate, updateCertificateImage } from '../../../../../services/certificatesService';
 
-function CertificatesManagement({ certificates = [], onUpdateCertificates, showNotifications = true }) {
+function CertificatesManagement({ 
+  certificates = [], 
+  onUpdateCertificates, 
+  showNotifications = true,
+  onShowNotification,
+  onShowConfirmation,
+  onHideConfirmation 
+}) {
   const [currentCertificates, setCurrentCertificates] = useState(certificates || []);
   
   // Modal state
   const [showCertificateModal, setShowCertificateModal] = useState(false);
   const [editingCertificate, setEditingCertificate] = useState(null);
   
-  // Notification state
+  // Notification state (fallback if parent doesn't provide notification system)
   const [notification, setNotification] = useState({ 
     show: false, 
     type: 'info', 
@@ -29,7 +36,12 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
   // Helper function to show notifications
   const showNotification = (message, type = 'success') => {
     if (showNotifications) {
-      setNotification({ show: true, type, message });
+      // Use parent notification system if available, otherwise fallback to local
+      if (onShowNotification && typeof onShowNotification === 'function') {
+        onShowNotification(message, type);
+      } else {
+        setNotification({ show: true, type, message });
+      }
     }
   };
 
@@ -50,10 +62,12 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
 
   const handleCertificateSubmit = async (formData) => {
     try {
+      console.log('handleCertificateSubmit called with data:', formData);
       let result;
       
       if (editingCertificate) {
         // Update existing certificate
+        console.log('Updating certificate:', editingCertificate.id);
         result = await updateCertificate(editingCertificate.id, formData);
         
         if (result.success) {
@@ -74,11 +88,17 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
             cert.id === editingCertificate.id ? mappedData : cert
           );
           setCurrentCertificates(updatedCerts);
-          onUpdateCertificates(updatedCerts);
+          
+          // Call parent update function safely
+          if (onUpdateCertificates && typeof onUpdateCertificates === 'function') {
+            onUpdateCertificates(updatedCerts);
+          }
+          
           showNotification('Certificate updated successfully!', 'success');
         }
       } else {
         // Add new certificate
+        console.log('Adding new certificate');
         result = await addCertificate(formData);
         
         if (result.success) {
@@ -97,7 +117,12 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
           
           const updatedCerts = [...currentCertificates, mappedData];
           setCurrentCertificates(updatedCerts);
-          onUpdateCertificates(updatedCerts);
+          
+          // Call parent update function safely
+          if (onUpdateCertificates && typeof onUpdateCertificates === 'function') {
+            onUpdateCertificates(updatedCerts);
+          }
+          
           showNotification('Certificate added successfully!', 'success');
         }
       }
@@ -105,6 +130,7 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
       // Close modal on success
       setShowCertificateModal(false);
       setEditingCertificate(null);
+      console.log('Certificate operation completed successfully');
       
     } catch (error) {
       console.error('Error saving certificate:', error);
@@ -113,25 +139,50 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
   };
 
   const handleCertificateDelete = async (idToDelete) => {
-    // Show confirmation dialog
-    const confirmDelete = window.confirm('Are you sure you want to delete this certificate?');
+    console.log('handleCertificateDelete called with ID:', idToDelete);
     
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      const result = await deleteCertificate(idToDelete);
-      
-      if (result.success) {
-        const updatedCerts = currentCertificates.filter(cert => cert.id !== idToDelete);
-        setCurrentCertificates(updatedCerts);
-        onUpdateCertificates(updatedCerts);
-        showNotification('Certificate deleted successfully!', 'success');
-      }
-    } catch (error) {
-      console.error('Error deleting certificate:', error);
-      showNotification(`Error deleting certificate: ${error.message}`, 'error');
+    // Use parent confirmation system if available, otherwise fallback to window.confirm
+    if (onShowConfirmation && typeof onShowConfirmation === 'function') {
+      onShowConfirmation(
+        'Delete Certificate',
+        'Are you sure you want to delete this certificate? This action cannot be undone.',
+        async () => {
+          try {
+            console.log('Confirmation accepted, attempting to delete certificate with ID:', idToDelete);
+            const result = await deleteCertificate(idToDelete);
+            console.log('Delete result:', result);
+            
+            if (result.success) {
+              const updatedCerts = currentCertificates.filter(cert => cert.id !== idToDelete);
+              console.log('Updated certificates:', updatedCerts);
+              
+              setCurrentCertificates(updatedCerts);
+              
+              // Call parent update function safely
+              if (onUpdateCertificates && typeof onUpdateCertificates === 'function') {
+                onUpdateCertificates(updatedCerts);
+              }
+              
+              showNotification('Certificate deleted successfully!', 'success');
+              console.log('Certificate deleted successfully');
+            } else {
+              throw new Error(result.message || 'Failed to delete certificate');
+            }
+          } catch (error) {
+            console.error('Error deleting certificate:', error);
+            showNotification(`Error deleting certificate: ${error.message}`, 'error');
+          } finally {
+            // Always hide confirmation modal
+            if (onHideConfirmation && typeof onHideConfirmation === 'function') {
+              onHideConfirmation();
+            }
+          }
+        },
+        'danger'
+      );
+    } else {
+      // If no confirmation system is available, show error
+      showNotification('Cannot delete certificate: confirmation system not available.', 'error');
     }
   };
 
@@ -142,6 +193,7 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
 
   const handleImageUpdate = async (certificateId, imageFile) => {
     try {
+      console.log('handleImageUpdate called for certificate ID:', certificateId);
       const result = await updateCertificateImage(certificateId, imageFile);
       
       if (result.success) {
@@ -157,8 +209,14 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
         );
         
         setCurrentCertificates(updatedCerts);
-        onUpdateCertificates(updatedCerts);
+        
+        // Call parent update function safely
+        if (onUpdateCertificates && typeof onUpdateCertificates === 'function') {
+          onUpdateCertificates(updatedCerts);
+        }
+        
         showNotification('Certificate image updated successfully!', 'success');
+        console.log('Certificate image updated successfully');
       }
     } catch (error) {
       console.error('Error updating certificate image:', error);
@@ -168,8 +226,8 @@ function CertificatesManagement({ certificates = [], onUpdateCertificates, showN
 
   return (
     <>
-      {/* Notification - only show if notifications are enabled */}
-      {showNotifications && (
+      {/* Notification - only show local fallback if parent doesn't provide notification system */}
+      {showNotifications && !onShowNotification && (
         <Alert
           show={notification.show}
           type={notification.type}

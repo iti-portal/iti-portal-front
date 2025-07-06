@@ -22,7 +22,14 @@ function SkillTag({ skill, onRemove }) {
   );
 }
 
-function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = true }) {
+function SkillsManagement({ 
+  skills = [], 
+  onUpdateSkills, 
+  showNotifications = true,
+  onShowNotification,
+  onShowConfirmation,
+  onHideConfirmation
+}) {
   const [currentSkills, setCurrentSkills] = useState(skills || []);
   const [newSkillInput, setNewSkillInput] = useState('');
   const [availableSkills, setAvailableSkills] = useState([]);
@@ -163,31 +170,41 @@ function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = tru
   };
 
   const handleRemoveSkill = async (skillIdToRemove) => {
-    // Show confirmation dialog
-    const confirmDelete = window.confirm('Are you sure you want to remove this skill from your profile?');
-    
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      // Use the skill ID for the API call (not the relationship ID)
-      const result = await deleteUserSkill(skillIdToRemove);
-      
-      if (result.success) {
-        // Remove the skill from local state using the skill ID
-        const updatedSkills = currentSkills.filter(skill => skill.id !== skillIdToRemove);
-        setCurrentSkills(updatedSkills);
-        onUpdateSkills(updatedSkills);
-        
-        // Show success message
-        showNotification('Skill removed successfully!', 'success');
-      } else {
-        throw new Error('Failed to remove skill');
-      }
-    } catch (error) {
-      console.error('Error removing skill:', error);
-      showNotification(`Error removing skill: ${error.message}`, 'error');
+    // Use parent confirmation system if available
+    if (onShowConfirmation && typeof onShowConfirmation === 'function') {
+      onShowConfirmation(
+        'Remove Skill',
+        'Are you sure you want to remove this skill from your profile?',
+        async () => {
+          try {
+            // Use the skill ID for the API call (not the relationship ID)
+            const result = await deleteUserSkill(skillIdToRemove);
+            
+            if (result.success) {
+              // Remove the skill from local state using the skill ID
+              const updatedSkills = currentSkills.filter(skill => skill.id !== skillIdToRemove);
+              setCurrentSkills(updatedSkills);
+              onUpdateSkills(updatedSkills);
+              
+              showNotification('Skill removed successfully!', 'success');
+            } else {
+              throw new Error('Failed to remove skill');
+            }
+          } catch (error) {
+            console.error('Error removing skill:', error);
+            showNotification(`Error removing skill: ${error.message}`, 'error');
+          } finally {
+            // Always hide confirmation modal
+            if (onHideConfirmation && typeof onHideConfirmation === 'function') {
+              onHideConfirmation();
+            }
+          }
+        },
+        'danger'
+      );
+    } else {
+      // If no confirmation system is available, show error
+      showNotification('Cannot remove skill: confirmation system not available.', 'error');
     }
   };
 

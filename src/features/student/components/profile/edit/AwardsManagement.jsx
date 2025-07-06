@@ -8,14 +8,22 @@ import AwardForm from './AwardForm.jsx';
 import { addAward, updateAward, deleteAward, updateAwardImage, addAwardImage, deleteAwardImage, getUserAwards } from '../../../../../services/awardsService';
 import { constructCertificateImageUrl } from '../../../../../services/apiConfig';
 
-function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = true, userId }) {
+function AwardsManagement({ 
+  awards = [], 
+  onUpdateAwards, 
+  showNotifications = true, 
+  userId,
+  onShowNotification,
+  onShowConfirmation,
+  onHideConfirmation 
+}) {
   const [currentAwards, setCurrentAwards] = useState(awards || []);
   
   // Modal state
   const [showAwardModal, setShowAwardModal] = useState(false);
   const [editingAward, setEditingAward] = useState(null);
   
-  // Notification state - only show if enabled
+  // Notification state (fallback if parent doesn't provide notification system)
   const [notification, setNotification] = useState({ 
     show: false, 
     type: 'info', 
@@ -78,7 +86,12 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
   // Helper function to show notifications
   const showNotification = (message, type = 'success') => {
     if (showNotifications) {
-      setNotification({ show: true, type, message });
+      // Use parent notification system if available, otherwise fallback to local
+      if (onShowNotification && typeof onShowNotification === 'function') {
+        onShowNotification(message, type);
+      } else {
+        setNotification({ show: true, type, message });
+      }
     }
   };
 
@@ -99,10 +112,12 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
 
   const handleAwardSubmit = async (formData) => {
     try {
+      console.log('handleAwardSubmit called with data:', formData);
       let result;
       
       if (editingAward) {
         // Update existing award
+        console.log('Updating award:', editingAward.id);
         result = await updateAward(editingAward.id, formData);
         
         if (result.success) {
@@ -119,11 +134,17 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
           );
           
           setCurrentAwards(updatedAwards);
-          onUpdateAwards(updatedAwards);
+          
+          // Call parent update function safely
+          if (onUpdateAwards && typeof onUpdateAwards === 'function') {
+            onUpdateAwards(updatedAwards);
+          }
+          
           showNotification('Award updated successfully!', 'success');
         }
       } else {
         // Add new award
+        console.log('Adding new award');
         result = await addAward(formData);
         
         if (result.success) {
@@ -136,7 +157,12 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
           
           const updatedAwards = [...currentAwards, newAward];
           setCurrentAwards(updatedAwards);
-          onUpdateAwards(updatedAwards);
+          
+          // Call parent update function safely
+          if (onUpdateAwards && typeof onUpdateAwards === 'function') {
+            onUpdateAwards(updatedAwards);
+          }
+          
           showNotification('🎉 Award added successfully! Your achievement has been saved.', 'success');
         }
       }
@@ -145,6 +171,7 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
       if (result && result.success) {
         setShowAwardModal(false);
         setEditingAward(null);
+        console.log('Award operation completed successfully');
       }
       
     } catch (error) {
@@ -154,44 +181,74 @@ function AwardsManagement({ awards = [], onUpdateAwards, showNotifications = tru
   };
 
   const handleAwardDelete = async (idToDelete) => {
-    // Show confirmation dialog
-    const confirmDelete = window.confirm('Are you sure you want to delete this award?');
+    console.log('handleAwardDelete called with ID:', idToDelete);
     
-    if (!confirmDelete) {
+    // Use parent confirmation system if available, otherwise fallback to window.confirm
+    if (onShowConfirmation && typeof onShowConfirmation === 'function') {
+      onShowConfirmation(
+        'Delete Award',
+        'Are you sure you want to delete this award? This action cannot be undone.',
+        async () => {
+          try {
+            console.log('Confirmation accepted, attempting to delete award with ID:', idToDelete);
+            
+            // Check if the award exists in our local state
+            const awardExists = currentAwards.find(award => award.id === idToDelete);
+            if (!awardExists) {
+              console.warn('Award not found in local state:', idToDelete);
+              showNotification('Award not found. It may have already been deleted.', 'warning');
+              return;
+            }
+
+            const result = await deleteAward(idToDelete);
+            console.log('Delete result:', result);
+            
+            if (result.success) {
+              // Remove the deleted award directly from local state instead of refreshing
+              const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
+              console.log('Updated awards:', updatedAwards);
+              
+              setCurrentAwards(updatedAwards);
+              
+              // Call parent update function safely
+              if (onUpdateAwards && typeof onUpdateAwards === 'function') {
+                onUpdateAwards(updatedAwards);
+              }
+              
+              showNotification('Award deleted successfully!', 'success');
+              console.log('Award deleted successfully');
+            } else {
+              throw new Error(result.message || 'Failed to delete award');
+            }
+          } catch (error) {
+            console.error('Error deleting award:', error);
+            
+            // If the award doesn't exist on the server, remove it from local state anyway
+            if (error.message.includes('No query results for model') || error.message.includes('404')) {
+              const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
+              setCurrentAwards(updatedAwards);
+              
+              if (onUpdateAwards && typeof onUpdateAwards === 'function') {
+                onUpdateAwards(updatedAwards);
+              }
+              
+              showNotification('Award removed (was already deleted on server)', 'info');
+            } else {
+              showNotification(`Error deleting award: ${error.message}`, 'error');
+            }
+          } finally {
+            // Always hide confirmation modal
+            if (onHideConfirmation && typeof onHideConfirmation === 'function') {
+              onHideConfirmation();
+            }
+          }
+        },
+        'danger'
+      );
+    } else {
+      // If no confirmation system is available, show error
+      showNotification('Cannot delete award: confirmation system not available.', 'error');
       return;
-    }
-
-    try {
-      // Check if the award exists in our local state
-      const awardExists = currentAwards.find(award => award.id === idToDelete);
-      if (!awardExists) {
-        console.warn('Award not found in local state:', idToDelete);
-        showNotification('Award not found. It may have already been deleted.', 'warning');
-        return;
-      }
-
-      const result = await deleteAward(idToDelete);
-      
-      if (result.success) {
-        // Remove the deleted award directly from local state instead of refreshing
-        const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
-        
-        setCurrentAwards(updatedAwards);
-        onUpdateAwards(updatedAwards);
-        showNotification('Award deleted successfully!', 'success');
-      }
-    } catch (error) {
-      console.error('Error deleting award:', error);
-      
-      // If the award doesn't exist on the server, remove it from local state anyway
-      if (error.message.includes('No query results for model') || error.message.includes('404')) {
-        const updatedAwards = currentAwards.filter(award => award.id !== idToDelete);
-        setCurrentAwards(updatedAwards);
-        onUpdateAwards(updatedAwards);
-        showNotification('Award removed (was already deleted on server)', 'info');
-      } else {
-        showNotification(`Error deleting award: ${error.message}`, 'error');
-      }
     }
   };
 
