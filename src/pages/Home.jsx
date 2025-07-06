@@ -144,41 +144,90 @@ const Home = () => {
         <div className="relative max-w-7xl mx-auto px-4 py-24 lg:py-32 z-10">
           <div className="text-center">
             <div className="animate-fadeIn">
-              <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-8 text-white leading-tight">
-                Build Your Future in
-                <span className="block text-3xl md:text-5xl lg:text-7xl font-extrabold text-yellow-400 mt-4 mb-2 drop-shadow-lg leading-tight">
-                  Technology
-                </span>
-              </h1>
+              {isAuthenticated ? (
+                <>
+                  <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-8 text-white leading-tight">
+                    Welcome Back,
+                    <span className="block text-3xl md:text-5xl lg:text-7xl font-extrabold text-yellow-400 mt-4 mb-2 drop-shadow-lg leading-tight">
+                      {user?.first_name || 'Explorer'}!
+                    </span>
+                  </h1>
+                  <h2 className="text-2xl md:text-3xl lg:text-4xl font-semibold mb-8 text-orange-200 leading-tight">
+                    Start Your Journey with 
+                    <span className="text-yellow-400 ml-2">Achievements</span>
+                  </h2>
+                </>
+              ) : (
+                <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold mb-8 text-white leading-tight">
+                  Build Your Future in
+                  <span className="block text-3xl md:text-5xl lg:text-7xl font-extrabold text-yellow-400 mt-4 mb-2 drop-shadow-lg leading-tight">
+                    Technology
+                  </span>
+                </h1>
+              )}
             </div>
             
             <div className="animate-fadeInUp animation-delay-700">
-              <p className="text-base md:text-lg lg:text-2xl text-orange-100 mb-10 max-w-4xl mx-auto leading-relaxed font-medium">
-                Join Egypt's premier technology community. Connect with opportunities, 
-                showcase your achievements, and accelerate your career with ITI Portal.
-              </p>
+              {isAuthenticated ? (
+                <p className="text-base md:text-lg lg:text-2xl text-orange-100 mb-10 max-w-4xl mx-auto leading-relaxed font-medium">
+                  Showcase your accomplishments, discover new opportunities, and connect with 
+                  industry leaders. Your success story starts here with meaningful achievements.
+                </p>
+              ) : (
+                <p className="text-base md:text-lg lg:text-2xl text-orange-100 mb-10 max-w-4xl mx-auto leading-relaxed font-medium">
+                  Join Egypt's premier technology community. Connect with opportunities, 
+                  showcase your achievements, and accelerate your career with ITI Portal.
+                </p>
+              )}
             </div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fadeInUp animation-delay-1000">
-              <Link 
-                to="/register" 
-                className="group relative px-10 py-4 bg-gradient-to-r from-[#901b20] to-[#203947] text-white rounded-xl font-semibold text-lg hover:from-[#7a1619] hover:to-[#1a2f3a] transition-all duration-500 transform hover:scale-105 shadow-xl hover:shadow-[#901b20]/30"
-              >
-                <span className="relative z-10 flex items-center">
-                  Start Your Journey
-                  <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform duration-300" />
-                </span>
-              </Link>
-              
-              <Link 
-                to="/about" 
-                className="group px-10 py-4 border-2 border-white/40 text-white rounded-xl font-semibold text-lg hover:bg-white/15 backdrop-blur-sm transition-all duration-500 hover:border-[#901b20] hover:scale-105 shadow-lg"
-              >
-                <span className="flex items-center">
-                  Learn More
-                  <FaArrowRight className="ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
-                </span>
-              </Link>
+              {isAuthenticated ? (
+                <>
+                  <Link 
+                    to="/achievements/create" 
+                    className="group relative px-10 py-4 bg-gradient-to-r from-[#901b20] to-[#203947] text-white rounded-xl font-semibold text-lg hover:from-[#7a1619] hover:to-[#1a2f3a] transition-all duration-500 transform hover:scale-105 shadow-xl hover:shadow-[#901b20]/30"
+                  >
+                    <span className="relative z-10 flex items-center">
+                      <FaTrophy className="mr-3 text-yellow-400" />
+                      Create Achievement
+                      <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform duration-300" />
+                    </span>
+                  </Link>
+                  
+                  <Link 
+                    to="/articles" 
+                    className="group px-10 py-4 border-2 border-white/40 text-white rounded-xl font-semibold text-lg hover:bg-white/15 backdrop-blur-sm transition-all duration-500 hover:border-[#901b20] hover:scale-105 shadow-lg"
+                  >
+                    <span className="flex items-center">
+                      Learn More from Articles
+                      <FaArrowRight className="ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                    </span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/register" 
+                    className="group relative px-10 py-4 bg-gradient-to-r from-[#901b20] to-[#203947] text-white rounded-xl font-semibold text-lg hover:from-[#7a1619] hover:to-[#1a2f3a] transition-all duration-500 transform hover:scale-105 shadow-xl hover:shadow-[#901b20]/30"
+                  >
+                    <span className="relative z-10 flex items-center">
+                      Start Your Journey
+                      <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform duration-300" />
+                    </span>
+                  </Link>
+                  
+                  <Link 
+                    to="/about" 
+                    className="group px-10 py-4 border-2 border-white/40 text-white rounded-xl font-semibold text-lg hover:bg-white/15 backdrop-blur-sm transition-all duration-500 hover:border-[#901b20] hover:scale-105 shadow-lg"
+                  >
+                    <span className="flex items-center">
+                      Learn More
+                      <FaArrowRight className="ml-3 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                    </span>
+                  </Link>
+                </>
+              )}
             </div>
             
             {/* Enhanced Stats with counter animations */}
