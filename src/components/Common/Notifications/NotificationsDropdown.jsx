@@ -88,15 +88,19 @@ const NotificationDropdown = () => {
             </div>
           ) : (
             <div className="max-h-64 overflow-y-auto">
-              {notifications.map((notification, index) => (
+              {notifications.sort((a, b) => b.timestamp - a.timestamp).map((notification, index) => (
                 <div
                   key={index}
                   className="px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
                   onClick = {() => markAsRead(notification.id)}
                 >
-                  <div className="font-medium text-gray-800">
-                    {notification.title}
-                  </div>
+
+<div className="font-medium text-gray-800 flex justify-between items-center">
+  <span>{notification.title}</span>
+  <span className="text-xs text-gray-500 whitespace-nowrap">
+    {new Date(notification.timestamp).toLocaleString()}
+  </span>
+</div>
                   <div className="text-gray-600">{notification.body}</div>
                 </div>
               ))}
