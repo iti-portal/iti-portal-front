@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getUserProfile, updateProfilePicture, updateCoverPhoto } from '../services/profileService';
 
-/**
- * Transform backend data to frontend format
- */
+
 const transformProfileData = (data) => {
   if (!data) return null;
 
