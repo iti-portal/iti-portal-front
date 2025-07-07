@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getContactSubmissions } from '../../../../services/contactUsService';
+import { getContactSubmissions, deleteContactSubmission } from '../../../../services/contactUsService';
 
 /**
  * ContactList component displays contact us submissions with filtering and pagination
@@ -59,6 +59,22 @@ const ContactList = () => {
   const handleCloseModal = () => {
     setSelectedSubmission(null);
   };
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this submission?')) {
+      try {
+        const response = await deleteContactSubmission(id);
+        if (response.success) {
+          setSubmissions(submissions.filter(submission => submission.id !== id));
+        } else {
+          alert(response.message || 'Failed to delete submission');
+        }
+      } catch (err) {
+        alert(err.message || 'An error occurred while deleting the submission');
+      }
+    }
+  };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -134,7 +150,12 @@ const ContactList = () => {
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-red-600 hover:text-red-800">Delete</button>
+                    <button 
+                      onClick={() => handleDelete(submission.id)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}
