@@ -97,3 +97,9 @@ export {
   suspendUser,
   unsuspendUser
 } from './staffService';
+
+// Services service exports
+export {
+  getUsedServices,
+  getAlumniServiceDetails
+} from './servicesService';
