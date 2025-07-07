@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
 import Navbar from '../components/Layout/Navbar';
+import { addContact } from '../services/contactUsService';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    name: '',
+    full_name: '',
     email: '',
     subject: '',
     message: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState({
+    success: false,
+    error: false,
+    message: ''
+  });
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -17,11 +25,24 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log('Form submitted:', formData);
-    // You can add actual form submission logic here
+    setIsSubmitting(true);
+    setSubmitStatus({ success: false, error: false, message: '' });
+
+    try {
+      const response = await addContact(formData);
+      if (response.success) {
+        setSubmitStatus({ success: true, error: false, message: 'Your message has been sent successfully!' });
+        setFormData({ full_name: '', email: '', subject: '', message: '' });
+      } else {
+        setSubmitStatus({ success: false, error: true, message: response.message || 'An unexpected error occurred.' });
+      }
+    } catch (error) {
+      setSubmitStatus({ success: false, error: true, message: error.message || 'An unexpected error occurred.' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -53,8 +74,8 @@ const Contact = () => {
                   </label>
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="full_name"
+                    value={formData.full_name}
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] transition-colors"
                     placeholder="Your full name"
@@ -105,11 +126,17 @@ const Contact = () => {
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-[#901b20] to-[#203947] text-white py-3 px-6 rounded-lg font-semibold hover:from-[#a83236] hover:to-[#2a4a5a] transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="w-full bg-gradient-to-r from-[#901b20] to-[#203947] text-white py-3 px-6 rounded-lg font-semibold hover:from-[#a83236] hover:to-[#2a4a5a] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
+                  disabled={isSubmitting}
                 >
-                  Send Message
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
+              {submitStatus.message && (
+                <div className={`mt-4 text-center p-3 rounded-lg ${submitStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {submitStatus.message}
+                </div>
+              )}
             </div>
 
             {/* Contact Information */}
