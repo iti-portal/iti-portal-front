@@ -10,3 +10,8 @@ export { default as StatsSection } from './StatsSection';
 export { default as ArticlesInsights } from './ArticlesInsights';
 export { default as FeaturedCompanies } from './FeaturedCompanies';
 export { default as CommunityInsights } from './CommunityInsights';
+export { default as AIRecommendations } from './AIRecommendations';
+export { default as WhoWeServe } from './WhoWeServe';
+export { default as PlatformFeatures } from './PlatformFeatures';
+export { default as CTASection } from './CTASection';
+export { default as Footer } from './Footer';

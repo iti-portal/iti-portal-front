@@ -14,7 +14,7 @@ const StatItem = ({ number, label, index }) => {
       <div className="text-4xl lg:text-5xl font-bold mb-2 text-iti-accent">
         {number}
       </div>
-      <div className="text-lg text-gray-600">
+      <div className="text-lg">
         {label}
       </div>
     </div>

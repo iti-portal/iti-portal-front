@@ -205,9 +205,12 @@ const AchievementsFeed = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-10 pb-10">
+      {/* Spacer between navbar and header */}
+      <div className="h-16"></div>
+      
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between py-6">
             <div>
@@ -428,16 +431,17 @@ const AchievementsFeed = () => {
           }>
             {[...Array(6)].map((_, i) => (
               <div key={i} className={`bg-white rounded-lg border border-gray-200 animate-pulse ${
-                viewMode === 'grid' ? 'p-6' : 'p-4'
+                viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'
               }`}>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
                   <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col flex-1 space-y-3">
                   <div className="h-6 bg-gray-200 rounded w-3/4"></div>
                   <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-12 bg-gray-200 rounded"></div>
+                  <div className="h-12 bg-gray-200 rounded flex-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4 mt-auto"></div>
                 </div>
               </div>
             ))}
@@ -453,15 +457,22 @@ const AchievementsFeed = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
                 className={viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
                   : "space-y-4"
                 }
               >
                 {filteredAchievements.length > 0 ? (
                   filteredAchievements.map((achievement, index) => (
-                    <div
+                    <motion.div
                       key={`${achievement.id}-${index}`}
                       ref={index === filteredAchievements.length - 1 ? lastAchievementRef : null}
+                      initial={{ opacity: 0, y: 30 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ 
+                        duration: 0.4, 
+                        delay: index * 0.1,
+                        ease: "easeOut"
+                      }}
                     >
                       <AchievementCard
                         achievement={achievement}
@@ -474,7 +485,7 @@ const AchievementsFeed = () => {
                         onLike={handleLike}
                         onComment={handleComment}
                       />
-                    </div>
+                    </motion.div>
                   ))
                 ) : (
                   <div className={viewMode === 'grid' 

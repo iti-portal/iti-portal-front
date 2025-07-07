@@ -22,6 +22,15 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
     message: '' 
   });
 
+  // Confirmation modal state
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationData, setConfirmationData] = useState({
+    title: '',
+    message: '',
+    onConfirm: null,
+    type: 'danger'
+  });
+
   // Fetch projects with images on component mount or when userId changes
   useEffect(() => {
     const fetchProjectsWithImages = async () => {
@@ -76,6 +85,24 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
 
   const hideNotification = () => {
     setNotification({ show: false, type: 'info', message: '' });
+  };
+
+  // Confirmation modal helpers
+  const showConfirmationModal = (title, message, onConfirm, type = 'danger') => {
+    setConfirmationData({ title, message, onConfirm, type });
+    setShowConfirmation(true);
+  };
+
+  const hideConfirmationModal = () => {
+    setShowConfirmation(false);
+    setConfirmationData({ title: '', message: '', onConfirm: null, type: 'danger' });
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmationData.onConfirm) {
+      confirmationData.onConfirm();
+    }
+    hideConfirmationModal();
   };
 
   // Project Modal Handlers
@@ -135,37 +162,39 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
   };
 
   const handleProjectDelete = async (idToDelete) => {
-    // Show confirmation dialog
-    const confirmDelete = window.confirm('Are you sure you want to delete this project?');
-    
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      const result = await deleteProject(idToDelete);
-      
-      if (result.success) {
-        showNotification('Project deleted successfully!', 'success');
-        
-        // Remove project from local state instead of API refresh
-        const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
-        setCurrentProjects(updatedProjects);
-        onUpdateProjects(updatedProjects);
-      }
-    } catch (error) {
-      console.error('Error deleting project:', error);
-      
-      // Even if API call fails, remove from UI if project already deleted
-      if (error.message && error.message.includes('not found')) {
-        const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
-        setCurrentProjects(updatedProjects);
-        onUpdateProjects(updatedProjects);
-        showNotification('Project removed from list (already deleted)', 'info');
-      } else {
-        showNotification(`Error deleting project: ${error.message}`, 'error');
-      }
-    }
+    showConfirmationModal(
+      'Delete Project',
+      'Are you sure you want to delete this project? This action cannot be undone.',
+      async () => {
+        try {
+          const result = await deleteProject(idToDelete);
+          
+          if (result.success) {
+            showNotification('Project deleted successfully!', 'success');
+            
+            // Remove project from local state instead of API refresh
+            const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
+            setCurrentProjects(updatedProjects);
+            onUpdateProjects(updatedProjects);
+          } else {
+            throw new Error(result.message || 'Failed to delete project');
+          }
+        } catch (error) {
+          console.error('Error deleting project:', error);
+          
+          // Even if API call fails, remove from UI if project already deleted
+          if (error.message && error.message.includes('not found')) {
+            const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
+            setCurrentProjects(updatedProjects);
+            onUpdateProjects(updatedProjects);
+            showNotification('Project removed from list (already deleted)', 'info');
+          } else {
+            showNotification(`Error deleting project: ${error.message}`, 'error');
+          }
+        }
+      },
+      'danger'
+    );
   };
 
   const handleCloseProjectModal = () => {
@@ -264,6 +293,53 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
           initialData={editingProject}
         />
       </Modal>
+
+      {/* Confirmation Modal */}
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
+            {/* Header */}
+            <div className={`px-6 py-4 border-b border-gray-200 rounded-t-xl ${
+              confirmationData.type === 'danger' ? 'bg-red-50' : 'bg-blue-50'
+            }`}>
+              <h3 className={`text-lg font-semibold ${
+                confirmationData.type === 'danger' ? 'text-red-800' : 'text-blue-800'
+              }`}>
+                {confirmationData.title}
+              </h3>
+            </div>
+            
+            {/* Content */}
+            <div className="px-6 py-4">
+              <p className="text-gray-700 leading-relaxed">
+                {confirmationData.message}
+              </p>
+            </div>
+            
+            {/* Footer */}
+            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={hideConfirmationModal}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmAction}
+                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
+                  confirmationData.type === 'danger'
+                    ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
+                    : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
+                }`}
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
