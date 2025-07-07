@@ -10,6 +10,7 @@ import NotFound from '../pages/NotFound';
 import Unauthorized from '../pages/Unauthorized';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import UsersManagementPage from '../pages/UsersManagementPage';
+import ContactUsManagementPage from '../features/admin/pages/ContactUsManagementPage';
 import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
 import RoleBasedRoute from './RoleBasedRoute';
@@ -86,6 +87,14 @@ const AppRoutes = () => {
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
             <UsersManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/contact-us" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ContactUsManagementPage />
           </RoleBasedRoute>
         } 
       />
