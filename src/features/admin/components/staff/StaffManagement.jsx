@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { retrieveStaff, deleteStaff, suspendUser, unsuspendUser } from '../../../../services/staffService';
+import { retrieveStaff, deleteStaff, suspendUser, unsuspendUser, createStaff } from '../../../../services/staffService';
 
 /**
  * StaffManagement component for admin staff management
@@ -20,6 +20,15 @@ const StaffManagement = () => {
   const [staffData, setStaffData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addingStaff, setAddingStaff] = useState(false);
+  const [newStaffForm, setNewStaffForm] = useState({
+    email: '',
+    password: '',
+    full_name: '',
+    position: '',
+    department: ''
+  });
 
   // Fetch staff data from API
   useEffect(() => {
@@ -113,6 +122,69 @@ const StaffManagement = () => {
       console.error(`Error ${action}ing staff:`, err);
       alert(`Failed to ${action} staff member: ` + err.message);
     }
+  };
+
+  // Handle adding new staff
+  const handleAddStaff = async (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!newStaffForm.email || !newStaffForm.password || !newStaffForm.full_name || 
+        !newStaffForm.position || !newStaffForm.department) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    try {
+      setAddingStaff(true);
+      
+      const result = await createStaff(newStaffForm);
+      
+      if (result.success) {
+        // Transform the new staff data to match our component structure
+        const newStaff = {
+          id: result.data.user.id,
+          email: result.data.user.email,
+          full_name: result.data.user.staff_profile.full_name,
+          position: result.data.user.staff_profile.position,
+          department: result.data.user.staff_profile.department,
+          status: result.data.user.status,
+          created_at: result.data.user.created_at,
+          updated_at: result.data.user.updated_at,
+        };
+        
+        // Add the new staff to local state
+        setStaffData(prev => [newStaff, ...prev]);
+        
+        // Reset form and close modal
+        setNewStaffForm({
+          email: '',
+          password: '',
+          full_name: '',
+          position: '',
+          department: ''
+        });
+        setShowAddModal(false);
+        
+        alert('Staff member added successfully');
+      } else {
+        throw new Error(result.message || 'Failed to add staff member');
+      }
+    } catch (err) {
+      console.error('Error adding staff:', err);
+      alert('Failed to add staff member: ' + err.message);
+    } finally {
+      setAddingStaff(false);
+    }
+  };
+
+  // Handle form input changes
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setNewStaffForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const positions = ['All Positions', ...Array.from(new Set(staffData.map(s => s.position)))];
@@ -305,7 +377,10 @@ const StaffManagement = () => {
       <div className="w-full space-y-4 md:space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <h2 className="text-xl md:text-2xl font-bold text-gray-800">Staff Management</h2>
-          <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition w-full md:w-auto">
+          <button 
+            onClick={() => setShowAddModal(true)}
+            className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition w-full md:w-auto"
+          >
             + Add New Staff
           </button>
         </div>
@@ -487,6 +562,125 @@ const StaffManagement = () => {
           </div>
         )}
       </div>
+
+      {/* Add Staff Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-gray-800">Add New Staff Member</h3>
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleAddStaff} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={newStaffForm.email}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] text-sm"
+                    placeholder="Enter email address"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={newStaffForm.password}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] text-sm"
+                    placeholder="Enter password"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="full_name"
+                    value={newStaffForm.full_name}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] text-sm"
+                    placeholder="Enter full name"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Position *
+                  </label>
+                  <input
+                    type="text"
+                    name="position"
+                    value={newStaffForm.position}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] text-sm"
+                    placeholder="Enter position"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Department *
+                  </label>
+                  <select
+                    name="department"
+                    value={newStaffForm.department}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] text-sm"
+                    required
+                  >
+                    <option value="">Select Department</option>
+                    <option value="HR">HR</option>
+                    <option value="IT">IT</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Operations">Operations</option>
+                    <option value="Supervision On PTP / ITP">Supervision On PTP / ITP</option>
+                  </select>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={addingStaff}
+                    className="flex-1 px-4 py-2 bg-[#901b20] text-white rounded-lg hover:bg-[#a83236] transition text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {addingStaff ? 'Adding...' : 'Add Staff'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
