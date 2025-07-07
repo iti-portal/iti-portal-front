@@ -321,15 +321,6 @@ const RequestServiceTable = ({ onBack }) => {
     <div className="w-full max-w-full overflow-hidden">
       <div className="w-full space-y-4 md:space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-800">Service Requests</h2>
-          <button
-            onClick={onBack}
-            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition w-full sm:w-auto"
-          >
-            ← Back to Services
-          </button>
-        </div>
 
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">

@@ -103,10 +103,15 @@ const StaffManagement = () => {
       'Are you sure you want to delete this staff member? This action cannot be undone.',
       async () => {
         try {
-          await deleteStaff(staffId);
-          // Remove the deleted staff from local state
-          setStaffData(prev => prev.filter(staff => staff.id !== staffId));
-          showNotificationMessage('success', 'Success', 'Staff member deleted successfully');
+          const response = await deleteStaff(staffId);
+          
+          if (response.success) {
+            // Remove the deleted staff from local state
+            setStaffData(prev => prev.filter(staff => staff.id !== staffId));
+            showNotificationMessage('success', 'Success', response.message || 'Staff member deleted successfully');
+          } else {
+            throw new Error(response.message || 'Failed to delete staff member');
+          }
         } catch (err) {
           console.error('Error deleting staff:', err);
           showNotificationMessage('error', 'Error', 'Failed to delete staff member: ' + err.message);
