@@ -101,5 +101,7 @@ export {
 // Services service exports
 export {
   getUsedServices,
-  getAlumniServiceDetails
+  getAlumniServiceDetails,
+  getUnusedServices,
+  evaluateService
 } from './servicesService';

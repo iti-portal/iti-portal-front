@@ -29,26 +29,6 @@ const ServiceManagement = () => {
 
   // Fetch services data from API
   useEffect(() => {
-    const fetchServicesData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await getUsedServices();
-        
-        if (response.success && response.data) {
-          setServicesData(response.data.services.data);
-        } else {
-          throw new Error(response.message || 'Failed to fetch services data');
-        }
-      } catch (err) {
-        console.error('Error fetching services data:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchServicesData();
   }, []);
 
@@ -62,6 +42,33 @@ const ServiceManagement = () => {
       return () => clearTimeout(timer);
     }
   }, [showErrorToast]);
+
+  const fetchServicesData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await getUsedServices();
+      
+      if (response.success && response.data) {
+        setServicesData(response.data.services.data);
+      } else {
+        throw new Error(response.message || 'Failed to fetch services data');
+      }
+    } catch (err) {
+      console.error('Error fetching services data:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle returning from request table and refresh data
+  const handleBackFromRequests = () => {
+    setShowRequestTable(false);
+    // Refresh services data to show any newly evaluated services
+    fetchServicesData();
+  };
 
   // Handle view profile
   const handleViewProfile = async (serviceId) => {
@@ -241,7 +248,7 @@ const ServiceManagement = () => {
         </div>
 
         {showRequestTable ? (
-          <RequestServiceTable onBack={() => setShowRequestTable(false)} />
+          <RequestServiceTable onBack={handleBackFromRequests} />
         ) : (
           <>
             {/* Search and Filters */}

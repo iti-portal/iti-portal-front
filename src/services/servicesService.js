@@ -53,3 +53,58 @@ export const getAlumniServiceDetails = async (serviceId) => {
     throw error;
   }
 };
+
+/**
+ * Retrieve all unused services (requests)
+ * @returns {Promise} Unused services data with pagination
+ */
+export const getUnusedServices = async () => {
+  try {
+    console.log('🔄 Fetching unused services...');
+    
+    const response = await fetch(`${API_BASE_URL}/unused-services`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    const result = await handleApiResponse(response);
+    
+    console.log('✅ Unused services retrieved successfully:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Failed to retrieve unused services:', error);
+    throw error;
+  }
+};
+
+/**
+ * Evaluate a service
+ * @param {number} serviceId - Service ID
+ * @param {string} evaluation - Evaluation status (positive, neutral, negative)
+ * @param {string} feedback - Feedback text
+ * @returns {Promise} Evaluation result
+ */
+export const evaluateService = async (serviceId, evaluation, feedback = '') => {
+  try {
+    console.log('🔄 Evaluating service...', { serviceId, evaluation, feedback });
+    
+    const response = await fetch(`${API_BASE_URL}/evaluate-service/${serviceId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        evaluation,
+        feedback
+      }),
+    });
+
+    const result = await handleApiResponse(response);
+    
+    console.log('✅ Service evaluated successfully:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Failed to evaluate service:', error);
+    throw error;
+  }
+};
