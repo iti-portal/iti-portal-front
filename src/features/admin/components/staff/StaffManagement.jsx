@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,108 +7,7 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-
-/**
- * Staff list data
- */
-const staffList = [
-  {
-    id: 1,
-    email: 'staff@example.com',
-    password: 'staff12345',
-    full_name: 'John Doe',
-    position: 'HR Manager',
-    department: 'Human Resources',
-  },
-  {
-    id: 2,
-    email: 'jane.smith@example.com',
-    password: 'jsmith123',
-    full_name: 'Jane Smith',
-    position: 'IT Specialist',
-    department: 'IT',
-  },
-  {
-    id: 3,
-    email: 'michael.brown@example.com',
-    password: 'mbrown123',
-    full_name: 'Michael Brown',
-    position: 'Finance Analyst',
-    department: 'Finance',
-  },
-  {
-    id: 4,
-    email: 'lisa.white@example.com',
-    password: 'lwhite123',
-    full_name: 'Lisa White',
-    position: 'Marketing Lead',
-    department: 'Marketing',
-  },
-  {
-    id: 5,
-    email: 'david.jones@example.com',
-    password: 'djones123',
-    full_name: 'David Jones',
-    position: 'Operations Manager',
-    department: 'Operations',
-  },
-  {
-    id: 6,
-    email: 'emily.taylor@example.com',
-    password: 'etaylor123',
-    full_name: 'Emily Taylor',
-    position: 'Recruiter',
-    department: 'Human Resources',
-  },
-  {
-    id: 7,
-    email: 'chris.evans@example.com',
-    password: 'cevans123',
-    full_name: 'Chris Evans',
-    position: 'IT Specialist',
-    department: 'IT',
-  },
-  {
-    id: 8,
-    email: 'sarah.miller@example.com',
-    password: 'smiller123',
-    full_name: 'Sarah Miller',
-    position: 'Finance Analyst',
-    department: 'Finance',
-  },
-  {
-    id: 9,
-    email: 'paul.wilson@example.com',
-    password: 'pwilson123',
-    full_name: 'Paul Wilson',
-    position: 'Marketing Lead',
-    department: 'Marketing',
-  },
-  {
-    id: 10,
-    email: 'anna.moore@example.com',
-    password: 'amoore123',
-    full_name: 'Anna Moore',
-    position: 'Operations Manager',
-    department: 'Operations',
-  },
-  {
-    id: 11,
-    email: 'tom.harris@example.com',
-    password: 'tharris123',
-    full_name: 'Tom Harris',
-    position: 'Recruiter',
-    department: 'Human Resources',
-  },
-  {
-    id: 12,
-    email: 'kate.clark@example.com',
-    password: 'kclark123',
-    full_name: 'Kate Clark',
-    position: 'IT Specialist',
-    department: 'IT',
-  },
-];
+import { retrieveStaff, deleteStaff } from '../../../../services/staffService';
 
 /**
  * StaffManagement component for admin staff management
@@ -118,13 +17,70 @@ const StaffManagement = () => {
   const [search, setSearch] = useState('');
   const [positionFilter, setPositionFilter] = useState('All Positions');
   const [departmentFilter, setDepartmentFilter] = useState('All Departments');
+  const [staffData, setStaffData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const positions = ['All Positions', ...Array.from(new Set(staffList.map(s => s.position)))];
-  const departments = ['All Departments', ...Array.from(new Set(staffList.map(s => s.department)))];
+  // Fetch staff data from API
+  useEffect(() => {
+    const fetchStaffData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await retrieveStaff();
+        
+        if (response.success && response.data) {
+          // Transform API data to match our component structure
+          const transformedData = response.data.data.map(staff => ({
+            id: staff.id,
+            email: staff.email,
+            full_name: staff.staff_profile?.full_name || 'N/A',
+            position: staff.staff_profile?.position || 'N/A',
+            department: staff.staff_profile?.department || 'N/A',
+            status: staff.status,
+            created_at: staff.created_at,
+            updated_at: staff.updated_at,
+          }));
+          
+          setStaffData(transformedData);
+        } else {
+          throw new Error(response.message || 'Failed to fetch staff data');
+        }
+      } catch (err) {
+        console.error('Error fetching staff data:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStaffData();
+  }, []);
+
+  // Handle staff deletion
+  const handleDeleteStaff = async (staffId) => {
+    if (!window.confirm('Are you sure you want to delete this staff member?')) {
+      return;
+    }
+
+    try {
+      await deleteStaff(staffId);
+      // Remove the deleted staff from local state
+      setStaffData(prev => prev.filter(staff => staff.id !== staffId));
+      alert('Staff member deleted successfully');
+    } catch (err) {
+      console.error('Error deleting staff:', err);
+      alert('Failed to delete staff member: ' + err.message);
+    }
+  };
+
+  const positions = ['All Positions', ...Array.from(new Set(staffData.map(s => s.position)))];
+  const departments = ['All Departments', ...Array.from(new Set(staffData.map(s => s.department)))];
 
   // Filter data based on search and filters
   const filteredData = useMemo(() => {
-    return staffList.filter(staff => {
+    return staffData.filter(staff => {
       const matchesSearch = 
         staff.full_name.toLowerCase().includes(search.toLowerCase()) ||
         staff.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -136,7 +92,7 @@ const StaffManagement = () => {
       
       return matchesSearch && matchesPosition && matchesDepartment;
     });
-  }, [search, positionFilter, departmentFilter]);
+  }, [staffData, search, positionFilter, departmentFilter]);
 
   // Define columns
   const columns = useMemo(() => [
@@ -194,7 +150,7 @@ const StaffManagement = () => {
           <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
             getValue() === 'IT' 
               ? 'bg-blue-100 text-blue-700' 
-              : getValue() === 'HR' || getValue() === 'Human Resources'
+              : getValue() === 'HR' || getValue() === 'Human Resources' || getValue().includes('Supervision')
               ? 'bg-green-100 text-green-700'
               : getValue() === 'Finance'
               ? 'bg-yellow-100 text-yellow-700'
@@ -204,7 +160,7 @@ const StaffManagement = () => {
           }`}>
             <span className="hidden sm:inline">{getValue()}</span>
             <span className="sm:hidden">
-              {getValue() === 'Human Resources' ? 'HR' : getValue().substring(0, 3)}
+              {getValue().length > 10 ? getValue().substring(0, 8) + '...' : getValue()}
             </span>
           </span>
         </div>
@@ -237,6 +193,7 @@ const StaffManagement = () => {
           <button 
             className="group relative flex items-center justify-center h-8 w-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow-sm"
             title="Delete Staff"
+            onClick={() => handleDeleteStaff(row.original.id)}
           >
             <div className="hidden sm:block absolute opacity-0 group-hover:opacity-100 top-full left-1/2 -translate-x-1/2 mt-2 bg-red-700 text-white text-xs rounded py-1 px-2 transition-opacity duration-200 whitespace-nowrap z-10">Delete Staff</div>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -274,146 +231,182 @@ const StaffManagement = () => {
           </button>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-          <input
-            type="text"
-            placeholder="Search staff..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg flex-grow text-sm w-full sm:w-auto"
-          />
-          <select
-            value={positionFilter}
-            onChange={e => setPositionFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm min-w-0 w-full sm:w-auto"
-          >
-            {positions.map(position => (
-              <option key={position}>{position}</option>
-            ))}
-          </select>
-          <select
-            value={departmentFilter}
-            onChange={e => setDepartmentFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm min-w-0 w-full sm:w-auto"
-          >
-            {departments.map(department => (
-              <option key={department}>{department}</option>
-            ))}
-          </select>
-        </div>
+        {/* Error State */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <svg className="w-5 h-5 text-red-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p className="text-red-700">Failed to load staff data: {error}</p>
+            </div>
+            <button 
+              onClick={() => window.location.reload()}
+              className="mt-2 bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition"
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
-        <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden w-full">
-          <div className="overflow-x-auto md:overflow-hidden w-full">
-            <div className="md:max-h-[500px] md:overflow-y-auto w-full">
-              <table className="w-full min-w-[600px]">
-                <thead className="sticky top-0 z-10 bg-gray-50">
-                  {table.getHeaderGroups().map(headerGroup => (
-                    <tr key={headerGroup.id} className="text-gray-700">
-                      {headerGroup.headers.map(header => (
-                        <th
-                          key={header.id}
-                          className="py-2 px-2 sm:py-3 sm:px-4 text-center cursor-pointer hover:bg-gray-100 transition-colors text-xs sm:text-sm font-medium border-b border-gray-200"
-                          onClick={header.column.getToggleSortingHandler()}
-                        >
-                          <div className="flex items-center justify-center gap-1 sm:gap-2">
-                            {header.isPlaceholder ? null : (
-                              <>
-                                <span className="truncate">
-                                  {flexRender(header.column.columnDef.header, header.getContext())}
-                                </span>
-                                {{
-                                  asc: ' 🔼',
-                                  desc: ' 🔽',
-                                }[header.column.getIsSorted()] ?? null}
-                              </>
-                            )}
-                          </div>
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.map(row => (
-                    <tr key={row.id} className="border-t hover:bg-gray-50 transition-colors">
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id} className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm text-center">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+        {/* Loading State */}
+        {loading && (
+          <div className="bg-white rounded-xl shadow border border-gray-100 p-8">
+            <div className="flex items-center justify-center">
+              <svg className="w-8 h-8 animate-spin text-[#901b20] mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span className="text-gray-600">Loading staff data...</span>
+            </div>
+          </div>
+        )}
+
+        {/* Filters - only show when not loading */}
+        {!loading && !error && (
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <input
+              type="text"
+              placeholder="Search staff..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg flex-grow text-sm w-full sm:w-auto"
+            />
+            <select
+              value={positionFilter}
+              onChange={e => setPositionFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm min-w-0 w-full sm:w-auto"
+            >
+              {positions.map(position => (
+                <option key={position}>{position}</option>
+              ))}
+            </select>
+            <select
+              value={departmentFilter}
+              onChange={e => setDepartmentFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm min-w-0 w-full sm:w-auto"
+            >
+              {departments.map(department => (
+                <option key={department}>{department}</option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Table - only show when not loading and no error */}
+        {!loading && !error && (
+          <div className="bg-white rounded-xl shadow border border-gray-100 overflow-hidden w-full">
+            <div className="overflow-x-auto md:overflow-hidden w-full">
+              <div className="md:max-h-[500px] md:overflow-y-auto w-full">
+                <table className="w-full min-w-[600px]">
+                  <thead className="sticky top-0 z-10 bg-gray-50">
+                    {table.getHeaderGroups().map(headerGroup => (
+                      <tr key={headerGroup.id} className="text-gray-700">
+                        {headerGroup.headers.map(header => (
+                          <th
+                            key={header.id}
+                            className="py-2 px-2 sm:py-3 sm:px-4 text-center cursor-pointer hover:bg-gray-100 transition-colors text-xs sm:text-sm font-medium border-b border-gray-200"
+                            onClick={header.column.getToggleSortingHandler()}
+                          >
+                            <div className="flex items-center justify-center gap-1 sm:gap-2">
+                              {header.isPlaceholder ? null : (
+                                <>
+                                  <span className="truncate">
+                                    {flexRender(header.column.columnDef.header, header.getContext())}
+                                  </span>
+                                  {{
+                                    asc: ' 🔼',
+                                    desc: ' 🔽',
+                                  }[header.column.getIsSorted()] ?? null}
+                                </>
+                              )}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    ))}
+                  </thead>
+                  <tbody>
+                    {table.getRowModel().rows.map(row => (
+                      <tr key={row.id} className="border-t hover:bg-gray-50 transition-colors">
+                        {row.getVisibleCells().map(cell => (
+                          <td key={cell.id} className="py-2 px-2 sm:py-3 sm:px-4 text-xs sm:text-sm text-center">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                    {table.getRowModel().rows.length === 0 && (
+                      <tr>
+                        <td colSpan={columns.length} className="py-6 text-center text-gray-400 text-sm">
+                          No staff found.
                         </td>
-                      ))}
-                    </tr>
-                  ))}
-                  {table.getRowModel().rows.length === 0 && (
-                    <tr>
-                      <td colSpan={columns.length} className="py-6 text-center text-gray-400 text-sm">
-                        No staff found.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
 
-          <div className="flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 border-t text-xs sm:text-sm text-gray-600 gap-3 sm:gap-4">
-            <div className="text-center sm:text-left">
-              <span className="hidden sm:inline">
-                Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
-                {Math.min(
-                  (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-                  table.getFilteredRowModel().rows.length
-                )}{' '}
-                of {table.getFilteredRowModel().rows.length} results
-              </span>
-              <span className="sm:hidden">
-                Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-              </span>
-            </div>
-            <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
-              <button
-                className="px-2 sm:px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                <span className="hidden sm:inline">&lt; Previous</span>
-                <span className="sm:hidden">&lt;</span>
-              </button>
-              
-              {Array.from({ length: Math.min(table.getPageCount(), 5) }, (_, i) => {
-                const currentPage = table.getState().pagination.pageIndex;
-                const totalPages = table.getPageCount();
-                const start = Math.max(0, Math.min(currentPage - 2, totalPages - 5));
-                const pageIndex = start + i;
+            <div className="flex flex-col sm:flex-row justify-between items-center p-3 sm:p-4 border-t text-xs sm:text-sm text-gray-600 gap-3 sm:gap-4">
+              <div className="text-center sm:text-left">
+                <span className="hidden sm:inline">
+                  Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
+                  {Math.min(
+                    (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                    table.getFilteredRowModel().rows.length
+                  )}{' '}
+                  of {table.getFilteredRowModel().rows.length} results
+                </span>
+                <span className="sm:hidden">
+                  Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                </span>
+              </div>
+              <div className="flex gap-1 sm:gap-2 flex-wrap justify-center">
+                <button
+                  className="px-2 sm:px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  <span className="hidden sm:inline">&lt; Previous</span>
+                  <span className="sm:hidden">&lt;</span>
+                </button>
                 
-                if (pageIndex >= 0 && pageIndex < totalPages) {
-                  return (
-                    <button
-                      key={pageIndex}
-                      className={`px-2 sm:px-3 py-1 rounded ${
-                        currentPage === pageIndex
-                          ? 'bg-[#901b20] text-white'
-                          : 'border border-gray-300 bg-white hover:bg-gray-100'
-                      }`}
-                      onClick={() => table.setPageIndex(pageIndex)}
-                    >
-                      {pageIndex + 1}
-                    </button>
-                  );
-                }
-                return null;
-              }).filter(Boolean)}
-              
-              <button
-                className="px-2 sm:px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                <span className="hidden sm:inline">Next &gt;</span>
-                <span className="sm:hidden">&gt;</span>
-              </button>
+                {Array.from({ length: Math.min(table.getPageCount(), 5) }, (_, i) => {
+                  const currentPage = table.getState().pagination.pageIndex;
+                  const totalPages = table.getPageCount();
+                  const start = Math.max(0, Math.min(currentPage - 2, totalPages - 5));
+                  const pageIndex = start + i;
+                  
+                  if (pageIndex >= 0 && pageIndex < totalPages) {
+                    return (
+                      <button
+                        key={pageIndex}
+                        className={`px-2 sm:px-3 py-1 rounded ${
+                          currentPage === pageIndex
+                            ? 'bg-[#901b20] text-white'
+                            : 'border border-gray-300 bg-white hover:bg-gray-100'
+                        }`}
+                        onClick={() => table.setPageIndex(pageIndex)}
+                      >
+                        {pageIndex + 1}
+                      </button>
+                    );
+                  }
+                  return null;
+                }).filter(Boolean)}
+                
+                <button
+                  className="px-2 sm:px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  <span className="hidden sm:inline">Next &gt;</span>
+                  <span className="sm:hidden">&gt;</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
