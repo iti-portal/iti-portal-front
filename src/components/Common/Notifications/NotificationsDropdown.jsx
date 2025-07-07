@@ -7,12 +7,13 @@ import { db, collection, onSnapshot } from '../../../firebase';
 const NotificationDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  const user = useAuth();
+  const {user} = useAuth();
   const [notifications, setNotifications] = useState([]);
   const userId = user?.id;
 
     // Fetch notifications from Firestore
     useEffect(() => {
+      console.log("Fetching notifications for user:", userId);
       if (!userId) return; 
       const unsubscribe = onSnapshot(collection
         (db, "notifications", String(userId), "user_notifications"),
@@ -21,7 +22,7 @@ const NotificationDropdown = () => {
   
           snapshot.docChanges().forEach((change)=> {
             if(change.type === "added") {
-              newNotifications.push(change.doc.data());
+              newNotifications.push({id: change.doc.id, ...change.doc.data()});
             }
           })
   
@@ -45,16 +46,21 @@ const NotificationDropdown = () => {
 
   const markAsRead = async (notifyId) => {
     try {
-      await updateDoc(doc(db, "notifications", String(userId), notifyId), {
+      await updateDoc(doc(db, "notifications", String(userId), "user_notifications", notifyId), {
         read: true,
-      })
+      });
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notifyId ? { ...n, read: true } : n
+        )
+      );
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   }
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
-
-  
+  console.log("Notifications:", notifications);
 
 
   return (
@@ -64,9 +70,9 @@ const NotificationDropdown = () => {
         className="relative flex items-center text-gray-500 hover:text-[#901b20] focus:outline-none"
       >
         <span className="material-icons text-lg xl:text-xl">notifications_none</span>
-        {notifications.length > 0 && (
+        {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-            {notifications.length}
+            {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
