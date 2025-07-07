@@ -3,23 +3,121 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
 import Logo from '../Common/Logo';
+import { getGeneralStatistics } from '../../services/statisticsService';
+import Alert from '../UI/Alert';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [refreshingProfile, setRefreshingProfile] = useState(false);
+  const [alert, setAlert] = useState({ show: false, message: '', type: 'info' });
+  const [loginSuccessAlert, setLoginSuccessAlert] = useState({ show: false, message: '' });
+  const [hasShownLoginAlert, setHasShownLoginAlert] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, refreshUserProfile } = useAuth();
+  const { user, logout, refreshUserProfile, isAuthenticated } = useAuth();
   const desktopDropdownRef = useRef(null);
   const mediumDropdownRef = useRef(null);
   const smallDropdownRef = useRef(null);
 
-  // Debug: Log user data
-  React.useEffect(() => {
-    
-  }, [user]);
+  // Show welcome message after login with completion percentage (only once per session on home page)
+  useEffect(() => {
+    const showLoginAlert = async () => {
+      // Only show on home page ('/' route)
+      const isHomePage = location.pathname === '/';
+      
+      // Check if alert has already been shown in this session
+      const alertShownKey = `loginAlert_${user?.id}_shown`;
+      const hasShownInSession = sessionStorage.getItem(alertShownKey) === 'true';
+      
+      if (isAuthenticated && user && user.profile && !hasShownInSession && isHomePage) {
+        const userName = user.profile.first_name || user.name || 'User';
+        
+        // Check if user is student/alumni to fetch completion percentage
+        const isStudentOrAlumni = user.role === USER_ROLES.STUDENT || 
+          user.role === USER_ROLES.ALUMNI || 
+          user.role === 'student' || 
+          user.role === 'alumni' ||
+          (user.role === undefined && user.profile && (user.profile.track || user.profile.intake));
+
+        let completionMessage = `Welcome back, ${userName}! 👋`;
+        
+        if (isStudentOrAlumni) {
+          try {
+            const response = await getGeneralStatistics();
+            if (response && response.success && response.data && response.data.completion_percentage !== undefined) {
+              const percentage = Math.round(response.data.completion_percentage);
+              completionMessage = `Welcome back, ${userName}! 👋 Your profile is ${percentage}% complete.`;
+            }
+          } catch (error) {
+            console.error('Failed to fetch completion percentage for login alert:', error);
+          }
+        }
+        
+        setLoginSuccessAlert({
+          show: true,
+          message: completionMessage
+        });
+        
+        // Mark as shown in session storage
+        sessionStorage.setItem(alertShownKey, 'true');
+        setHasShownLoginAlert(true);
+        
+        // Auto-hide after 5 seconds (increased to give time to read percentage)
+        const timer = setTimeout(() => {
+          setLoginSuccessAlert({ show: false, message: '' });
+        }, 5000);
+        
+        return () => clearTimeout(timer);
+      }
+    };
+
+    showLoginAlert();
+  }, [isAuthenticated, user, location.pathname]);
+
+
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      // Check if user is authenticated and has a profile (indicating student/alumni)
+      // Since role is undefined, we'll check if user has a student profile
+      const isStudentOrAlumni = isAuthenticated && user && user.profile && (
+        user.role === USER_ROLES.STUDENT || 
+        user.role === USER_ROLES.ALUMNI || 
+        user.role === 'student' || 
+        user.role === 'alumni' ||
+        // If role is undefined but user has student profile data, assume they're a student/alumni
+        (user.role === undefined && user.profile && (user.profile.track || user.profile.intake))
+      );
+
+      if (isStudentOrAlumni) {
+        try {
+          const response = await getGeneralStatistics();
+          
+          if (response && response.success && response.data) {
+            if (response.data.completion_percentage < 100 && response.data.missing_fields && response.data.missing_fields.length > 0) {
+              const missingFields = response.data.missing_fields.join(', ');
+              setAlert({
+                show: true,
+                message: `Your profile is incomplete. Please add: ${missingFields}.`,
+                type: 'warning',
+              });
+            } else {
+              setAlert({ show: false, message: '', type: 'info' });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch statistics:', error);
+        }
+      }
+    };
+
+    // Add a small delay to ensure user data is fully loaded
+    if (user) {
+      setTimeout(fetchStatistics, 100);
+    }
+  }, [isAuthenticated, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -56,6 +154,15 @@ const Navbar = () => {
     try {
       setLogoutLoading(true);
       const result = await logout();
+      
+      // Clear login alert session storage
+      if (user?.id) {
+        sessionStorage.removeItem(`loginAlert_${user.id}_shown`);
+      }
+      
+      // Reset login alert state
+      setHasShownLoginAlert(false);
+      setLoginSuccessAlert({ show: false, message: '' });
       
       if (result.success) {
         navigate('/login');
@@ -113,7 +220,27 @@ const Navbar = () => {
     }
   };
 
-  return (    <header className="w-full bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20 px-2 sm:px-4 py-2 flex items-center justify-between fixed z-50 top-0 left-0">
+  return (
+    <>
+      {/* Login Success Alert - Floating notification */}
+      {loginSuccessAlert.show && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[60] animate-slide-down">
+          <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 max-w-md">
+            <span className="material-icons text-green-600 text-xl">check_circle</span>
+            <div className="flex-1">
+              <span className="font-medium text-sm">{loginSuccessAlert.message}</span>
+            </div>
+            <button
+              onClick={() => setLoginSuccessAlert({ show: false, message: '' })}
+              className="ml-2 text-green-600 hover:text-green-800 transition-colors flex-shrink-0"
+            >
+              <span className="material-icons text-lg">close</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <header className="w-full bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20 px-2 sm:px-4 py-2 flex items-center justify-between fixed z-50 top-0 left-0">
       {/* Logo - Always visible on left */}
       <div className="flex items-center gap-1 sm:gap-2 font-bold text-sm sm:text-base lg:text-lg text-[#901b20] flex-shrink-0">
         <Logo size="small" className="!mb-0 !mx-0 h-6 sm:h-8" />
@@ -193,7 +320,7 @@ const Navbar = () => {
               
               {/* Profile Dropdown */}
               {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                 <div className="px-4 py-2 border-b border-gray-200">
                   <div className="font-semibold text-gray-800 text-sm">
                     {user?.profile?.first_name && user?.profile?.last_name 
@@ -204,6 +331,22 @@ const Navbar = () => {
                     {user?.email || 'No email available'}
                   </div>
                 </div>
+                {alert.show && (
+                  <div className="px-4 py-3 border-b border-gray-200 bg-yellow-50">
+                    <Alert
+                      message={alert.message}
+                      type={alert.type}
+                      onClose={() => setAlert({ ...alert, show: false })}
+                    />
+                    <Link
+                      to="/student/profile/edit"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="inline-block mt-2 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                    >
+                      Complete Profile →
+                    </Link>
+                  </div>
+                )}
                 
                 <button 
                   onClick={(e) => {
@@ -213,7 +356,7 @@ const Navbar = () => {
                     setProfileDropdownOpen(false);
                     navigate('/student/profile');
                   }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
                 >
                   <span className="material-icons text-lg mr-3">person</span>
                   View Profile
@@ -227,7 +370,7 @@ const Navbar = () => {
                     setProfileDropdownOpen(false);
                     navigate('/my-achievements');
                   }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
                 >
                   <span className="material-icons text-lg mr-3">emoji_events</span>
                   My Achievements
@@ -241,7 +384,7 @@ const Navbar = () => {
                     setProfileDropdownOpen(false);
                     navigate('/student/profile/edit');
                   }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
                 >
                   <span className="material-icons text-lg mr-3">edit</span>
                   Edit Profile
@@ -254,7 +397,7 @@ const Navbar = () => {
                       handleLogout();
                     }}
                     disabled={logoutLoading}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <span className="material-icons text-lg mr-3">
                       {logoutLoading ? 'hourglass_empty' : 'logout'}
@@ -646,6 +789,7 @@ const Navbar = () => {
         </>
       )}
     </header>
+    </>
   );
 };
 

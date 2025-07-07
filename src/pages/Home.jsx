@@ -31,7 +31,6 @@ import {
   CTASection,
   Footer
 } from '../components/Home';
-
 const Home = () => {
   // Authentication context
   const { user, isAuthenticated } = useAuth();
@@ -138,7 +137,6 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
-      
       {/* Modern Hero Section */}
       <section className="relative bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] text-white overflow-hidden min-h-screen flex items-center">
         <div className="relative max-w-7xl mx-auto px-4 py-24 lg:py-32 z-10">
