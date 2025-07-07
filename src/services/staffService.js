@@ -131,3 +131,53 @@ export const getStaffDetails = async (staffId) => {
     throw error;
   }
 };
+
+/**
+ * Suspend a user
+ * @param {number} userId - User ID to suspend
+ * @returns {Promise} Suspension result
+ */
+export const suspendUser = async (userId) => {
+  try {
+    console.log('🔄 Suspending user...', userId);
+    
+    const response = await fetch(`${API_BASE_URL}/admin/suspend-user/${userId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    const result = await handleApiResponse(response);
+    
+    console.log('✅ User suspended successfully:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Failed to suspend user:', error);
+    throw error;
+  }
+};
+
+/**
+ * Unsuspend a user
+ * @param {number} userId - User ID to unsuspend
+ * @returns {Promise} Unsuspension result
+ */
+export const unsuspendUser = async (userId) => {
+  try {
+    console.log('🔄 Unsuspending user...', userId);
+    
+    const response = await fetch(`${API_BASE_URL}/admin/unsuspend-user/${userId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+
+    const result = await handleApiResponse(response);
+    
+    console.log('✅ User unsuspended successfully:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Failed to unsuspend user:', error);
+    throw error;
+  }
+};

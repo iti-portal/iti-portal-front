@@ -147,14 +147,14 @@ const RequestServiceTable = ({ onBack }) => {
       size: 120,
     },
     {
-      accessorKey: 'approved',
+      accessorKey: 'active',
       header: 'Status',
       cell: ({ getValue }) => {
         const value = getValue();
         if (value === true) {
           return (
             <span className="inline-flex items-center px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-medium">
-              <span className="hidden sm:inline">Approved</span>
+              <span className="hidden sm:inline">Active</span>
               <span className="sm:hidden">✓</span>
             </span>
           );

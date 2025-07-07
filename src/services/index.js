@@ -93,5 +93,7 @@ export {
   createStaff,
   updateStaff,
   deleteStaff,
-  getStaffDetails
+  getStaffDetails,
+  suspendUser,
+  unsuspendUser
 } from './staffService';
