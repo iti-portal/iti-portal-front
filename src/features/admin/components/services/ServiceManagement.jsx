@@ -168,6 +168,22 @@ const ServiceManagement = () => {
       size: 140,
     },
     {
+      accessorKey: 'evaluation',
+      header: 'Evaluation',
+      cell: ({ getValue }) => (
+        <div className="text-gray-600">
+          <div className={`truncate max-w-[70px] sm:max-w-[100px] capitalize font-medium ${
+            getValue() === 'positive' ? 'text-green-600' :
+            getValue() === 'negative' ? 'text-red-600' :
+            getValue() === 'neutral' ? 'text-amber-600' : 'text-gray-600'
+          }`} title={getValue() || 'Not evaluated'}>
+            {getValue() || '-'}
+          </div>
+        </div>
+      ),
+      size: 100,
+    },
+    {
       accessorKey: 'feedback',
       header: 'Feedback',
       cell: ({ getValue }) => (
