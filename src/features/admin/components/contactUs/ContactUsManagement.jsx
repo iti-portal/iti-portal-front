@@ -8,7 +8,7 @@ import ContactList from './ContactList';
 const ContactUsManagement = () => { 
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-bold text-[#901b20] mb-6">Contact Us Management</h1>
+      <h1 className="text-2xl font-bold text-black mb-6"> Messages Management</h1>
       
       {/* Actions */}
       
