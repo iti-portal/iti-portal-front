@@ -8,7 +8,8 @@ function CertificateSection({
   certificates, 
   onAdd, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onImageUpdate
 }) {
   return (
     <div className="bg-white rounded-xl p-6 shadow-lg">
@@ -41,6 +42,7 @@ function CertificateSection({
                 certificate={certificate}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                onImageUpdate={onImageUpdate}
               />
             ))}
           </div>

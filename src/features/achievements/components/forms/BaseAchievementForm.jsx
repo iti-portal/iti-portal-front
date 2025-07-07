@@ -6,7 +6,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ACHIEVEMENT_TYPES, ACHIEVEMENT_CATEGORIES } from '../../types/achievementTypes';
-import { EMPLOYMENT_TYPES, VISIBILITY_OPTIONS } from '../../utils/achievementConstants';
+import { EMPLOYMENT_TYPES } from '../../utils/achievementConstants';
 
 const BaseAchievementForm = ({
   formData,
@@ -170,12 +170,7 @@ const BaseAchievementForm = ({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {renderTextField('start_date', 'Start Date', '', true, 'date')}
               {renderTextField('end_date', 'End Date', '', false, 'date')}
-              {renderTextField('team_size', 'Team Size', '1', false, 'number')}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {renderTextField('url', 'Project URL', 'https://example.com')}
-              {renderTextField('github_url', 'GitHub URL', 'https://github.com/username/repo')}
-              {renderTextField('demo_url', 'Demo URL', 'https://demo.example.com')}
             </div>
           </>
         );
@@ -183,15 +178,9 @@ const BaseAchievementForm = ({
       case ACHIEVEMENT_TYPES.JOB:
         return (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {renderTextField('organization', 'Organization', 'Company Name', true)}
-              {renderTextField('position', 'Position', 'Job Title', true)}
-              {renderTextField('location', 'Location', 'City, Country')}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {renderTextField('start_date', 'Start Date', '', true, 'date')}
-              {renderTextField('end_date', 'End Date', '', false, 'date')}
-              {renderSelect('employment_type', 'Employment Type', EMPLOYMENT_TYPES)}
             </div>
           </>
         );
@@ -200,13 +189,9 @@ const BaseAchievementForm = ({
         return (
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {renderTextField('organization', 'Issuing Organization', 'Organization Name', true)}
-              {renderTextField('issue_date', 'Issue Date', '', true, 'date')}
-              {renderTextField('expiry_date', 'Expiry Date', '', false, 'date')}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {renderTextField('credential_id', 'Credential ID', 'Certificate ID')}
-              {renderTextField('url', 'Certificate URL', 'https://certificate-url.com')}
+              {renderTextField('start_date', 'Issue Date', '', true, 'date')}
+              {renderTextField('organization', 'Issuing Organization', 'Company/Institution Name', true)}
+              {renderTextField('url', 'Certificate URL', 'https://example.com')}
             </div>
           </>
         );
@@ -214,14 +199,9 @@ const BaseAchievementForm = ({
       case ACHIEVEMENT_TYPES.AWARD:
         return (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {renderTextField('organization', 'Awarding Organization', 'Organization Name', true)}
-              {renderTextField('received_date', 'Award Date', '', true, 'date')}
-              {renderTextField('competition_name', 'Competition/Event Name', 'Event or Competition Name')}
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {renderTextField('category', 'Award Category', 'Competition Category')}
-              {renderTextField('prize_value', 'Prize Value', '$1000 or 1st Place')}
+              {renderTextField('start_date', 'Received Date', '', true, 'date')}
+              {renderTextField('organization', 'Awarding Organization', 'Company/Institution Name', true)}
             </div>
           </>
         );
@@ -236,10 +216,16 @@ const BaseAchievementForm = ({
       {/* Common Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {renderTextField('title', 'Title', 'Enter achievement title', true)}
-        {renderSelect('visibility', 'Who can see this achievement?', VISIBILITY_OPTIONS)}
+        
       </div>
       
-      {renderTextArea('description', 'Description', 'Describe your achievement...', true, 3)}
+      {renderTextArea(
+        'description', 
+        'Description', 
+        'Describe your achievement...', 
+        achievementType === ACHIEVEMENT_TYPES.PROJECT || achievementType === ACHIEVEMENT_TYPES.CERTIFICATE, // Required for project and certificate only
+        3
+      )}
 
       {/* Type-specific Fields */}
       <div className="border-t border-gray-200 pt-3 mt-2">
@@ -248,10 +234,10 @@ const BaseAchievementForm = ({
       </div>
 
       {/* Image Upload */}
-      <div className="border-t border-gray-200 pt-3 mt-2">
+      {/* <div className="border-t border-gray-200 pt-3 mt-2">
         <h3 className="text-sm font-medium text-gray-700 mb-3">Media</h3>
         {renderImageUpload()}
-      </div>
+      </div> */}
     </div>
   );
 };

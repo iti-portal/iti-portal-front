@@ -4,13 +4,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../components/Layout/Navbar';
+import Alert from '../../../components/UI/Alert';
 import { useProfile } from '../../../hooks/useProfile';
 import { updateUserProfile } from '../../../services/profileService';
 
 import PersonalInfoForm from '../components/profile/edit/PersonalInfoForm';
 import ContactInfoForm from '../components/profile/edit/ContactInfoForm';
 import SkillsAndCertificatesForm from '../components/profile/edit/SkillsAndCertificatesForm';
-import ProjectsAndPortfolioForm from '../components/profile/edit/ProjectsAndPortfolioForm';
+import ProjectManagement from '../components/profile/edit/ProjectManagement';
 import EducationAndExperienceForm from '../components/profile/edit/EducationAndExperienceForm';
 
 // Animation variants
@@ -31,6 +32,7 @@ function EditProfilePage() {
   const { profile, loading, error, refreshProfile } = useProfile();
   const [activeTab, setActiveTab] = useState('personal');
   const [profileData, setProfileData] = useState({});
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
   const tabs = [
     { id: 'personal', name: 'Personal Information' },
@@ -51,6 +53,8 @@ function EditProfilePage() {
         firstName: userProfile.first_name || user.first_name || '',
         lastName: userProfile.last_name || user.last_name || '',
         username: userProfile.username || user.username || '',
+        job_profile: userProfile.job_profile || user.job_profile || '',
+        // About Me
         summary: userProfile.summary || userProfile.bio || '',
         
         // Contact Information
@@ -80,6 +84,9 @@ function EditProfilePage() {
     }
   }, [profile]);
 
+  // Get user ID for API calls
+  const userId = profile?.user?.id;
+
   // Update profile data helper
   const handleProfileDataChange = (field, value) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
@@ -94,6 +101,7 @@ function EditProfilePage() {
         first_name: profileData.firstName,
         last_name: profileData.lastName,
         username: profileData.username,
+        job_profile: profileData.job_profile,
         summary: profileData.summary,
         phone: profileData.phone,
         whatsapp: profileData.whatsapp,
@@ -108,7 +116,9 @@ function EditProfilePage() {
       if (result.success) {
         // Refresh profile data to show updated information
         await refreshProfile();
-        alert('Profile updated successfully!');
+        setShowSuccessNotification(true);
+        // Hide notification after 3 seconds
+        setTimeout(() => setShowSuccessNotification(false), 3000);
         navigate('/student/profile');
       } else {
         throw new Error('Failed to update profile');
@@ -154,6 +164,15 @@ function EditProfilePage() {
   return (
     <>
       <Navbar />
+      
+      {/* Success Notification */}
+      <Alert
+        show={showSuccessNotification}
+        type="success"
+        message="Profile updated successfully! All changes have been saved."
+        onClose={() => setShowSuccessNotification(false)}
+      />
+      
       <motion.div 
         className="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen py-8"
         variants={pageVariants}
@@ -299,6 +318,7 @@ function EditProfilePage() {
                         onUpdateSkills={(newSkills) => handleProfileDataChange('skills', newSkills)}
                         onUpdateCertificates={(newCertificates) => handleProfileDataChange('certificates', newCertificates)}
                         onUpdateAwards={(newAwards) => handleProfileDataChange('awards', newAwards)}
+                        userId={userId}
                       />
                     </motion.div>
                   )}
@@ -309,9 +329,11 @@ function EditProfilePage() {
                       whileHover={{ scale: 1.005 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <ProjectsAndPortfolioForm
+                      <ProjectManagement
                         projects={profileData.projects}
                         onUpdateProjects={(newProjects) => handleProfileDataChange('projects', newProjects)}
+                        userId={userId}
+                        showNotifications={true}
                       />
                     </motion.div>
                   )}

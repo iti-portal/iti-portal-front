@@ -12,18 +12,17 @@ function ExperienceItem({ experience, onEdit, onDelete }) {
             {experience.position || 'Untitled Position'}
           </h3>
           <p className="text-md text-gray-700 mt-1">
-            {experience.companyName || 'Unknown Company'}
-            {experience.location && <span className="text-gray-500"> • {experience.location}</span>}
+            {experience.companyName || experience.company_name || 'Unknown Company'}
           </p>
           
           <div className="mt-2 text-sm text-gray-600">
             <p className="mt-1">
-              {experience.startDate && new Date(experience.startDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
-              {experience.startDate && (experience.endDate || experience.isCurrent) && ' - '}
-              {experience.isCurrent ? (
+              {(experience.startDate || experience.start_date) && new Date(experience.startDate || experience.start_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}
+              {(experience.startDate || experience.start_date) && ((experience.endDate || experience.end_date) || (experience.isCurrent || experience.is_current)) && ' - '}
+              {(experience.isCurrent || experience.is_current) ? (
                 <span className="text-iti-primary font-medium">Present</span>
-              ) : experience.endDate ? (
-                new Date(experience.endDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+              ) : (experience.endDate || experience.end_date) ? (
+                new Date(experience.endDate || experience.end_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
               ) : ''}
             </p>
           </div>

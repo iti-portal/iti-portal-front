@@ -15,7 +15,6 @@ export const useAchievementFilters = (allAchievements = []) => {
     
     // Filter by type if not 'all'
     if (selectedType !== 'all') {
-      console.log(`Filtering by type: ${selectedType}`);
       filteredData = filteredData.filter(
         achievement => achievement.type === selectedType
       );
@@ -24,7 +23,6 @@ export const useAchievementFilters = (allAchievements = []) => {
     // Filter by search query if present
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      console.log(`Filtering by search: "${query}"`);
       filteredData = filteredData.filter(
         achievement => 
           achievement.title.toLowerCase().includes(query) ||
@@ -34,7 +32,6 @@ export const useAchievementFilters = (allAchievements = []) => {
       );
     }
     
-    console.log(`Filtered data count: ${filteredData.length}`);
     return filteredData;
   }, [selectedType, searchQuery, allAchievements]);
 
@@ -62,7 +59,6 @@ export const useAchievementFilters = (allAchievements = []) => {
   // Handler for type filter changes
   const handleTypeFilter = useCallback((type) => {
     if (type !== selectedType) {
-      console.log(`Changing filter from ${selectedType} to ${type}`);
       setSelectedType(type);
     }
   }, [selectedType]);
@@ -71,7 +67,6 @@ export const useAchievementFilters = (allAchievements = []) => {
   const handleSearchChange = useCallback((e) => {
     const query = e.target.value;
     if (query !== searchQuery) {
-      console.log(`Changing search from "${searchQuery}" to "${query}"`);
       setSearchQuery(query);
     }
   }, [searchQuery]);

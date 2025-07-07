@@ -6,6 +6,7 @@
 // Pages
 export { default as CreateAchievement } from './pages/CreateAchievement';
 export { default as ViewAchievements } from './pages/ViewAchievements';
+export { default as MyAchievements } from './pages/MyAchievements';
 
 
 // Components

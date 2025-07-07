@@ -23,32 +23,20 @@ function EducationForm({ initialData = null, onSubmit }) {
       
       // Check if the date is valid
       if (isNaN(date.getTime())) {
-        console.warn('Invalid date string:', dateString);
         return '';
       }
       
       return date.toISOString().split('T')[0];
     } catch (error) {
-      console.warn('Error formatting date:', dateString, error);
       return '';
     }
   };
 
   // Initialize form data when initialData changes
   useEffect(() => {
-    console.log('EducationForm useEffect triggered');
-    console.log('initialData:', initialData);
-    
     if (initialData) {
-      console.log('Setting form data from initialData');
-      console.log('StartDate before format:', initialData.startDate);
-      console.log('EndDate before format:', initialData.endDate);
-      
       const formattedStartDate = formatDateForInput(initialData.startDate);
       const formattedEndDate = formatDateForInput(initialData.endDate);
-      
-      console.log('StartDate after format:', formattedStartDate);
-      console.log('EndDate after format:', formattedEndDate);
       
       setFormData({
         institution: initialData.institution || '',
@@ -59,7 +47,6 @@ function EducationForm({ initialData = null, onSubmit }) {
         description: initialData.description || ''
       });
     } else {
-      console.log('No initialData, resetting form');
       // Reset form when no initial data
       setFormData({
         institution: '',

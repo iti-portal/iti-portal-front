@@ -11,8 +11,8 @@ const menu = [
   { label: 'Articles', icon: 'article', path: '/admin/articles' },
   { label: 'Services', icon: 'miscellaneous_services', path: '/admin/services' },
   { label: 'Staff', icon: 'check_circle', path: '/admin/staff' },
-  {label: 'Company', icon: 'business', path: '/admin/companies' },  
-  { label: 'Settings', icon: 'settings', path: '/admin/settings' },
+  {label: 'Company', icon: 'business', path: '/admin/companies' },
+  { label: 'Contact Us', icon: 'settings', path: '/admin/contact-us' },
 ];
 
 /**

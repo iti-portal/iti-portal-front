@@ -11,8 +11,15 @@ function CertificateCard({ data }) {
 
   return (
     <div className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200 flex items-start">
-      {data.image && (
-        <img src={data.image} alt={data.title} className="w-20 h-20 object-cover rounded-md mr-4 flex-shrink-0" />
+      {(data.imagePath || data.image_path || data.image) && (
+        <img 
+          src={data.imagePath || data.image_path || data.image} 
+          alt={data.title} 
+          className="w-20 h-20 object-cover rounded-md mr-4 flex-shrink-0"
+          onError={(e) => {
+            e.target.style.display = 'none';
+          }}
+        />
       )}
       <div>
         <h3 className="text-lg font-semibold text-gray-800 flex items-center">
@@ -24,6 +31,11 @@ function CertificateCard({ data }) {
         <p className="text-sm text-gray-500 flex items-center mt-1">
           <FaCalendarAlt className="mr-2 text-gray-500" /> Achieved: {formatDate(data.achievedAt)}
         </p>
+        {data.description && (
+          <p className="text-sm text-gray-600 mt-2">
+            {data.description}
+          </p>
+        )}
         {data.certificateUrl && (
           <a
             href={data.certificateUrl}

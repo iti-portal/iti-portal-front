@@ -4,13 +4,28 @@ import React, { useState } from 'react';
 import { FaBriefcase } from 'react-icons/fa';
 
 function ExperienceForm({ onSubmit, initialData = null }) {
+  // Helper function to format date for input field
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    
+    // Handle different date formats
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return '';
+      
+      // Format as YYYY-MM-DD for date input
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      return '';
+    }
+  };
+
   const [formData, setFormData] = useState({
-    companyName: initialData?.companyName || '',
+    companyName: initialData?.companyName || initialData?.company_name || '',
     position: initialData?.position || '',
-    location: initialData?.location || '',
-    startDate: initialData?.startDate || '',
-    endDate: initialData?.endDate || '',
-    isCurrent: initialData?.isCurrent || false,
+    startDate: formatDateForInput(initialData?.startDate || initialData?.start_date),
+    endDate: formatDateForInput(initialData?.endDate || initialData?.end_date),
+    isCurrent: initialData?.isCurrent || initialData?.is_current || false,
     description: initialData?.description || '',
   });
 
@@ -105,21 +120,6 @@ function ExperienceForm({ onSubmit, initialData = null }) {
         {errors.position && (
           <p className="mt-1 text-sm text-red-600">{errors.position}</p>
         )}
-      </div>
-
-      <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-          Location
-        </label>
-        <input
-          id="location"
-          name="location"
-          type="text"
-          value={formData.location}
-          onChange={handleChange}
-          className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-iti-primary focus:border-iti-primary sm:text-sm"
-          placeholder="e.g., Cairo, Egypt (Remote)"
-        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
