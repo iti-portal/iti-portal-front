@@ -450,6 +450,7 @@ const ServiceManagement = () => {
               </button>
             </div>
 
+
             {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* Alumni Information */}
@@ -472,6 +473,61 @@ const ServiceManagement = () => {
                     <span className="font-medium text-gray-600">Intake:</span>
                     <p className="text-gray-800">{selectedProfile.intake || 'N/A'}</p>
                   </div>
+                </div>
+              </div>
+
+                            {/* Work Experience */}
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                  Work Experience
+                </h4>
+                <div className="relative border-l-2 border-gray-200 ml-2">
+                  {selectedProfile.alumni?.work_experiences?.length > 0 ? (
+                    selectedProfile.alumni.work_experiences.map((exp, index) => (
+                      <div key={exp.id} className="mb-6 ml-6">
+                        <span className="absolute flex items-center justify-center w-4 h-4 bg-blue-200 rounded-full -left-2 ring-4 ring-white">
+                        </span>
+                        <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                          <p className="font-semibold text-gray-900">{exp.position} at {exp.company_name}</p>
+                          <p className="text-xs text-gray-500 mb-2">
+                            {new Date(exp.start_date).toLocaleDateString()} - {exp.is_current ? 'Present' : new Date(exp.end_date).toLocaleDateString()}
+                          </p>
+                          <p className="text-sm text-gray-700">{exp.description}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 ml-6">No work experience available.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Education */}
+              <div className="bg-white rounded-lg p-4 border border-gray-200">
+                <h4 className="font-semibold text-gray-800 mb-4 flex items-center">
+                  <svg className="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v11.494m-9-5.747h18" /></svg>
+                  Education
+                </h4>
+                <div className="relative border-l-2 border-gray-200 ml-2">
+                  {selectedProfile.alumni?.educations?.length > 0 ? (
+                    selectedProfile.alumni.educations.map(edu => (
+                      <div key={edu.id} className="mb-6 ml-6">
+                        <span className="absolute flex items-center justify-center w-4 h-4 bg-green-200 rounded-full -left-2 ring-4 ring-white">
+                        </span>
+                        <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+                          <p className="font-semibold text-gray-900">{edu.degree} in {edu.field_of_study}</p>
+                          <p className="text-sm text-gray-600">{edu.institution}</p>
+                          <p className="text-xs text-gray-500 mb-2">
+                            {new Date(edu.start_date).toLocaleDateString()} - {new Date(edu.end_date).toLocaleDateString()}
+                          </p>
+                          <p className="text-sm text-gray-700">{edu.description}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500 ml-6">No education history available.</p>
+                  )}
                 </div>
               </div>
 
