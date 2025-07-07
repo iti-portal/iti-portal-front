@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-
+import { doc, updateDoc} from 'firebase/firestore';
 
 const NotificationDropdown = ({ notifications }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -13,7 +13,17 @@ const NotificationDropdown = ({ notifications }) => {
     
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }}, []);
+
+  const markAsRead = async (notifyId) => {
+    try {
+      await updateDoc(doc(db, "notifications", String(userId), notifyId), {
+        read: true,
+      })
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+    }
+  }
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -44,6 +54,7 @@ const NotificationDropdown = ({ notifications }) => {
                 <div
                   key={index}
                   className="px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
+                  onClick = {() => markAsRead(notification.id)}
                 >
                   <div className="font-medium text-gray-800">
                     {notification.title}
