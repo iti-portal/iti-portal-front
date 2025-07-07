@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { doc, updateDoc} from 'firebase/firestore';
 import { useAuth } from '../../../contexts/AuthContext';
+import { db, collection, onSnapshot } from '../../../firebase';
+
 
 const NotificationDropdown = ({ notifications }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const user = useAuth();
+  const [notifications, setNotifications] = useState([]);
   const userId = user?.id;
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -26,6 +29,30 @@ const NotificationDropdown = ({ notifications }) => {
       console.error("Error marking notification as read:", error);
     }
   }
+
+  // Fetch notifications from Firestore
+  useEffect(() => {
+    if (!userId) return; 
+    const unsubscribe = onSnapshot(collection
+      (db, "notifications", String(userId), "user_notifications"),
+      (snapshot) => {
+        const newNotifications = [];
+
+        snapshot.docChanges().forEach((change)=> {
+          if(change.type === "added") {
+            newNotifications.push(change.doc.data());
+          }
+        })
+
+        if (newNotifications.length > 0) {
+          setNotifications((prev) => [...prev, ...newNotifications]);
+        }
+      }
+    )
+    return () => unsubscribe();
+    }, [])
+  
+
 
   return (
     <div className="relative" ref={dropdownRef}>

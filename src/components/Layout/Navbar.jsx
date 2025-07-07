@@ -19,9 +19,6 @@ const Navbar = () => {
   const mediumDropdownRef = useRef(null);
   const smallDropdownRef = useRef(null);
 
-  const userId = user?.id;
-  const [notifications, setNotifications] = useState([]);
-
   // Debug: Log user data
   React.useEffect(() => {
     
@@ -45,29 +42,6 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  // Fetch notifications from Firestore
-  useEffect(() => {
-    if (!userId) return; 
-    const unsubscribe = onSnapshot(collection
-      (db, "notifications", String(userId), "user_notifications"),
-      (snapshot) => {
-        const newNotifications = [];
-
-        snapshot.docChanges().forEach((change)=> {
-          if(change.type === "added") {
-            newNotifications.push(change.doc.data());
-          }
-        })
-
-        if (newNotifications.length > 0) {
-          setNotifications((prev) => [...prev, ...newNotifications]);
-        }
-      }
-    )
-    return () => unsubscribe();
-    }, [])
-  
 
   // Handle manual profile refresh
   const handleRefreshProfile = async () => {
