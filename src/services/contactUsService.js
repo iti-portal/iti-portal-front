@@ -21,3 +21,16 @@ export const addContact = async (contactData) => {
     handleNetworkError(error);
   }
 };
+
+export const getContactSubmissions = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/contact-us`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+
+    return await handleApiResponse(response);
+  } catch (error) {
+    handleNetworkError(error);
+  }
+};

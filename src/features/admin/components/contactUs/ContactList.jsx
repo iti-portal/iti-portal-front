@@ -1,46 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getContactSubmissions } from '../../../../services/contactUsService';
 
 /**
- * UsersList component displays user data with filtering and pagination
+ * ContactList component displays contact us submissions with filtering and pagination
  */
 const ContactList = () => {
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [userRole, setUserRole] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
-  
-  // Mock users data
-  const mockUsers = [
-    { id: 1, name: 'Ahmed Mohamed', email: 'ahmed.mohamed@example.com', role: 'student', status: 'active' },
-    { id: 2, name: 'Sara Ahmed', email: 'sara.ahmed@example.com', role: 'alumni', status: 'active' },
-    { id: 3, name: 'Omar Khaled', email: 'omar.khaled@example.com', role: 'company', status: 'inactive' },
-    { id: 4, name: 'Nada Ibrahim', email: 'nada.ibrahim@example.com', role: 'staff', status: 'active' },
-    { id: 5, name: 'Mahmoud Ali', email: 'mahmoud.ali@example.com', role: 'student', status: 'pending' },
-    { id: 6, name: 'Amira Hassan', email: 'amira.hassan@example.com', role: 'alumni', status: 'active' },
-    { id: 7, name: 'Khaled Samir', email: 'khaled.samir@example.com', role: 'company', status: 'active' },
-    { id: 8, name: 'Laila Mostafa', email: 'laila.mostafa@example.com', role: 'staff', status: 'inactive' },
-  ];
-  
-  // Filter users based on search term and role
-  const filteredUsers = mockUsers.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesRole = userRole === 'all' || user.role === userRole;
-    return matchesSearch && matchesRole;
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+
+  useEffect(() => {
+    const fetchSubmissions = async () => {
+      try {
+        setLoading(true);
+        const response = await getContactSubmissions();
+        if (response.success) {
+          setSubmissions(response.data.data);
+        } else {
+          setError(response.message || 'Failed to fetch submissions');
+        }
+      } catch (err) {
+        setError(err.message || 'An error occurred while fetching submissions');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubmissions();
+  }, []);
+
+  // Filter submissions based on search term
+  const filteredSubmissions = submissions.filter(submission => {
+    return submission.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           submission.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           submission.subject.toLowerCase().includes(searchTerm.toLowerCase());
   });
-  
+
   // Pagination
-  const usersPerPage = 5;
-  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
-  const paginatedUsers = filteredUsers.slice(
-    (currentPage - 1) * usersPerPage, 
-    currentPage * usersPerPage
+  const submissionsPerPage = 5;
+  const totalPages = Math.ceil(filteredSubmissions.length / submissionsPerPage);
+  const paginatedSubmissions = filteredSubmissions.slice(
+    (currentPage - 1) * submissionsPerPage,
+    currentPage * submissionsPerPage
   );
-  
+
   // Handle page change
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
-  
+
+  const handleShowMessage = (submission) => {
+    setSelectedSubmission(submission);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedSubmission(null);
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="w-full">
       {/* Filters */}
@@ -48,28 +75,15 @@ const ContactList = () => {
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search users..."
+            placeholder="Search submissions..."
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div>
-          <select
-            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20]"
-            value={userRole}
-            onChange={(e) => setUserRole(e.target.value)}
-          >
-            <option value="all">All Roles</option>
-            <option value="student">Student</option>
-            <option value="alumni">Alumni</option>
-            <option value="company">Company</option>
-            <option value="staff">Staff</option>
-          </select>
-        </div>
       </div>
-      
-      {/* Users Table */}
+
+      {/* Submissions Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -82,10 +96,10 @@ const ContactList = () => {
                   Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
+                  Subject
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                  Message
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -93,40 +107,33 @@ const ContactList = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {paginatedUsers.map(user => (
-                <tr key={user.id}>
+              {paginatedSubmissions.map(submission => (
+                <tr key={submission.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                        {user.name.charAt(0)}
+                        {submission.full_name.charAt(0)}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                        <div className="text-sm font-medium text-gray-900">{submission.full_name}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500">{user.email}</div>
+                    <div className="text-sm text-gray-500">{submission.email}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${user.role === 'student' ? 'bg-blue-100 text-blue-800' : 
-                        user.role === 'alumni' ? 'bg-green-100 text-green-800' :
-                        user.role === 'company' ? 'bg-purple-100 text-purple-800' :
-                        'bg-yellow-100 text-yellow-800'}`}>
-                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                    </span>
+                    <div className="text-sm text-gray-500">{submission.subject}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                      ${user.status === 'active' ? 'bg-green-100 text-green-800' : 
-                        user.status === 'inactive' ? 'bg-red-100 text-red-800' :
-                        'bg-yellow-100 text-yellow-800'}`}>
-                      {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
-                    </span>
+                    <button
+                      onClick={() => handleShowMessage(submission)}
+                      className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200"
+                    >
+                      Show Message
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-[#901b20] hover:text-[#a83236] mr-2">Edit</button>
                     <button className="text-red-600 hover:text-red-800">Delete</button>
                   </td>
                 </tr>
@@ -134,17 +141,17 @@ const ContactList = () => {
             </tbody>
           </table>
         </div>
-        
+
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="px-6 py-3 flex items-center justify-between border-t border-gray-200">
             <div>
               <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{(currentPage - 1) * usersPerPage + 1}</span> to{' '}
+                Showing <span className="font-medium">{(currentPage - 1) * submissionsPerPage + 1}</span> to{' '}
                 <span className="font-medium">
-                  {Math.min(currentPage * usersPerPage, filteredUsers.length)}
+                  {Math.min(currentPage * submissionsPerPage, filteredSubmissions.length)}
                 </span>{' '}
-                of <span className="font-medium">{filteredUsers.length}</span> results
+                of <span className="font-medium">{filteredSubmissions.length}</span> results
               </p>
             </div>
             <div>
@@ -191,6 +198,43 @@ const ContactList = () => {
           </div>
         )}
       </div>
+
+      {/* Message Modal */}
+      {selectedSubmission && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                      Message from {selectedSubmission.full_name}
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        {selectedSubmission.message}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#901b20] text-base font-medium text-white hover:bg-[#a83236] focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={handleCloseModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
