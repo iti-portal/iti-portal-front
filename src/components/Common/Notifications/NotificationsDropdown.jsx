@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { doc, updateDoc} from 'firebase/firestore';
+import { useAuth } from '../../../contexts/AuthContext';
 
 const NotificationDropdown = ({ notifications }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-
+  const user = useAuth();
+  const userId = user?.id;
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
