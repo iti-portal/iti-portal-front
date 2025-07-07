@@ -4,7 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
 import Logo from '../Common/Logo';
 
-import { db, collection, onSnapshot } from '../../firebase';
 import NotificationDropdown from '../Common/Notifications/NotificationsDropdown';
 
 const Navbar = () => {
@@ -142,7 +141,7 @@ const Navbar = () => {
 
 
           {/* <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl dropdown">notifications_none</span> */}
-          <NotificationDropdown notifications={notifications} />
+          <NotificationDropdown />
           
                     
           

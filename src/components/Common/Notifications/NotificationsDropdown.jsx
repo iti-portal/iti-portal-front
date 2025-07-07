@@ -4,12 +4,35 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { db, collection, onSnapshot } from '../../../firebase';
 
 
-const NotificationDropdown = ({ notifications }) => {
+const NotificationDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const user = useAuth();
   const [notifications, setNotifications] = useState([]);
   const userId = user?.id;
+
+    // Fetch notifications from Firestore
+    useEffect(() => {
+      if (!userId) return; 
+      const unsubscribe = onSnapshot(collection
+        (db, "notifications", String(userId), "user_notifications"),
+        (snapshot) => {
+          const newNotifications = [];
+  
+          snapshot.docChanges().forEach((change)=> {
+            if(change.type === "added") {
+              newNotifications.push(change.doc.data());
+            }
+          })
+  
+          if (newNotifications.length > 0) {
+            setNotifications((prev) => [...prev, ...newNotifications]);
+          }
+        }
+      )
+      return () => unsubscribe();
+      }, []);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -30,27 +53,7 @@ const NotificationDropdown = ({ notifications }) => {
     }
   }
 
-  // Fetch notifications from Firestore
-  useEffect(() => {
-    if (!userId) return; 
-    const unsubscribe = onSnapshot(collection
-      (db, "notifications", String(userId), "user_notifications"),
-      (snapshot) => {
-        const newNotifications = [];
 
-        snapshot.docChanges().forEach((change)=> {
-          if(change.type === "added") {
-            newNotifications.push(change.doc.data());
-          }
-        })
-
-        if (newNotifications.length > 0) {
-          setNotifications((prev) => [...prev, ...newNotifications]);
-        }
-      }
-    )
-    return () => unsubscribe();
-    }, [])
   
 
 
