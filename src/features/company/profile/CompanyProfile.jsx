@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, Users, Calendar, TrendingUp, Building2 } from 'lucide-react';
 
-function Profile() {
+function CompanyProfile() {
   const applicants = [
     { name: 'Sarah Chen', applied: 'Applied 2024-07-29', avatar: 'SC', status: 'new' },
     { name: 'David Lee', applied: 'Applied 2024-07-30', avatar: 'DL', status: 'reviewed' },
@@ -25,7 +25,7 @@ function Profile() {
   const statusCounts = getStatusCounts();
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="bg-gray-50">
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -37,12 +37,6 @@ function Profile() {
               <div>
                 <div className="flex items-center space-x-3 mb-2">
                   <h1 className="text-2xl font-bold text-gray-900">Tech Solutions Inc.</h1>
-                  <button className="px-3 py-1 bg-[#901b20] text-white text-sm rounded hover:bg-[#901b20]/90">
-                    Edit Profile
-                  </button>
-                  <button className="text-gray-500 hover:text-gray-700 text-sm">
-                    View Public Profile →
-                  </button>
                 </div>
                 <p className="text-gray-600 max-w-2xl">
                   Tech Solutions Inc. is a leading innovator in cloud-based software development, dedicated to creating scalable and efficient solutions for enterprise clients worldwide. We are committed to fostering a culture of innovation, collaboration, and continuous learning.
@@ -68,104 +62,59 @@ function Profile() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Job Postings and Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Active Job Postings */}
-          <div className="lg:col-span-2 bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Active Job Postings</h2>
-              <button className="px-4 py-2 bg-[#901b20] text-white text-sm rounded hover:bg-[#901b20]/90">
-                + Post New Job
-              </button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-2">Senior Software Engineer</h3>
-                <p className="text-sm text-gray-600 mb-2">👤 120 Applicants</p>
-                <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
-                  <MapPin className="w-4 h-4" />
-                  <span>Remote</span>
+          {/* Stats Overview Section */}
+          <div className="mt-10">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Hiring Metrics Overview</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">Total Applications</span>
+                    <span className="text-xs text-[#901b20] flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +15% vs last month
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">450</p>
                 </div>
-                <p className="text-xs text-gray-500 mb-3">⏰ Posted: 3 days ago</p>
-                <div className="flex space-x-2">
-                  <button className="px-3 py-1 border border-gray-300 text-gray-700 text-sm rounded hover:bg-gray-50">
-                    View Details
-                  </button>
-                  <button className="px-3 py-1 bg-[#901b20] text-white text-sm rounded hover:bg-[#901b20]/90">
-                    Manage Applicants
-                  </button>
-                </div>
-              </div>
 
-              <div className="border rounded-lg p-4">
-                <h3 className="font-medium text-gray-900 mb-2">Marketing Specialist</h3>
-                <p className="text-sm text-gray-600 mb-2">👤 78 Applicants</p>
-                <div className="flex items-center space-x-2 text-sm text-gray-500 mb-3">
-                  <MapPin className="w-4 h-4" />
-                  <span>New York, USA</span>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">Interviews Scheduled</span>
+                    <span className="text-xs text-[#901b20] flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +8% vs last month
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">85</p>
                 </div>
-                <p className="text-xs text-gray-500 mb-3">⏰ Posted: 5 days ago</p>
-                <div className="flex space-x-2">
-                  <button className="px-3 py-1 border border-gray-300 text-gray-700 text-sm rounded hover:bg-gray-50">
-                    View Details
-                  </button>
-                  <button className="px-3 py-1 bg-[#901b20] text-white text-sm rounded hover:bg-[#901b20]/90">
-                    Manage Applicants
-                  </button>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">Hires This Month</span>
+                    <span className="text-xs text-[#901b20] flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +200% vs last month
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">12</p>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-500">Offer Acceptance Rate</span>
+                    <span className="text-xs text-[#901b20] flex items-center">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +3% vs last month
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-gray-900">88%</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Stats Cards */}
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">Total Applications</span>
-                <span className="text-xs text-[#901b20] flex items-center">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  +15% vs last month
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">450</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">Interviews Scheduled</span>
-                <span className="text-xs text-[#901b20] flex items-center">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  +8% vs last month
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">85</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">Hires This Month</span>
-                <span className="text-xs text-[#901b20] flex items-center">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  +200% vs last month
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">12</p>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-500">Offer Acceptance Rate</span>
-                <span className="text-xs text-[#901b20] flex items-center">
-                  <TrendingUp className="w-3 h-3 mr-1" />
-                  +3% vs last month
-                </span>
-              </div>
-              <p className="text-2xl font-bold text-gray-900">88%</p>
-            </div>
-          </div>
         </div>
 
         {/* Applicant Management */}
@@ -427,4 +376,4 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default CompanyProfile;

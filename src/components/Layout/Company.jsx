@@ -10,12 +10,12 @@ import {
 } from 'lucide-react';
 
 const sidebarItems = [
-  { icon: User, label: 'My Profile', path: '/profile' },
-  { icon: Briefcase, label: 'Post Job', path: '/post-job' },
-  { icon: List, label: 'Manage Jobs', path: '/manage-jobs' },
-  { icon: Users, label: 'Applicants', path: '/applicants' },
-  { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-  { icon: MessageSquare, label: 'Messages', path: '/messages' },
+  { icon: User, label: 'My Profile', path: '/company/profile' },
+  { icon: Briefcase, label: 'Post Job', path: '/company/post-job' },
+  { icon: List, label: 'Manage Jobs', path: '/company/manage-jobs' },
+  { icon: Users, label: 'Applicants', path: '/company/applicants' },
+  { icon: BarChart3, label: 'Analytics', path: '/company/analytics' },
+  { icon: MessageSquare, label: 'Messages', path: '/company/messages' },
 ];
 
 const JobPortalLayout = () => {

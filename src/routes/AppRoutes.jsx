@@ -8,6 +8,9 @@ import NotFound from '../pages/NotFound';
 import Unauthorized from '../pages/Unauthorized';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import UsersManagementPage from '../pages/UsersManagementPage';
+import ApprovalsManagementPage from '../features/admin/pages/ApprovalsManagementPage';
+import ArticlesManagementPage from '../features/admin/pages/ArticlesManagementPage';
+import NewArticleFormPage from '../features/admin/pages/NewArticleFormPage';
 import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
 import RoleBasedRoute from './RoleBasedRoute';
@@ -15,6 +18,15 @@ import { ProfilePage, EditProfilePage } from '../features/student';
 import { CreateAchievement, ViewAchievements } from '../features/achievements';
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
+
+import CompanyLayout from './../layouts/CompanyLayout';
+import CompanyProfile from '../features/company/profile/CompanyProfile';
+import PostJob from '../features/company/postJob/PostJob';
+import ManageApplicants from '../features/company/applicants/Applicants';
+import ExploreItians from './../components/Home/explore-itians/ExploreItians';
+import ManageJobs from '../features/company/jobs/ManageJobs';
+import Analytics from '../features/company/analytics/Analytics';
+import Messages from '../features/company/messages/Messages';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -65,18 +77,42 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/admin/staff" 
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-            <StaffManagementPage />
-          </RoleBasedRoute>
-        } 
-      />
-      <Route 
         path="/admin/users" 
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
             <UsersManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/approvals" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ApprovalsManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/articles" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ArticlesManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/articles/new" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <NewArticleFormPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/staff" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <StaffManagementPage />
           </RoleBasedRoute>
         } 
       />
@@ -88,16 +124,35 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         } 
       />
-      
-      {/* Student profile routes */}
+      {/* Company routes */}
       <Route
-        path="/student/profile"
+        path="/company"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <ProfilePage />
+            <CompanyLayout />
+          </PrivateRoute>
+        }
+      >
+        <Route index element={<CompanyProfile />} />
+        <Route path="profile" element={<CompanyProfile />} />
+        <Route path="post-job" element={<PostJob />} />
+        <Route path="manage-jobs" element={<ManageJobs />} />
+        <Route path="applicants" element={<ManageApplicants />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="messages" element={<Messages />} />
+      </Route>
+
+
+
+      <Route
+        path="/explore-itians"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ExploreItians />
           </PrivateRoute>
         }
       />
+      {/* Student profile routes */}
       <Route
         path="/student/profile/edit" 
         element={

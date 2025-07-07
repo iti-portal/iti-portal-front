@@ -1,7 +1,8 @@
 // src/components/Home/ArticlesInsights.jsx
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaCalendar, FaUser, FaArrowRight, FaEye, FaHeart } from 'react-icons/fa';
+import { fetchAllArticles } from '../../services/articlesApi';
 
 const ArticleCard = ({ title, excerpt, author, date, readTime, views, likes, image, category }) => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
@@ -59,7 +60,9 @@ const ArticleCard = ({ title, excerpt, author, date, readTime, views, likes, ima
 );
 
 const ArticlesInsights = () => {
-  const articles = [
+  const [articles, setArticles] = useState([]);
+
+  const staticArticles = [
     {
       title: "The Future of AI in Software Development",
       excerpt: "Exploring how artificial intelligence is revolutionizing the way we develop software and the skills developers need to stay relevant.",
@@ -81,6 +84,24 @@ const ArticlesInsights = () => {
       category: "Tutorial"
     }
   ];
+
+  useEffect(() => {
+    const getArticles = async () => {
+      try {
+        const response = await fetchAllArticles();
+        if (response.data && response.data.length > 0) {
+          setArticles(response.data);
+        } else {
+          setArticles(staticArticles);
+        }
+      } catch (error) {
+        console.error("Error fetching articles:", error);
+        setArticles(staticArticles);
+      }
+    };
+
+    getArticles();
+  }, []);
 
   return (
     <section className="py-16 px-4 bg-white">
