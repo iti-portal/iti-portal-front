@@ -103,5 +103,6 @@ export {
   getUsedServices,
   getAlumniServiceDetails,
   getUnusedServices,
-  evaluateService
+  evaluateService,
+  deleteService
 } from './servicesService';

@@ -475,6 +475,12 @@ const ServiceManagement = () => {
                     <span className="font-medium text-gray-600">Description:</span>
                     <p className="text-gray-800">{selectedProfile.description || 'N/A'}</p>
                   </div>
+                  {selectedProfile.evaluation && (
+                    <div>
+                      <span className="font-medium text-gray-600">Evaluation:</span>
+                      <p className="text-gray-800 capitalize">{selectedProfile.evaluation}</p>
+                    </div>
+                  )}
                   {selectedProfile.feedback && (
                     <div>
                       <span className="font-medium text-gray-600">Feedback:</span>

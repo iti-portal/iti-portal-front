@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { getUnusedServices, getAlumniServiceDetails, evaluateService } from '../../../../services/servicesService';
+import { getUnusedServices, getAlumniServiceDetails, evaluateService, deleteService } from '../../../../services/servicesService';
 
 /**
  * RequestServiceTable component for handling service requests
@@ -31,6 +31,8 @@ const RequestServiceTable = ({ onBack }) => {
   const [showEvaluateModal, setShowEvaluateModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [evaluating, setEvaluating] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Fetch request data from API
   useEffect(() => {
@@ -136,6 +138,36 @@ const RequestServiceTable = ({ onBack }) => {
       setShowErrorToast(true);
     } finally {
       setEvaluating(false);
+    }
+  };
+
+  // Handle delete service
+  const handleDelete = (service) => {
+    setSelectedService(service);
+    setShowDeleteModal(true);
+  };
+
+  // Submit delete
+  const submitDelete = async () => {
+    try {
+      setDeleting(true);
+      const response = await deleteService(selectedService.id);
+      
+      if (response.success) {
+        // Remove the deleted service from the request list
+        setRequestData(prev => prev.filter(s => s.id !== selectedService.id));
+        setSuccessMessage(`Service "${selectedService.title}" has been deleted successfully`);
+        setShowSuccessToast(true);
+        setShowDeleteModal(false);
+      } else {
+        throw new Error(response.message || 'Failed to delete service');
+      }
+    } catch (err) {
+      console.error('Error deleting service:', err);
+      setErrorMessage('Failed to delete service: ' + err.message);
+      setShowErrorToast(true);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -249,11 +281,26 @@ const RequestServiceTable = ({ onBack }) => {
               </svg>
             )}
           </button>
+          <button 
+            className="group relative flex items-center justify-center h-8 w-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Delete"
+            onClick={() => handleDelete(row.original)}
+            disabled={deleting}
+          >
+            <div className="hidden sm:block absolute opacity-0 group-hover:opacity-100 top-full left-1/2 -translate-x-1/2 mt-2 bg-red-700 text-white text-xs rounded py-1 px-2 transition-opacity duration-200 whitespace-nowrap z-10">Delete</div>
+            {deleting ? (
+              <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full"></div>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+            )}
+          </button>
         </div>
       ),
-      size: 100,
+      size: 130,
     },
-  ], [loadingProfile, evaluating, handleViewProfile, handleEvaluate]);
+  ], [loadingProfile, evaluating, deleting, handleViewProfile, handleEvaluate, handleDelete]);
 
   // Initialize table
   const table = useReactTable({
@@ -509,6 +556,12 @@ const RequestServiceTable = ({ onBack }) => {
                     <span className="font-medium text-gray-600">Description:</span>
                     <p className="text-gray-800">{selectedProfile.description || 'N/A'}</p>
                   </div>
+                  {selectedProfile.evaluation && (
+                    <div>
+                      <span className="font-medium text-gray-600">Evaluation:</span>
+                      <p className="text-gray-800 capitalize">{selectedProfile.evaluation}</p>
+                    </div>
+                  )}
                   {selectedProfile.feedback && (
                     <div>
                       <span className="font-medium text-gray-600">Feedback:</span>
@@ -560,6 +613,16 @@ const RequestServiceTable = ({ onBack }) => {
           onClose={() => setShowEvaluateModal(false)}
           onEvaluate={submitEvaluation}
           isEvaluating={evaluating}
+        />
+      )}
+
+      {/* Delete Modal */}
+      {showDeleteModal && selectedService && (
+        <DeleteModal
+          service={selectedService}
+          onClose={() => setShowDeleteModal(false)}
+          onDelete={submitDelete}
+          isDeleting={deleting}
         />
       )}
 
@@ -701,6 +764,75 @@ const EvaluateModal = ({ service, onClose, onEvaluate, isEvaluating }) => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  );
+};
+
+// Delete Modal Component
+const DeleteModal = ({ service, onClose, onDelete, isDeleting }) => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        {/* Modal Header */}
+        <div className="flex justify-between items-center p-6 border-b">
+          <h3 className="text-xl font-bold text-gray-800">Delete Service</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            disabled={isDeleting}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Modal Body */}
+        <div className="p-6 space-y-4">
+          <div className="bg-red-50 rounded-lg p-4 flex items-start">
+            <svg className="w-8 h-8 text-red-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+              <h4 className="font-medium text-red-800 mb-2">Are you sure you want to delete this service?</h4>
+              <p className="text-sm text-red-700">This action cannot be undone. The service will be permanently removed from the system.</p>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="font-medium text-gray-800 mb-2">Service: {service.title}</h4>
+            <p className="text-sm text-gray-600">Alumni: {service.first_name} {service.last_name}</p>
+            <p className="text-sm text-gray-600 mt-1">Type: {service.service_type.replace('_', ' ')}</p>
+          </div>
+
+          {/* Modal Footer */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              disabled={isDeleting}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full"></div>
+                  Deleting...
+                </>
+              ) : (
+                'Delete Service'
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -108,3 +108,28 @@ export const evaluateService = async (serviceId, evaluation, feedback = '') => {
     throw error;
   }
 };
+
+/**
+ * Delete a service
+ * @param {number} serviceId - Service ID
+ * @returns {Promise} Delete result
+ */
+export const deleteService = async (serviceId) => {
+  try {
+    console.log('🔄 Deleting service...', serviceId);
+    
+    const response = await fetch(`${API_BASE_URL}/delete-service/${serviceId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+
+    const result = await handleApiResponse(response);
+    
+    console.log('✅ Service deleted successfully:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Failed to delete service:', error);
+    throw error;
+  }
+};
