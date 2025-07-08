@@ -97,10 +97,8 @@ export const updateCoverPhoto = async (photoFile) => {
   try {
     // Use the exact field name that works in Postman
     const result = await attemptCoverPhotoUpload(photoFile, 'cover_photo');
-    console.log(`✅ Cover photo upload successful`, result);
     return result;
   } catch (error) {
-    console.log(`❌ Cover photo upload failed:`, error.message);
     throw error;
   }
 };
@@ -182,13 +180,10 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
 
     // Debug: Log headers being sent
     const headers = getFileUploadHeaders();
-    console.log('🔍 Headers being sent:', headers);
     
     // Also log the token for debugging (first 10 chars only)
     const token = localStorage.getItem('token');
-    console.log('🔍 Auth token (first 10 chars):', token ? token.substring(0, 10) + '...' : 'NO TOKEN');
 
-    console.log('🔍 Making request to:', `${API_BASE_URL}/cover-photo`);
 
     const response = await fetch(`${API_BASE_URL}/cover-photo`, {
       method: 'POST',
@@ -196,10 +191,6 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
       body: formData
     });
 
-    console.log(`🔍 Cover photo upload response status: ${response.status} ${response.statusText}`);
-    
-    // Log response headers for debugging
-    console.log('🔍 Response headers:');
     for (let [key, value] of response.headers.entries()) {
       console.log(`  ${key}: ${value}`);
     }
@@ -213,7 +204,7 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
     }
 
     const result = await response.json();
-    console.log(`🔍 Cover photo upload response body:`, result);
+
 
     if (!response.ok) {
       throw new Error(result.message || `Failed to update cover photo with field: ${fieldName}. Status: ${response.status}`);
