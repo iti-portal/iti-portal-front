@@ -120,10 +120,16 @@ const attemptProfilePictureUpload = async (photoFile, fieldName) => {
       body: formData
     });
 
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error(`Server returned HTML instead of JSON. This usually means there's a server error. Status: ${response.status}`);
+    }
+
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || `Failed to update profile picture with field: ${fieldName}`);
+      throw new Error(result.message || `Failed to update profile picture with field: ${fieldName}. Status: ${response.status}`);
     }
 
     return {
@@ -132,7 +138,8 @@ const attemptProfilePictureUpload = async (photoFile, fieldName) => {
       message: result.message || 'Profile picture updated successfully'
     };
   } catch (error) {
-    handleNetworkError(error);
+    console.error(`Profile picture upload error (field: ${fieldName}):`, error);
+    throw error;
   }
 };
 
@@ -154,10 +161,16 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
       body: formData
     });
 
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error(`Server returned HTML instead of JSON. This usually means there's a server error. Status: ${response.status}`);
+    }
+
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || `Failed to update cover photo with field: ${fieldName}`);
+      throw new Error(result.message || `Failed to update cover photo with field: ${fieldName}. Status: ${response.status}`);
     }
 
     return {
@@ -166,6 +179,7 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
       message: result.message || 'Cover photo updated successfully'
     };
   } catch (error) {
-    handleNetworkError(error);
+    console.error(`Cover photo upload error (field: ${fieldName}):`, error);
+    throw error;
   }
 };
