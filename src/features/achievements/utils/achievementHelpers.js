@@ -49,67 +49,124 @@ export const calculateDuration = (startDate, endDate) => {
   }
 };
 
+// Achievement type configurations for Twitter-like display
+export const ACHIEVEMENT_TYPE_CONFIG = {
+  job: {
+    label: 'Job',
+    icon: '💼',
+    bgColor: 'bg-blue-100',
+    textColor: 'text-blue-800',
+    borderColor: 'border-blue-200'
+  },
+  project: {
+    label: 'Project',
+    icon: '🚀',
+    bgColor: 'bg-green-100',
+    textColor: 'text-green-800',
+    borderColor: 'border-green-200'
+  },
+  education: {
+    label: 'Education',
+    icon: '🎓',
+    bgColor: 'bg-purple-100',
+    textColor: 'text-purple-800',
+    borderColor: 'border-purple-200'
+  },
+  certification: {
+    label: 'Certification',
+    icon: '🏆',
+    bgColor: 'bg-yellow-100',
+    textColor: 'text-yellow-800',
+    borderColor: 'border-yellow-200'
+  },
+  award: {
+    label: 'Award',
+    icon: '🥇',
+    bgColor: 'bg-orange-100',
+    textColor: 'text-orange-800',
+    borderColor: 'border-orange-200'
+  },
+  skill: {
+    label: 'Skill',
+    icon: '⚡',
+    bgColor: 'bg-indigo-100',
+    textColor: 'text-indigo-800',
+    borderColor: 'border-indigo-200'
+  },
+  achievement: {
+    label: 'Achievement',
+    icon: '✨',
+    bgColor: 'bg-pink-100',
+    textColor: 'text-pink-800',
+    borderColor: 'border-pink-200'
+  }
+};
+
 /**
- * Get achievement display properties
+ * Get display properties for an achievement type
  */
 export const getAchievementDisplayProps = (type) => {
-  const category = ACHIEVEMENT_CATEGORIES[type];
-  return {
-    icon: ACHIEVEMENT_ICONS[type] || '📋',
-    color: ACHIEVEMENT_COLORS[type] || 'bg-gray-100 text-gray-800 border-gray-200',
-    label: category?.label || 'Achievement',
-    iconClass: category?.icon || 'article'
-  };
+  const normalizedType = type?.toLowerCase() || 'achievement';
+  return ACHIEVEMENT_TYPE_CONFIG[normalizedType] || ACHIEVEMENT_TYPE_CONFIG.achievement;
 };
 
 /**
- * Generate achievement summary text
- */
-export const generateAchievementSummary = (achievement) => {
-  const { type, title, organization, start_date, end_date } = achievement;
-  
-  switch (type) {
-    case ACHIEVEMENT_TYPES.PROJECT:
-      return `Project: ${title}`;
-    case ACHIEVEMENT_TYPES.JOB:
-      return `${title} at ${organization || 'Company'}`;
-    case ACHIEVEMENT_TYPES.CERTIFICATE:
-      return `${title} from ${organization || 'Organization'}`;
-    case ACHIEVEMENT_TYPES.AWARD:
-      return `${title} from ${organization || 'Organization'}`;
-    default:
-      return title;
-  }
-};
-
-/**
- * Get achievement time range text
+ * Generate a time range text for an achievement
  */
 export const getTimeRangeText = (achievement) => {
-  const { type, start_date, end_date, issue_date, received_date } = achievement;
+  if (!achievement) return null;
   
-  switch (type) {
-    case ACHIEVEMENT_TYPES.PROJECT:
-    case ACHIEVEMENT_TYPES.JOB:
-      if (start_date && end_date) {
-        return `${formatDate(start_date)} - ${formatDate(end_date)}`;
-      } else if (start_date) {
-        return `${formatDate(start_date)} - Present`;
-      }
-      break;
-    case ACHIEVEMENT_TYPES.CERTIFICATE:
-      if (issue_date) {
-        return `Issued ${formatDate(issue_date)}`;
-      }
-      break;
-    case ACHIEVEMENT_TYPES.AWARD:
-      if (received_date) {
-        return `Received ${formatDate(received_date)}`;
-      }
-      break;
+  const { start_date, end_date, created_at } = achievement;
+  
+  if (start_date && end_date) {
+    const start = new Date(start_date);
+    const end = new Date(end_date);
+    
+    const startFormatted = start.toLocaleDateString('en-US', { 
+      month: 'short', 
+      year: 'numeric' 
+    });
+    const endFormatted = end.toLocaleDateString('en-US', { 
+      month: 'short', 
+      year: 'numeric' 
+    });
+    
+    return `${startFormatted} - ${endFormatted}`;
+  } else if (start_date) {
+    const start = new Date(start_date);
+    const startFormatted = start.toLocaleDateString('en-US', { 
+      month: 'short', 
+      year: 'numeric' 
+    });
+    return `Started ${startFormatted}`;
+  } else if (created_at) {
+    const created = new Date(created_at);
+    return `Added ${created.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: 'numeric' 
+    })}`;
   }
   
-  return '';
+  return null;
+};
+
+/**
+ * Generate a summary text for an achievement
+ */
+export const generateAchievementSummary = (achievement) => {
+  if (!achievement) return '';
+  
+  const { type, title, description } = achievement;
+  const typeConfig = getAchievementDisplayProps(type);
+  
+  let summary = `${typeConfig.icon} ${typeConfig.label}`;
+  
+  if (title) {
+    summary += `: ${title}`;
+  }
+  
+  return summary;
 };
 
 /**
@@ -164,7 +221,9 @@ export const validateAchievement = (achievement) => {
     errors.title = 'Title is required';
   }
   
-  if (!achievement.description?.trim()) {
+  // Description validation based on type
+  if ((achievement.type === ACHIEVEMENT_TYPES.PROJECT || achievement.type === ACHIEVEMENT_TYPES.CERTIFICATE) 
+      && !achievement.description?.trim()) {
     errors.description = 'Description is required';
   }
   
@@ -179,24 +238,24 @@ export const validateAchievement = (achievement) => {
       if (!achievement.organization?.trim()) {
         errors.organization = 'Organization is required';
       }
-      if (!achievement.position?.trim()) {
-        errors.position = 'Position is required';
+      if (!achievement.start_date) {
+        errors.start_date = 'Start date is required';
       }
       break;
     case ACHIEVEMENT_TYPES.CERTIFICATE:
       if (!achievement.organization?.trim()) {
         errors.organization = 'Issuing organization is required';
       }
-      if (!achievement.issue_date) {
-        errors.issue_date = 'Issue date is required';
+      if (!achievement.start_date) {
+        errors.start_date = 'Issue date is required';
       }
       break;
     case ACHIEVEMENT_TYPES.AWARD:
       if (!achievement.organization?.trim()) {
         errors.organization = 'Awarding organization is required';
       }
-      if (!achievement.received_date) {
-        errors.received_date = 'Award date is required';
+      if (!achievement.start_date) {
+        errors.start_date = 'Received date is required';
       }
       break;
   }
@@ -211,9 +270,25 @@ export const getAchievementCompletionPercentage = (achievement) => {
   const category = ACHIEVEMENT_CATEGORIES[achievement.type];
   if (!category) return 0;
   
-  const requiredFields = category.fields.filter(field => 
-    ['title', 'description'].includes(field) // Always required
-  );
+  let requiredFields = [];
+  
+  // Determine required fields based on type
+  switch (achievement.type) {
+    case ACHIEVEMENT_TYPES.PROJECT:
+      requiredFields = ['title', 'description', 'start_date'];
+      break;
+    case ACHIEVEMENT_TYPES.JOB:
+      requiredFields = ['title', 'organization', 'start_date'];
+      break;
+    case ACHIEVEMENT_TYPES.CERTIFICATE:
+      requiredFields = ['title', 'description', 'organization', 'start_date'];
+      break;
+    case ACHIEVEMENT_TYPES.AWARD:
+      requiredFields = ['title', 'organization', 'start_date'];
+      break;
+    default:
+      requiredFields = ['title', 'description'];
+  }
   
   const filledFields = requiredFields.filter(field => {
     const value = achievement[field];

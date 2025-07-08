@@ -37,8 +37,6 @@ export const addProject = async (projectData) => {
       });
     }
 
-    console.log('Sending project data to API');
-
     const response = await fetch(`${API_BASE_URL}/projects`, {
       method: 'POST',
       headers: {
@@ -50,7 +48,6 @@ export const addProject = async (projectData) => {
     });
 
     const result = await response.json();
-    console.log('Add project API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to add project');
@@ -107,7 +104,6 @@ export const updateProject = async (projectId, projectData) => {
     });
 
     const result = await response.json();
-    console.log('Update project API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update project');

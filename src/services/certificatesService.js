@@ -6,7 +6,6 @@ import {
   API_BASE_URL, 
   getAuthHeaders, 
   getFileUploadHeaders, 
-  handleApiResponse, 
   handleNetworkError,
   constructCertificateImageUrl 
 } from './apiConfig';
@@ -32,7 +31,6 @@ export const addCertificate = async (certificateData) => {
       }
     });
 
-    console.log('Sending certificate data to API:', apiData);
 
     const response = await fetch(`${API_BASE_URL}/certificates/add`, {
       method: 'POST',
@@ -41,8 +39,6 @@ export const addCertificate = async (certificateData) => {
     });
 
     const result = await response.json();
-    console.log('Add certificate API response:', result);
-
     if (!response.ok) {
       throw new Error(result.message || 'Failed to add certificate');
     }
@@ -91,7 +87,6 @@ export const updateCertificate = async (certificateId, certificateData) => {
       }
     });
 
-    console.log('Updating certificate data to API:', apiData);
 
     const response = await fetch(`${API_BASE_URL}/certificates/${certificateId}`, {
       method: 'PUT',
@@ -100,7 +95,6 @@ export const updateCertificate = async (certificateId, certificateData) => {
     });
 
     const result = await response.json();
-    console.log('Update certificate API response:', result);
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update certificate');

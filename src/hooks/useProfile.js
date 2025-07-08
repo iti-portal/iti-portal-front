@@ -2,9 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { getUserProfile, updateProfilePicture, updateCoverPhoto } from '../services/profileService';
 import { getFeaturedProjects } from '../services/featuredProjectsService';
 
-/**
- * Transform backend data to frontend format
- */
+
 const transformProfileData = (data) => {
   if (!data) return null;
 

@@ -44,12 +44,16 @@ export const getFileUploadHeaders = () => {
  * Handle API response and errors
  */
 export const handleApiResponse = async (response) => {
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return { success: true, data: null, message: 'Operation successful.' };
+  }
+
   const result = await response.json();
 
   if (!response.ok) {
     // Handle validation errors (422) by showing all error details
     if (response.status === 422 && result.errors) {
-      console.log('Validation errors from server:', result.errors);
+      console.error('📛 Validation errors:', result.errors);
       
       const errorMessages = [];
       
@@ -73,6 +77,7 @@ export const handleApiResponse = async (response) => {
       
       throw new Error(errorMessage);
     } else {
+      console.error('❌ API error:', result);
       throw new Error(result.message || 'API request failed');
     }
   }

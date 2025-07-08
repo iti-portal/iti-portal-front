@@ -4,34 +4,43 @@ import React from 'react';
 import { 
   FaUsers, 
   FaGraduationCap, 
-  FaBuilding, 
   FaBriefcase, 
-  FaArrowUp,
-  FaChartLine,
-  FaCode,
-  FaCertificate
+  FaArrowUp
 } from 'react-icons/fa';
+import useScrollAnimation from '../../hooks/useScrollAnimation';
 
-const StatCard = ({ icon: Icon, value, label, trend, color, size = "normal" }) => (
-  <div className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-gray-100 ${size === "large" ? "md:col-span-2" : ""}`}>
-    <div className="flex items-center justify-between mb-4">
-      <div className={`w-12 h-12 ${color.bg} rounded-lg flex items-center justify-center`}>
-        <Icon className={`${color.text} text-xl`} />
-      </div>
-      {trend && (
-        <div className="flex items-center text-green-600 text-sm">
-          <FaArrowUp className="mr-1" />
-          <span>+{trend}%</span>
+const StatCard = ({ icon: Icon, value, label, trend, color, size = "normal", index }) => {
+  const { ref, animationClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: index * 100
+  });
+
+  return (
+    <div ref={ref} className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow border border-gray-100 ${size === "large" ? "md:col-span-2" : ""} ${animationClasses}`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className={`w-12 h-12 ${color.bg} rounded-lg flex items-center justify-center`}>
+          <Icon className={`${color.text} text-xl`} />
         </div>
-      )}
+        {trend && (
+          <div className="flex items-center text-green-600 text-sm">
+            <FaArrowUp className="mr-1" />
+            <span>+{trend}%</span>
+          </div>
+        )}
+      </div>
+      
+      <div className={`${size === "large" ? "text-4xl" : "text-3xl"} font-bold text-gray-800 mb-2`}>{value}</div>
+      <div className="text-gray-600 text-sm">{label}</div>
     </div>
-    
-    <div className={`${size === "large" ? "text-4xl" : "text-3xl"} font-bold text-gray-800 mb-2`}>{value}</div>
-    <div className="text-gray-600 text-sm">{label}</div>
-  </div>
-);
+  );
+};
 
 const CommunityInsights = () => {
+  const { ref: sectionRef, animationClasses: sectionAnimationClasses } = useScrollAnimation({
+    animationType: 'fadeInUp',
+    delay: 0
+  });
+
   const stats = [
     {
       icon: FaUsers,
@@ -60,7 +69,7 @@ const CommunityInsights = () => {
   return (
     <section className="py-16 px-4 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
+        <div ref={sectionRef} className={`text-center mb-12 ${sectionAnimationClasses}`}>
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Community Insights</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
             Real-time metrics showcasing the growth and success of our vibrant ITI community
@@ -69,7 +78,7 @@ const CommunityInsights = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((stat, index) => (
-            <StatCard key={index} {...stat} />
+            <StatCard key={index} {...stat} index={index} />
           ))}
         </div>
       </div>

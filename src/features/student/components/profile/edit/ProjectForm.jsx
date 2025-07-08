@@ -29,8 +29,6 @@ function ProjectForm({ onSubmit, initialData = null }) {
 
   const [errors, setErrors] = useState({});
 
-  // Debug logging
-  console.log('ProjectForm render - Current images count:', formData.images.length);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,12 +37,10 @@ function ProjectForm({ onSubmit, initialData = null }) {
       ...prev,
       [name]: newValue
     }));
-    console.log('handleChange:', name, newValue);
   };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    console.log('Files selected:', files.length, files);
     
     if (files.length === 0) return;
 
@@ -52,11 +48,9 @@ function ProjectForm({ onSubmit, initialData = null }) {
     let hasError = false;
 
     files.forEach((file, index) => {
-      console.log(`Processing file ${index + 1}:`, file.name, file.size, file.type);
       
       // Check file size (2MB limit)
       if (file.size > 2 * 1024 * 1024) {
-        console.log('File too large:', file.name);
         setErrors(prev => ({
           ...prev,
           images: 'Each image must be less than 2MB'
@@ -67,7 +61,6 @@ function ProjectForm({ onSubmit, initialData = null }) {
 
       // Check file type
       if (!file.type.startsWith('image/')) {
-        console.log('Invalid file type:', file.type);
         setErrors(prev => ({
           ...prev,
           images: 'Only image files are allowed'
@@ -87,18 +80,14 @@ function ProjectForm({ onSubmit, initialData = null }) {
         id: Date.now() + index // Unique ID for React key
       };
       
-      console.log('Created image object:', newImage);
       newImages.push(newImage);
     });
 
-    console.log('New images to add:', newImages.length);
-    console.log('Current images before update:', formData.images.length);
 
     if (!hasError) {
       // Add new images to existing ones
       setFormData(prev => {
         const updatedImages = [...prev.images, ...newImages];
-        console.log('Updated images array:', updatedImages.length, updatedImages);
         return {
           ...prev,
           images: updatedImages

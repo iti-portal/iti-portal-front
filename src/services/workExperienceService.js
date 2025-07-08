@@ -31,7 +31,6 @@ export const addWorkExperience = async (experienceData) => {
       }
     });
 
-    console.log('Sending work experience data to API:', apiData);
 
     const response = await fetch(`${API_BASE_URL}/user-work-experiences`, {
       method: 'POST',
@@ -40,7 +39,7 @@ export const addWorkExperience = async (experienceData) => {
     });
 
     const result = await response.json();
-    console.log('Add work experience API response:', result);
+
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to add work experience');
@@ -98,7 +97,6 @@ export const updateWorkExperience = async (experienceId, experienceData) => {
       }
     });
 
-    console.log('Updating work experience data:', apiData);
 
     const response = await fetch(`${API_BASE_URL}/user-work-experiences/${experienceId}`, {
       method: 'PUT',
@@ -107,7 +105,7 @@ export const updateWorkExperience = async (experienceId, experienceData) => {
     });
 
     const result = await response.json();
-    console.log('Update work experience API response:', result);
+
 
     if (!response.ok) {
       throw new Error(result.message || 'Failed to update work experience');

@@ -11,6 +11,14 @@ export {
   updateCoverPhoto
 } from './profileService';
 
+// Articles service exports
+export {
+  getPopularArticles,
+  getArticles,
+  getArticle,
+  toggleArticleLike
+} from './articlesService';
+
 // Education service exports
 export {
   addEducation, 
@@ -59,6 +67,17 @@ export {
   deleteProject 
 } from './projectsService';
 
+// Achievements service exports
+export {
+  getAllAchievements,
+  getConnectionsAchievements,
+  getPopularAchievements,
+  getAchievementById,
+  createAchievement,
+  updateAchievement,
+  deleteAchievement
+} from './achievementsService';
+
 // API config exports (for advanced usage)
 export { 
   API_BASE_URL, 
@@ -67,3 +86,23 @@ export {
   constructProfilePictureUrl, 
   constructCertificateImageUrl 
 } from './apiConfig';
+
+// Staff service exports
+export {
+  retrieveStaff,
+  createStaff,
+  updateStaff,
+  deleteStaff,
+  getStaffDetails,
+  suspendUser,
+  unsuspendUser
+} from './staffService';
+
+// Services service exports
+export {
+  getUsedServices,
+  getAlumniServiceDetails,
+  getUnusedServices,
+  evaluateService,
+  deleteService
+} from './servicesService';

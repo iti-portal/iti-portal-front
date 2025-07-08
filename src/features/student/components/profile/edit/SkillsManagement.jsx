@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Alert from '../../../../../components/UI/Alert';
-import { addUserSkill, deleteUserSkill } from '../../../../../services/skillsService';
+import { addUserSkill, deleteUserSkill, getAllSkills } from '../../../../../services/skillsService';
 
 function SkillTag({ skill, onRemove }) {
   return (
@@ -22,9 +22,20 @@ function SkillTag({ skill, onRemove }) {
   );
 }
 
-function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = true }) {
+function SkillsManagement({ 
+  skills = [], 
+  onUpdateSkills, 
+  showNotifications = true,
+  onShowNotification,
+  onShowConfirmation,
+  onHideConfirmation
+}) {
   const [currentSkills, setCurrentSkills] = useState(skills || []);
   const [newSkillInput, setNewSkillInput] = useState('');
+  const [availableSkills, setAvailableSkills] = useState([]);
+  const [filteredSkills, setFilteredSkills] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [loadingSkills, setLoadingSkills] = useState(false);
   
   // Notification state
   const [notification, setNotification] = useState({ 
@@ -37,6 +48,40 @@ function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = tru
   useEffect(() => {
     setCurrentSkills(skills || []);
   }, [skills]);
+
+  // Fetch all available skills on component mount
+  useEffect(() => {
+    const fetchAllSkills = async () => {
+      try {
+        setLoadingSkills(true);
+        const response = await getAllSkills();
+        if (response?.data) {
+          setAvailableSkills(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching skills:', error);
+      } finally {
+        setLoadingSkills(false);
+      }
+    };
+
+    fetchAllSkills();
+  }, []);
+
+  // Filter skills based on input
+  useEffect(() => {
+    if (newSkillInput.trim() && availableSkills.length > 0) {
+      const filtered = availableSkills.filter(skill =>
+        skill.name.toLowerCase().includes(newSkillInput.toLowerCase()) &&
+        !currentSkills.some(currentSkill => currentSkill.name.toLowerCase() === skill.name.toLowerCase())
+      );
+      setFilteredSkills(filtered);
+      setShowDropdown(filtered.length > 0);
+    } else {
+      setFilteredSkills([]);
+      setShowDropdown(false);
+    }
+  }, [newSkillInput, availableSkills, currentSkills]);
 
   // Helper function to show notifications
   const showNotification = (message, type = 'success') => {
@@ -53,6 +98,36 @@ function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = tru
   };
 
   // Skills Handlers
+  const handleSkillSelect = async (selectedSkill) => {
+    try {
+      const result = await addUserSkill(selectedSkill.name);
+      
+      if (result.success) {
+        // Create new skill object with API response data
+        const newSkill = {
+          id: result.data.skill.id,
+          name: result.data.skill.name,
+          skill_id: result.data.skill_id,
+          relationship_id: result.data.id,
+          level: 'Intermediate'
+        };
+        
+        const updatedSkills = [...currentSkills, newSkill];
+        setCurrentSkills(updatedSkills);
+        onUpdateSkills(updatedSkills);
+        setNewSkillInput('');
+        setShowDropdown(false);
+        
+        showNotification('Skill added successfully!', 'success');
+      } else {
+        throw new Error('Failed to add skill');
+      }
+    } catch (error) {
+      console.error('Error adding skill:', error);
+      showNotification(`Error adding skill: ${error.message}`, 'error');
+    }
+  };
+
   const handleAddSkill = async () => {
     const trimmedInput = newSkillInput.trim();
     if (!trimmedInput) {
@@ -95,31 +170,41 @@ function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = tru
   };
 
   const handleRemoveSkill = async (skillIdToRemove) => {
-    // Show confirmation dialog
-    const confirmDelete = window.confirm('Are you sure you want to remove this skill from your profile?');
-    
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      // Use the skill ID for the API call (not the relationship ID)
-      const result = await deleteUserSkill(skillIdToRemove);
-      
-      if (result.success) {
-        // Remove the skill from local state using the skill ID
-        const updatedSkills = currentSkills.filter(skill => skill.id !== skillIdToRemove);
-        setCurrentSkills(updatedSkills);
-        onUpdateSkills(updatedSkills);
-        
-        // Show success message
-        showNotification('Skill removed successfully!', 'success');
-      } else {
-        throw new Error('Failed to remove skill');
-      }
-    } catch (error) {
-      console.error('Error removing skill:', error);
-      showNotification(`Error removing skill: ${error.message}`, 'error');
+    // Use parent confirmation system if available
+    if (onShowConfirmation && typeof onShowConfirmation === 'function') {
+      onShowConfirmation(
+        'Remove Skill',
+        'Are you sure you want to remove this skill from your profile?',
+        async () => {
+          try {
+            // Use the skill ID for the API call (not the relationship ID)
+            const result = await deleteUserSkill(skillIdToRemove);
+            
+            if (result.success) {
+              // Remove the skill from local state using the skill ID
+              const updatedSkills = currentSkills.filter(skill => skill.id !== skillIdToRemove);
+              setCurrentSkills(updatedSkills);
+              onUpdateSkills(updatedSkills);
+              
+              showNotification('Skill removed successfully!', 'success');
+            } else {
+              throw new Error('Failed to remove skill');
+            }
+          } catch (error) {
+            console.error('Error removing skill:', error);
+            showNotification(`Error removing skill: ${error.message}`, 'error');
+          } finally {
+            // Always hide confirmation modal
+            if (onHideConfirmation && typeof onHideConfirmation === 'function') {
+              onHideConfirmation();
+            }
+          }
+        },
+        'danger'
+      );
+    } else {
+      // If no confirmation system is available, show error
+      showNotification('Cannot remove skill: confirmation system not available.', 'error');
     }
   };
 
@@ -147,28 +232,67 @@ function SkillsManagement({ skills = [], onUpdateSkills, showNotifications = tru
       </div>
 
       {/* Add New Skill Input */}
-      <div className="flex items-center space-x-2">
-        <input
-          type="text"
-          value={newSkillInput}
-          onChange={(e) => setNewSkillInput(e.target.value)}
-          onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleAddSkill();
-              }
-          }}
-          className="flex-grow border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          placeholder="e.g., React.js, Node.js, Tailwind CSS"
-        />
-        <button
-          type="button"
-          onClick={handleAddSkill}
-          className="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-          Add Skill
-        </button>
+      <div className="relative">
+        <div className="flex items-center space-x-2">
+          <div className="flex-grow relative">
+            <input
+              type="text"
+              value={newSkillInput}
+              onChange={(e) => setNewSkillInput(e.target.value)}
+              onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (filteredSkills.length > 0) {
+                        handleSkillSelect(filteredSkills[0]);
+                      } else {
+                        handleAddSkill();
+                      }
+                  }
+              }}
+              onFocus={() => {
+                if (filteredSkills.length > 0) {
+                  setShowDropdown(true);
+                }
+              }}
+              onBlur={() => {
+                // Delay hiding dropdown to allow clicking on dropdown items
+                setTimeout(() => setShowDropdown(false), 200);
+              }}
+              className="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="e.g., React.js, Node.js, Tailwind CSS"
+            />
+            
+            {/* Skills Dropdown */}
+            {showDropdown && filteredSkills.length > 0 && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {filteredSkills.map((skill) => (
+                  <div
+                    key={skill.id}
+                    onClick={() => handleSkillSelect(skill)}
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm border-b border-gray-100 last:border-b-0"
+                  >
+                    {skill.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleAddSkill}
+            className="inline-flex items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+            Add Skill
+          </button>
+        </div>
+        
+        {/* Loading indicator */}
+        {loadingSkills && (
+          <div className="text-sm text-gray-500 mt-2">
+            Loading available skills...
+          </div>
+        )}
       </div>
     </div>
     </>
