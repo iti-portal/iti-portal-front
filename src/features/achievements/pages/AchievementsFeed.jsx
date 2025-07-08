@@ -24,7 +24,8 @@ const AchievementsFeed = () => {
     switchToConnections,
     switchToPopular,
     loadMore,
-    refresh
+    refresh,
+    updateAchievement
   } = useAchievementsAPI();
 
   const observer = useRef();
@@ -125,6 +126,19 @@ const AchievementsFeed = () => {
     // The AchievementCard already handles opening the modal
     // No additional action needed here
   };
+
+  // Handle achievement updates (likes, comments) from cards
+  const handleAchievementUpdate = useCallback((updatedAchievement) => {
+    console.log('📡 Feed received achievement update:', updatedAchievement);
+    
+    // Update the achievement in the main achievements list (hook)
+    updateAchievement(updatedAchievement);
+    
+    // Update the achievement in the local filtered state
+    setFilteredAchievements(prev => prev.map(achievement => 
+      achievement.id === updatedAchievement.id ? updatedAchievement : achievement
+    ));
+  }, [updateAchievement]);
 
   // Debounced tab switching to prevent rate limiting
   const handleTabSwitch = async (action, tabName) => {
@@ -484,6 +498,7 @@ const AchievementsFeed = () => {
                         }}
                         onLike={handleLike}
                         onComment={handleComment}
+                        onAchievementUpdate={handleAchievementUpdate}
                       />
                     </motion.div>
                   ))

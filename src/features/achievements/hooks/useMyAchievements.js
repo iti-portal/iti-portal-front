@@ -37,6 +37,7 @@ export const useMyAchievements = () => {
       type: achievement.type || 'achievement',
       title: achievement.title || typeSpecificData.title,
       description: achievement.description || typeSpecificData.description || '',
+      user_id: achievement.user_id || typeSpecificData.user_id, // Keep original user_id for permission checks
       user: {
         id: achievement.user_id || typeSpecificData.user_id,
         name: `${achievement.user_profile?.first_name || ''} ${achievement.user_profile?.last_name || ''}`.trim() || 'Unknown User',
@@ -158,6 +159,14 @@ export const useMyAchievements = () => {
     await fetchMyAchievements(1, false);
   }, [fetchMyAchievements]);
 
+  // Update a specific achievement in the list
+  const updateAchievement = useCallback((updatedAchievement) => {
+    console.log('🔄 MyAchievements hook updating achievement:', updatedAchievement);
+    setAchievements(prev => prev.map(achievement => 
+      achievement.id === updatedAchievement.id ? updatedAchievement : achievement
+    ));
+  }, []);
+
   // Initial load
   useEffect(() => {
     fetchMyAchievements(1, false);
@@ -176,6 +185,8 @@ export const useMyAchievements = () => {
     // Actions
     loadMore,
     refresh,
-    fetchMyAchievements
+    fetchMyAchievements,
+    updateAchievement,
+    updateAchievement
   };
 };

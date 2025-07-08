@@ -56,6 +56,7 @@ export const useAchievementsAPI = () => {
       type: mapType(achievement.type) || 'achievement',
       title: achievement.title,
       description: achievement.description,
+      user_id: achievement.user_id, // Keep original user_id for permission checks
       user: {
         id: achievement.user_id,
         name: `${achievement.user_profile?.first_name || ''} ${achievement.user_profile?.last_name || ''}`.trim() || 'Unknown User',
@@ -239,6 +240,17 @@ export const useAchievementsAPI = () => {
     }
   }, [state.currentSource, fetchAchievements]);
 
+  // Update a specific achievement in the list
+  const updateAchievement = useCallback((updatedAchievement) => {
+    console.log('🔄 Hook updating achievement:', updatedAchievement);
+    setState(prev => ({
+      ...prev,
+      achievements: prev.achievements.map(achievement => 
+        achievement.id === updatedAchievement.id ? updatedAchievement : achievement
+      )
+    }));
+  }, []);
+
   return {
     // Data
     achievements: state.achievements,
@@ -256,6 +268,8 @@ export const useAchievementsAPI = () => {
     switchToConnections, 
     switchToPopular,
     loadMore,
-    refresh
+    refresh,
+    updateAchievement,
+    updateAchievement
   };
 };

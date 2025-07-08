@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { likeAchievement, unlikeAchievement, addComment, deleteComment, getAchievementDetails,mapBackendTypeToFrontend } from '../../../../services/achievements';
 import { useAuth } from '../../../../contexts/AuthContext';
 import Modal from '../../../../components/UI/Modal';
@@ -28,12 +28,13 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   // Set achievement from props when modal opens
   useEffect(() => {
     if (isOpen && initialAchievement) {
-      
       // Map backend type to frontend if needed
       const mappedAchievement = { ...initialAchievement };
       if (mappedAchievement.type) {
         mappedAchievement.type = mapBackendTypeToFrontend(mappedAchievement.type);
       }
+      
+      console.log('AchievementDetailsModal: Initializing internal achievement state from prop:', mappedAchievement);
       setAchievement(mappedAchievement);
       setError(null);
       // Scroll to bottom after a short delay to ensure content is rendered
@@ -61,21 +62,45 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   };
 
   // Handle like/unlike
-  const handleLikeToggle = async () => {
-    if (!achievement) return;
+  const handleLikeToggle = useCallback(async () => {
+    if (!achievement || !user) return;
+    
+    const currentLikeState = achievement.is_liked;
     
     try {
-      const currentLikeState = achievement.is_liked;
-      
-      
-      // Optimistic update
+      // Optimistic update - update both count and likes array
       const updatedAchievement = {
         ...achievement,
         is_liked: !currentLikeState,
         like_count: currentLikeState ? achievement.like_count - 1 : achievement.like_count + 1
       };
       
+      // Update the likes array optimistically
+      if (currentLikeState) {
+        // Remove current user from likes array
+        updatedAchievement.likes = (achievement.likes || []).filter(
+          like => {
+            const likeUserId = like.user_profile?.user_id;
+            return likeUserId !== user.id;
+          }
+        );
+      } else {
+        // Add current user to likes array with correct structure to match backend
+        const userLike = {
+          user_profile: {
+            user_id: user.id,
+            first_name: user.first_name || user.name?.split(' ')[0] || 'Unknown',
+            last_name: user.last_name || user.name?.split(' ')[1] || '',
+            profile_picture: user.profile_picture || user.profile?.profile_picture || null
+          }
+        };
+        
+        console.log('🔍 Created optimistic user like object:', userLike);
+        updatedAchievement.likes = [...(achievement.likes || []), userLike];
+      }
+      
       setAchievement(updatedAchievement);
+      console.log('AchievementDetailsModal: After optimistic update, achievement state:', updatedAchievement);
       
       // Notify parent card of the update
       if (onAchievementUpdate) {
@@ -90,75 +115,112 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
         apiResponse = await likeAchievement(achievement.id);
       }
       
-      
-      
-      // If the API response includes updated achievement data with likes, use it
-      if (apiResponse && apiResponse.likes) {
-        const updatedWithLikes = {
-          ...updatedAchievement,
-          likes: apiResponse.likes,
-          like_count: apiResponse.like_count || updatedAchievement.like_count,
-          is_liked: apiResponse.is_liked !== undefined ? apiResponse.is_liked : updatedAchievement.is_liked
-        };
+      // If the API response includes updated achievement data, use it
+      if (apiResponse && apiResponse.success) {
+        console.log('📡 Like API Response structure:', {
+          hasLikes: !!apiResponse.likes,
+          hasData: !!apiResponse.data,
+          dataHasLikes: !!apiResponse.data?.likes,
+          likesLength: apiResponse.likes?.length || apiResponse.data?.likes?.length || 0,
+          likeCount: apiResponse.like_count || apiResponse.data?.like_count,
+          isLiked: apiResponse.is_liked !== undefined ? apiResponse.is_liked : apiResponse.data?.is_liked,
+          apiLikesStructure: (apiResponse.likes || apiResponse.data?.likes || []).map(like => ({
+            hasUserProfile: !!like.user_profile,
+            userProfileUserId: like.user_profile?.user_id,
+            userProfileId: like.user_profile?.id,
+            firstName: like.user_profile?.first_name,
+            lastName: like.user_profile?.last_name
+          }))
+        });
         
-        setAchievement(updatedWithLikes);
+        let updatedWithApiData = { ...updatedAchievement };
+        
+        // Check if response has direct like data
+        if (apiResponse.likes !== undefined) {
+          updatedWithApiData.likes = apiResponse.likes;
+        }
+        if (apiResponse.like_count !== undefined) {
+          updatedWithApiData.like_count = apiResponse.like_count;
+        }
+        if (apiResponse.is_liked !== undefined) {
+          updatedWithApiData.is_liked = apiResponse.is_liked;
+        }
+        
+        // Check if response has nested data object
+        if (apiResponse.data) {
+          if (apiResponse.data.likes !== undefined) {
+            updatedWithApiData.likes = apiResponse.data.likes;
+          }
+          if (apiResponse.data.like_count !== undefined) {
+            updatedWithApiData.like_count = apiResponse.data.like_count;
+          }
+          if (apiResponse.data.is_liked !== undefined) {
+            updatedWithApiData.is_liked = apiResponse.data.is_liked;
+          }
+        }
+        
+        setAchievement(updatedWithApiData);
+        console.log('AchievementDetailsModal: After API response update, achievement state:', updatedWithApiData);
         
         // Notify parent card of the complete update
         if (onAchievementUpdate) {
-          onAchievementUpdate(updatedWithLikes);
+          onAchievementUpdate(updatedWithApiData);
         }
       }
       
     } catch (err) {
-      console.error('❌ Modal handleLikeToggle - Error:', err);
-      // Revert on error
+      // Revert the optimistic update on error (including likes array)
       const revertedAchievement = {
         ...achievement,
-        is_liked: !achievement.is_liked,
-        like_count: achievement.is_liked ? achievement.like_count - 1 : achievement.like_count + 1
+        is_liked: currentLikeState, // Revert to original state
+        like_count: currentLikeState ? 
+          achievement.like_count - 1 : // Was liked, revert the +1
+          achievement.like_count + 1,   // Was not liked, revert the -1
+        likes: achievement.likes // Revert to original likes array
       };
       
       setAchievement(revertedAchievement);
+      console.log('AchievementDetailsModal: After API error, reverted achievement state:', revertedAchievement);
       
       // Notify parent card of the revert
       if (onAchievementUpdate) {
         onAchievementUpdate(revertedAchievement);
       }
       
-      console.error('Failed to toggle like:', err);
+      // Show user-friendly error message
+      showNotification?.(`Failed to ${currentLikeState ? 'unlike' : 'like'} achievement: ${err.message}`, 'error', 'Like Error');
     }
-  };
+  }, [achievement, user, onAchievementUpdate, showNotification]);
 
   // Handle showing/hiding likes list
-  const handleToggleLikesList = async () => {
-    
-    // If we're showing the likes list and don't have likes data, try to fetch it
-    if (!showLikesList && achievement?.like_count > 0 && (!achievement?.likes || achievement.likes.length === 0)) {
-      try {
-        const freshData = await getAchievementDetails(achievement.id);
-        
-        if (freshData && freshData.likes) {
-          const updatedAchievement = {
-            ...achievement,
-            likes: freshData.likes,
-            like_count: freshData.like_count || achievement.like_count,
-            is_liked: freshData.is_liked !== undefined ? freshData.is_liked : achievement.is_liked
-          };
-          
-          setAchievement(updatedAchievement);
-          
-          // Notify parent card of the update
-          if (onAchievementUpdate) {
-            onAchievementUpdate(updatedAchievement);
-          }
-        }
-      } catch (error) {
-        console.error('❌ Failed to fetch fresh achievement data:', error);
-      }
+  const handleToggleLikesList = useCallback(async () => {
+    // If we're hiding the likes list, just toggle it
+    if (showLikesList) {
+      setShowLikesList(false);
+      return;
     }
     
-    setShowLikesList(!showLikesList);
-  };
+    // Debug: Log current achievement data structure
+    console.log('🔍 Current achievement likes data:', {
+      achievementId: achievement?.id,
+      likeCount: achievement?.like_count,
+      hasLikes: !!achievement?.likes,
+      likesLength: achievement?.likes?.length || 0,
+      likesStructure: achievement?.likes?.map(like => ({
+        hasUserProfile: !!like.user_profile,
+        userProfileUserId: like.user_profile?.user_id,
+        userProfileId: like.user_profile?.id,
+        firstName: like.user_profile?.first_name,
+        lastName: like.user_profile?.last_name,
+        profilePicture: like.user_profile?.profile_picture,
+        fullLike: like
+      })) || []
+    });
+    
+    // Show the likes list with current data
+    // We rely on optimistic updates from like/unlike actions to keep the data fresh
+    setShowLikesList(true);
+  }, [achievement, showLikesList]);
 
   // Handle submit comment
   const handleSubmitComment = async (e) => {
@@ -175,18 +237,43 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
         // Add the new comment to the UI
         const updatedAchievement = { ...achievement };
         
-        // Use the comment data from response if available, otherwise create with current user's data
-        const newCommentData = response.data?.comment || {
-          id: response.data?.id || Date.now(), // Use response ID or timestamp as fallback
-          content: newComment,
-          created_at: new Date().toISOString(),
-          // Use the current user's profile instead of achievement owner's profile
-          user_profile: response.data?.user_profile || {
+        // Extract comment data from various possible response structures
+        let newCommentData = null;
+        
+        // Try to get comment from nested data.comment first
+        if (response.data?.comment) {
+          newCommentData = response.data.comment;
+        } 
+        // Then try direct data object
+        else if (response.data && response.data.content) {
+          newCommentData = response.data;
+        }
+        // Finally fallback to creating from available data
+        else {
+          newCommentData = {
+            id: response.data?.id || response.id || `temp_${Date.now()}`,
+            content: newComment,
+            created_at: new Date().toISOString(),
+            user_profile: response.data?.user_profile || {
+              user_id: user?.id,
+              id: user?.id,
+              first_name: user?.first_name || user?.name?.split(' ')[0] || 'You',
+              last_name: user?.last_name || user?.name?.split(' ')[1] || '',
+              profile_picture: user?.profile?.profile_picture || user?.profile_picture || null
+            }
+          };
+        }
+        
+        // Ensure comment has required fields
+        if (!newCommentData.user_profile) {
+          newCommentData.user_profile = {
+            user_id: user?.id,
+            id: user?.id,
             first_name: user?.first_name || user?.name?.split(' ')[0] || 'You',
             last_name: user?.last_name || user?.name?.split(' ')[1] || '',
-            profile_picture: user?.profile_picture || null
-          }
-        };
+            profile_picture: user?.profile?.profile_picture || user?.profile_picture || null
+          };
+        }
         
         updatedAchievement.comments = [
           ...(updatedAchievement.comments || []),
@@ -215,18 +302,17 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   const handleDeleteComment = async (commentData, commentIndex) => {
     const comment = achievement.comments[commentIndex];
     
-    // Check permissions: only achievement owner or comment author can delete
-    const isAchievementOwner = user && achievement.user_id === user.id;
-    const isCommentAuthor = user && comment.user_profile?.user_id === user.id;
+    // More robust permission check
+    const achievementOwnerId = achievement.user_id || achievement.user?.id;
+    const isAchievementOwner = user && achievementOwnerId === user.id;
     
-    console.log('🗑️ Delete attempt permission check:', {
-      currentUserId: user?.id,
-      achievementOwnerId: achievement.user_id,
-      commentAuthorId: comment.user_profile?.user_id,
-      commentId: comment.id,
-      isAchievementOwner,
-      isCommentAuthor
-    });
+    // More robust comment author check - try multiple possible ID fields
+    const commentUserId = comment.user_profile?.user_id || 
+                         comment.user_profile?.id || 
+                         comment.user_id ||
+                         comment.author_id;
+    
+    const isCommentAuthor = user && (commentUserId === user.id);
     
     if (!isAchievementOwner && !isCommentAuthor) {
       showNotification('You can only delete your own comments or comments on your achievements.', 'warning', 'Permission Denied');
@@ -236,21 +322,24 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     const handleDelete = async () => {
         try {
             const response = await deleteComment(comment.id);
+            
             if (response.success) {
                 const updatedAchievement = { ...achievement };
                 updatedAchievement.comments = updatedAchievement.comments.filter((_, index) => index !== commentIndex);
                 updatedAchievement.comment_count = Math.max(0, (updatedAchievement.comment_count || 0) - 1);
+                
                 setAchievement(updatedAchievement);
 
+                // Notify parent components of the update
                 if (onAchievementUpdate) {
                     onAchievementUpdate(updatedAchievement);
                 }
+                
                 showNotification('Comment deleted successfully.', 'success', 'Success');
             } else {
                 showNotification('Failed to delete comment. Please try again.', 'error', 'Deletion Failed');
             }
         } catch (err) {
-            console.error('Error deleting comment:', err);
             showNotification(`Failed to delete comment: ${err.message}`, 'error', 'Deletion Error');
         }
     };
@@ -275,27 +364,23 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   };
 
   // Helper function to check if user can delete a comment
-  const canDeleteComment = (comment) => {
-    if (!user) return false;
+  const canDeleteComment = useCallback((comment) => {
+    if (!user || !achievement) return false;
     
     // Achievement owner can delete any comment on their achievement
-    const isAchievementOwner = achievement.user_id === user.id;
+    const achievementOwnerId = achievement.user_id || achievement.user?.id;
+    const isAchievementOwner = achievementOwnerId === user.id;
     
     // Comment author can delete their own comment
-    // Check user_id from user_profile since that's how the API returns it
-    const isCommentAuthor = comment.user_profile?.user_id === user.id;
-    
-    console.log('🔍 Delete permission check:', {
-      currentUserId: user.id,
-      achievementOwnerId: achievement.user_id,
-      commentAuthorId: comment.user_profile?.user_id,
-      isAchievementOwner,
-      isCommentAuthor,
-      canDelete: isAchievementOwner || isCommentAuthor
-    });
+    // Try multiple possible user ID fields for robustness
+    const commentAuthorId = comment.user_profile?.user_id || 
+                           comment.user_profile?.id || 
+                           comment.user_id ||
+                           comment.author_id;
+    const isCommentAuthor = commentAuthorId === user.id;
     
     return isAchievementOwner || isCommentAuthor;
-  };
+  }, [user, achievement]);
 
   // Helper to format dates
   const formatDate = (dateString) => {
@@ -493,54 +578,75 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
                          style={{ minHeight: '200px' }}>
                       {achievement.comments && achievement.comments.filter(comment => comment.user_profile !== null).length > 0 ? (
                         <div className="space-y-4 p-4">
-                          {achievement.comments
-                            .filter(comment => comment.user_profile !== null) // Filter out comments with null user_profile
-                            .map((comment, index) => (
-                            <div key={index} className="flex">
-                              {/* Comment avatar */}
-                              <div className="mr-3 flex-shrink-0">
-                                <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-                                  {(comment.user_profile?.profile_picture || comment.user?.profile_picture) ? (
-                                    <img 
-                                      src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/storage/${comment.user_profile?.profile_picture || comment.user?.profile_picture}`} 
-                                      alt={`${comment.user_profile?.first_name || comment.user?.first_name || ''} ${comment.user_profile?.last_name || comment.user?.last_name || ''}`}
-                                      className="w-full h-full object-cover"
-                                    />
-                                  ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600">
-                                      {(comment.user_profile?.first_name || comment.user?.first_name || '?').charAt(0)}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              {/* Comment content */}
-                              <div className="flex-1 min-w-0">
-                                <div className="bg-gray-100 rounded-lg p-3 hover:bg-gray-200 transition-colors relative group">
-                                  <div className="font-medium text-sm text-gray-900">
-                                    {comment.user_profile?.first_name || comment.user?.first_name || ''} {comment.user_profile?.last_name || comment.user?.last_name || ''}
-                                  </div>
-                                  <p className="text-sm mt-1 text-gray-700 whitespace-pre-line break-words">{comment.content}</p>
-                                  
-                                  {/* Delete button - shows on hover only if user has permission */}
-                                  {canDeleteComment(comment) && (
-                                    <button
-                                      onClick={() => handleDeleteComment(comment, index)}
-                                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white"
-                                      title="Delete comment"
-                                    >
-                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                      </svg>
-                                    </button>
-                                  )}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1 flex items-center">
-                                  {formatDate(comment.created_at)}
+                          {/* Show orphaned comments notification if any exist */}
+                          {achievement.comments.filter(comment => comment.user_profile === null).length > 0 && (
+                            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                              <div className="flex items-center">
+                                <svg className="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.866-.833-2.536 0L3.28 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                                <div className="text-sm">
+                                  <p className="text-yellow-800 font-medium">Some comments cannot be displayed</p>
+                                  <p className="text-yellow-700 mt-1">
+                                    {achievement.comments.filter(comment => comment.user_profile === null).length} comment(s) are missing user information and cannot be shown.
+                                  </p>
                                 </div>
                               </div>
                             </div>
-                          ))}
+                          )}
+                          
+                          {achievement.comments
+                            .filter(comment => comment.user_profile !== null) // Filter out comments with null user_profile
+                            .map((comment, originalIndex) => {
+                              // Find the original index in the unfiltered array for proper deletion
+                              const actualIndex = achievement.comments.findIndex(c => c.id === comment.id);
+                              return (
+                                <div key={comment.id || originalIndex} className="flex">
+                                  {/* Comment avatar */}
+                                  <div className="mr-3 flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                                      {(comment.user_profile?.profile_picture || comment.user?.profile_picture) ? (
+                                        <img 
+                                          src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/storage/${comment.user_profile?.profile_picture || comment.user?.profile_picture}`} 
+                                          alt={`${comment.user_profile?.first_name || comment.user?.first_name || ''} ${comment.user_profile?.last_name || comment.user?.last_name || ''}`}
+                                          className="w-full h-full object-cover"
+                                        />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600">
+                                          {(comment.user_profile?.first_name || comment.user?.first_name || '?').charAt(0)}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Comment content */}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="bg-gray-100 rounded-lg p-3 hover:bg-gray-200 transition-colors relative group">
+                                      <div className="font-medium text-sm text-gray-900">
+                                        {comment.user_profile?.first_name || comment.user?.first_name || ''} {comment.user_profile?.last_name || comment.user?.last_name || ''}
+                                      </div>
+                                      <p className="text-sm mt-1 text-gray-700 whitespace-pre-line break-words">{comment.content}</p>
+                                      
+                                      {/* Delete button - shows on hover only if user has permission */}
+                                      {canDeleteComment(comment) && (
+                                        <button
+                                          onClick={() => handleDeleteComment(comment, actualIndex)}
+                                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-white"
+                                          title="Delete comment"
+                                        >
+                                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                          </svg>
+                                        </button>
+                                      )}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 flex items-center">
+                                      {formatDate(comment.created_at)}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           <div ref={commentsEndRef} />
                         </div>
                       ) : (
@@ -635,37 +741,57 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
                       {achievement.likes
                         .filter(like => like.user_profile !== null) // Filter out likes with null user_profile
                         .map((like, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                        <div key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden flex-shrink-0 shadow-sm">
                             {like.user_profile?.profile_picture ? (
                               <img 
                                 src={`${process.env.REACT_APP_API_URL?.replace('/api', '')}/storage/${like.user_profile.profile_picture}`} 
                                 alt={`${like.user_profile.first_name} ${like.user_profile.last_name}`}
                                 className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // Fallback to initials if image fails to load
+                                  e.target.style.display = 'none';
+                                  e.target.nextSibling.style.display = 'flex';
+                                }}
                               />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 text-sm font-medium">
-                                {like.user_profile?.first_name?.charAt(0) || '?'}
-                              </div>
-                            )}
+                            ) : null}
+                            <div 
+                              className="w-full h-full flex items-center justify-center text-white text-sm font-semibold"
+                              style={{ display: like.user_profile?.profile_picture ? 'none' : 'flex' }}
+                            >
+                              {like.user_profile?.first_name?.charAt(0)?.toUpperCase() || '?'}
+                            </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">
                               {like.user_profile?.first_name} {like.user_profile?.last_name}
                             </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              Liked this achievement
+                            </p>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
                     <div className="text-center py-8">
-                      <div className="text-gray-400 mb-2">
-                        <svg className="w-12 h-12 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                      <div className="text-gray-400 mb-3">
+                        <svg className="w-16 h-16 mx-auto opacity-50" fill="currentColor" viewBox="0 0 24 24">
                           <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
                       </div>
-                      <p className="text-sm text-gray-500">Likes data not available</p>
-                      <p className="text-xs text-gray-400 mt-1">{achievement.like_count} people liked this post</p>
+                      <p className="text-sm font-medium text-gray-500 mb-1">Likes data loading...</p>
+                      <p className="text-xs text-gray-400 mb-2">
+                        {achievement.like_count} {achievement.like_count === 1 ? 'person likes' : 'people like'} this achievement
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Try liking and unliking to update the list
+                      </p>
                     </div>
                   )}
                 </div>

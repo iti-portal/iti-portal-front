@@ -88,17 +88,18 @@ export const updateProfilePicture = async (photoFile) => {
  * Update user cover photo
  */
 export const updateCoverPhoto = async (photoFile) => {
-  const fieldNames = ['cover_photo', 'cover', 'photo', 'image'];
+  console.log('🔍 Starting cover photo upload with file:', {
+    fileName: photoFile?.name,
+    fileSize: photoFile?.size,
+    fileType: photoFile?.type
+  });
   
-  for (const fieldName of fieldNames) {
-    try {
-      const result = await attemptCoverPhotoUpload(photoFile, fieldName);
-      return result;
-    } catch (error) {
-      if (fieldName === fieldNames[fieldNames.length - 1]) {
-        throw error;
-      }
-    }
+  try {
+    // Use the exact field name that works in Postman
+    const result = await attemptCoverPhotoUpload(photoFile, 'cover_photo');
+    return result;
+  } catch (error) {
+    throw error;
   }
 };
 
@@ -120,10 +121,16 @@ const attemptProfilePictureUpload = async (photoFile, fieldName) => {
       body: formData
     });
 
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error(`Server returned HTML instead of JSON. This usually means there's a server error. Status: ${response.status}`);
+    }
+
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || `Failed to update profile picture with field: ${fieldName}`);
+      throw new Error(result.message || `Failed to update profile picture with field: ${fieldName}. Status: ${response.status}`);
     }
 
     return {
@@ -132,7 +139,8 @@ const attemptProfilePictureUpload = async (photoFile, fieldName) => {
       message: result.message || 'Profile picture updated successfully'
     };
   } catch (error) {
-    handleNetworkError(error);
+    console.error(`Profile picture upload error (field: ${fieldName}):`, error);
+    throw error;
   }
 };
 
@@ -145,19 +153,61 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
       throw new Error('No photo file provided');
     }
 
+    console.log(`🔍 Preparing FormData for cover photo upload with field: ${fieldName}`, {
+      fileName: photoFile.name,
+      fileSize: photoFile.size,
+      fileType: photoFile.type,
+      lastModified: photoFile.lastModified
+    });
+
+    // Verify the file is actually a valid file object
+    if (!(photoFile instanceof File)) {
+      throw new Error('photoFile is not a valid File object');
+    }
+
     const formData = new FormData();
     formData.append(fieldName, photoFile);
 
+    // Debug: Log FormData entries
+    console.log('🔍 FormData entries:');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`  ${key}: File(name: ${value.name}, size: ${value.size} bytes, type: ${value.type})`);
+      } else {
+        console.log(`  ${key}:`, value);
+      }
+    }
+
+    // Debug: Log headers being sent
+    const headers = getFileUploadHeaders();
+    
+    // Also log the token for debugging (first 10 chars only)
+    const token = localStorage.getItem('token');
+
+
     const response = await fetch(`${API_BASE_URL}/cover-photo`, {
       method: 'POST',
-      headers: getFileUploadHeaders(),
+      headers: headers,
       body: formData
     });
 
+    for (let [key, value] of response.headers.entries()) {
+      console.log(`  ${key}: ${value}`);
+    }
+
+    // Check if response is JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const responseText = await response.text();
+      console.log('🔍 Non-JSON response body:', responseText);
+      throw new Error(`Server returned HTML instead of JSON. This usually means there's a server error. Status: ${response.status}`);
+    }
+
     const result = await response.json();
 
+
     if (!response.ok) {
-      throw new Error(result.message || `Failed to update cover photo with field: ${fieldName}`);
+      throw new Error(result.message || `Failed to update cover photo with field: ${fieldName}. Status: ${response.status}`);
     }
 
     return {
@@ -166,6 +216,7 @@ const attemptCoverPhotoUpload = async (photoFile, fieldName) => {
       message: result.message || 'Cover photo updated successfully'
     };
   } catch (error) {
-    handleNetworkError(error);
+    console.error(`Cover photo upload error (field: ${fieldName}):`, error);
+    throw error;
   }
 };
