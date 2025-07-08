@@ -70,7 +70,7 @@ export const updateUserProfile = async (profileData) => {
  * Update user profile picture
  */
 export const updateProfilePicture = async (photoFile) => {
-  const fieldNames = ['profile_picture', 'photo', 'image', 'picture', 'avatar'];
+  const fieldNames = ['profile_picture'];
   
   for (const fieldName of fieldNames) {
     try {
