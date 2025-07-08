@@ -252,14 +252,14 @@ const Navbar = () => {
           <Link to="/" className={getLinkClasses('/')}>Home</Link>
           {user ? (
             <>
-              <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
+              <Link to="/student/availablejobs" className={getLinkClasses('/jobs')}>Jobs</Link>
               <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
               {user?.role === USER_ROLES.ADMIN && (
                 <Link to="/admin/dashboard" className={getLinkClasses('/admin')}>Admin</Link>
               )}
               <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
               <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
-              <Link to="/articles" className={getLinkClasses('/articles')}>Articles</Link>
+              <Link to="/student/articles" className={getLinkClasses('/articles')}>Articles</Link>
             </>
           ) : (
             <>

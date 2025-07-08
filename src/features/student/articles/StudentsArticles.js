@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { GetAllArticles } from './GetAllArticles';
 import { GetTrendingArticles } from './GetPopularArticles';
 import { ThumbsUp } from 'lucide-react';
+import Navbar from '../../../components/Layout/Navbar';
 
 function StudentArticles() {
   const [latest, setLatest] = useState(null);
@@ -221,7 +222,7 @@ function StudentArticles() {
   }
 
   return (
-    <div className='container mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+    <><Navbar /><div className='container mx-auto px-4 sm:px-6 lg:px-8 py-20'>
       {likeError && (
         <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
           {likeError}
@@ -238,8 +239,7 @@ function StudentArticles() {
             <img
               src={latest.featured_image || 'https://st4.depositphotos.com/1185628/24546/v/450/depositphotos_245467064-stock-illustration-newspaper-icon-vector-template.jpg'}
               alt={latest.title}
-              className='w-full h-64 object-cover'
-            />
+              className='w-full h-64 object-cover' />
           </div>
           <div className='md:w-1/2 p-6 flex flex-col justify-between'>
             <div>
@@ -272,8 +272,8 @@ function StudentArticles() {
                 Read More
               </a>
               <div className="flex items-center space-x-1">
-                <button 
-                  onClick={() => latest.is_liked_by_user ? handleUnlike(latest.id) : handleLike(latest.id)} 
+                <button
+                  onClick={() => latest.is_liked_by_user ? handleUnlike(latest.id) : handleLike(latest.id)}
                   disabled={likingArticleId === latest.id}
                   className="flex items-center space-x-1 p-2 rounded hover:bg-gray-100 transition-colors duration-200 ease-in-out"
                 >
@@ -310,10 +310,8 @@ function StudentArticles() {
             <img
               src={article.featured_image || "https://st4.depositphotos.com/1185628/24546/v/450/depositphotos_245467064-stock-illustration-newspaper-icon-vector-template.jpg"}
               alt={article.title || "Article image"}
-              className="w-full h-40 object-cover rounded-t"
-             
-            />
-           
+              className="w-full h-40 object-cover rounded-t" />
+
             <div className="p-5 flex flex-col flex-grow">
               <div className='flex justify-between items-center mb-3'>
                 <span className='bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium'>
@@ -341,8 +339,8 @@ function StudentArticles() {
                   Read More
                 </a>
                 <div className="flex space-x-1">
-                  <button 
-                    onClick={() => article.is_liked_by_user ? handleUnlike(article.id) : handleLike(article.id)} 
+                  <button
+                    onClick={() => article.is_liked_by_user ? handleUnlike(article.id) : handleLike(article.id)}
                     disabled={likingArticleId === article.id}
                     className="flex items-center space-x-1 p-2 rounded hover:bg-gray-100 transition-colors duration-200 ease-in-out"
                   >
@@ -376,9 +374,7 @@ function StudentArticles() {
               <button
                 key={number}
                 onClick={() => paginate(number)}
-                className={`px-2 py-0 rounded-full ${
-                  currentPage === number ? 'bg-red-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                }`}
+                className={`px-2 py-0 rounded-full ${currentPage === number ? 'bg-red-800 text-white' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'}`}
               >
                 {number}
               </button>
@@ -387,7 +383,7 @@ function StudentArticles() {
               className={`${currentPage === totalPages ? 'text-gray-500 cursor-not-allowed' : 'text-black'}`}>
               &gt;
             </button>
-            
+
           </nav>
         </div>
       )}
@@ -410,8 +406,7 @@ function StudentArticles() {
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = 'https://via.placeholder.com/800x500?text=Tech+News';
-                    }}
-                  />
+                    } } />
                   <div className="p-4 flex flex-col flex-grow">
                     <div className='flex justify-between items-center mb-3'>
                       <span className='bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs font-medium'>
@@ -439,8 +434,8 @@ function StudentArticles() {
                         Read More
                       </a>
                       <div className="flex items-center space-x-1">
-                        <button 
-                          onClick={() => article.is_liked_by_user ? handleUnlike(article.id) : handleLike(article.id)} 
+                        <button
+                          onClick={() => article.is_liked_by_user ? handleUnlike(article.id) : handleLike(article.id)}
                           disabled={likingArticleId === article.id}
                           className="flex items-center space-x-1 p-2 rounded hover:bg-gray-100 transition-colors duration-200 ease-in-out"
                         >
@@ -465,7 +460,7 @@ function StudentArticles() {
           </div>
         </div>
       </div>
-    </div>
+    </div></>
   );
 }
 
