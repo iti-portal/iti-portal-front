@@ -3,6 +3,8 @@ import AdminSidebar from '../layout/AdminSidebar';
 import AdminNavbar from '../layout/AdminNavbar';
 import { Building, Eye, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Modal from "../../../../components/UI/Modal";
+import Alert from "../../../../components/UI/Alert";
 
 function JobAdmin() {
   const [companies, setCompanies] = useState([]);
@@ -13,13 +15,19 @@ function JobAdmin() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
 
 
    const [deletingId, setDeletingId] = useState(null);
 
   const handleDeleteCompany = async (companyId) => {
-    if (window.confirm("Are you sure you want to delete this company?")) {
-      setDeletingId(companyId); // Set which company is being deleted
+    const companyToDelete = companies.find(c => c.id === companyId);
+    if (!companyToDelete) return;
+
+    const handleDelete = async () => {
+      setDeletingId(companyId);
       try {
         const token = localStorage.getItem('token');
         const response = await fetch(`http://127.0.0.1:8000/api/companies/${companyId}`, {
@@ -29,21 +37,30 @@ function JobAdmin() {
             "Authorization": `Bearer ${token}` 
           }
         });
-        console.log(response) ; 
 
         if (!response.ok) {
           throw new Error("Failed to delete company");
         }
 
-        // Refresh the list after successful deletion
         await fetchCompanies();
+        setNotification({ show: true, type: 'success', message: 'Company deleted successfully!' });
       } catch (error) {
         console.error("Delete error:", error);
-        setError("Failed to delete company");
+        setNotification({ show: true, type: 'error', message: 'Failed to delete company' });
       } finally {
-        setDeletingId(null); // Reset deleting state
+        setDeletingId(null);
       }
-    }
+    };
+
+    setConfirmModalContent({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete "${companyToDelete.company_name}"? This action cannot be undone.`,
+        onConfirm: () => {
+            handleDelete();
+            setConfirmModalOpen(false);
+        }
+    });
+    setConfirmModalOpen(true);
   };
 
   const itemsPerPage = 6;
@@ -173,6 +190,33 @@ function JobAdmin() {
   return (
     <div className="flex flex-col min-h-screen">
       <AdminNavbar/>
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={confirmModalContent.title}
+      >
+        <p>{confirmModalContent.message}</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmModalContent.onConfirm}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
    
       <div className="flex flex-1 bg-gray-50 overflow-hidden">
         {/* Sidebar */}

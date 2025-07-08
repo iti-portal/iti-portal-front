@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Search, MapPin, Briefcase, DollarSign, Building2, Users, Calendar, ExternalLink, Code, Star, Sparkles } from 'lucide-react';
 import { fetchAllJobs, fetchGovernorates, formatSalary, getExperienceLevel, getJobType, getRecommendedJobs, fetchUserSkills } from './GetJobs';
+import Navbar from '../../../components/Layout/Navbar';
 
 function JobCard({ jobData, onSelectJob, isSelected, showScore = false }) {
   return (
-    <div 
-      className={`border rounded-lg p-4 mb-3 cursor-pointer transition-all duration-150 relative ${
-        isSelected 
+  <div
+      className={`border rounded-lg p-4 mb-3 cursor-pointer transition-all duration-150 relative ${isSelected
           ? 'bg-gradient-to-br from-red-50 to-orange-50 border-red-200 ring-1 ring-red-200 shadow-sm'
-          : 'bg-white border-gray-200 hover:border-red-200 hover:shadow-xs'
-      }`}
+          : 'bg-white border-gray-200 hover:border-red-200 hover:shadow-xs'}`}
       onClick={() => onSelectJob(jobData)}
     >
       {showScore && jobData.matching_score && (
@@ -18,25 +17,25 @@ function JobCard({ jobData, onSelectJob, isSelected, showScore = false }) {
           {Math.round(jobData.matching_score)}%
         </div>
       )}
-      
+
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0">
           <div className="w-12 h-12 rounded-md bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center border border-gray-200">
             <Building2 className="w-5 h-5 text-red-500" />
           </div>
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
               <h2 className="text-base font-semibold text-gray-800 mb-1 truncate">
                 {jobData.title}
               </h2>
-              
+
               <p className="text-sm font-medium text-red-600 mb-2 truncate">
                 {jobData.company?.company_profile?.company_name}
               </p>
-              
+
               <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600 mb-2">
                 <div className="flex items-center gap-1 bg-gray-50 px-2 py-0.5 rounded whitespace-nowrap">
                   <MapPin className="w-3 h-3 flex-shrink-0" />
@@ -272,7 +271,7 @@ export default function AvailableJobs() {
   const jobTitles = [...new Set(jobs.map(job => job.title))];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-6">
+    <><Navbar /><div className="min-h-screen bg-gray-50 py-20">
       <div className="w-full px-4 mx-auto max-w-screen-2xl">
         <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-xs mb-4">
           <div className="flex justify-between items-center mb-4">
@@ -304,15 +303,14 @@ export default function AvailableJobs() {
               )}
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="relative">
               <input
                 type="text"
                 onChange={keywordHandler}
                 placeholder="Search by company name..."
-                className="w-full p-2 pl-9 text-sm text-gray-700 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-150"
-              />
+                className="w-full p-2 pl-9 text-sm text-gray-700 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-150" />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             </div>
 
@@ -401,8 +399,8 @@ export default function AvailableJobs() {
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4 text-sm">
             <p className="text-red-700">{error}</p>
-            <button 
-              onClick={() => setError(null)} 
+            <button
+              onClick={() => setError(null)}
               className="mt-1 text-red-600 hover:text-red-800 text-xs underline"
             >
               Dismiss
@@ -411,7 +409,7 @@ export default function AvailableJobs() {
         )}
 
         <div className="flex flex-col xl:flex-row gap-4">
-          <div className={`${filteredJobs.length > 0 || loading ? 'w-full xl:w-2/5' : 'w-full'} h-[calc(100vh-180px)] overflow-y-auto pr-2`}>          
+          <div className={`${filteredJobs.length > 0 || loading ? 'w-full xl:w-2/5' : 'w-full'} h-[calc(100vh-180px)] overflow-y-auto pr-2`}>
             {loading ? (
               <div className="h-60 flex items-center justify-center">
                 <div className="text-center">
@@ -436,8 +434,7 @@ export default function AvailableJobs() {
                       jobData={job}
                       onSelectJob={handleSelectJob}
                       isSelected={selectedJob?.id === job.id}
-                      showScore={true}
-                    />
+                      showScore={true} />
                   ))}
                 </div>
               ) : (
@@ -463,8 +460,7 @@ export default function AvailableJobs() {
                     key={job.id}
                     jobData={job}
                     onSelectJob={handleSelectJob}
-                    isSelected={selectedJob?.id === job.id}
-                  />
+                    isSelected={selectedJob?.id === job.id} />
                 ))}
               </div>
             ) : (
@@ -526,7 +522,7 @@ export default function AvailableJobs() {
                           {selectedJob.company?.company_profile?.location || 'Location not specified'}
                         </p>
                       </div>
-                      
+
                       <div className="bg-gray-50 p-3 rounded border border-gray-200">
                         <div className="flex items-center gap-2 mb-1">
                           <DollarSign className="w-4 h-4 text-gray-600" />
@@ -536,7 +532,7 @@ export default function AvailableJobs() {
                           {formatSalary(selectedJob.salary_min, selectedJob.salary_max)}
                         </p>
                       </div>
-                      
+
                       <div className="bg-gray-50 p-3 rounded border border-gray-200">
                         <div className="flex items-center gap-2 mb-1">
                           <Briefcase className="w-4 h-4 text-gray-600" />
@@ -544,7 +540,7 @@ export default function AvailableJobs() {
                         </div>
                         <p className="text-gray-800 text-sm">{getJobType(selectedJob.job_type)}</p>
                       </div>
-                      
+
                       <div className="bg-gray-50 p-3 rounded border border-gray-200">
                         <div className="flex items-center gap-2 mb-1">
                           <Users className="w-4 h-4 text-gray-600" />
@@ -608,8 +604,8 @@ export default function AvailableJobs() {
                       <h3 className="font-bold text-gray-900 text-sm mb-2">Job Skills</h3>
                       <div className="text-sm text-gray-700 whitespace-pre-line bg-gray-50 p-3 rounded border border-gray-200">
                         {selectedJob.skills?.map((skill, index) => (
-                          <span 
-                            key={index} 
+                          <span
+                            key={index}
                             className="inline-block text-red-800 text-sm font-medium mr-2 mb-2 px-2.5 py-0.5"
                           >
                             {skill}
@@ -652,6 +648,6 @@ export default function AvailableJobs() {
           )}
         </div>
       </div>
-    </div>
+    </div></>
   );
 }

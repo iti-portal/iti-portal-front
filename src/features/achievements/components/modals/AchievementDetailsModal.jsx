@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { likeAchievement, unlikeAchievement, addComment, deleteComment, getAchievementDetails } from '../../../../services/achievementsService';
 import { mapBackendTypeToFrontend } from '../../../../services/achievementsService';
 import { useAuth } from '../../../../contexts/AuthContext';
+import Modal from '../../../../components/UI/Modal';
+import Alert from '../../../../components/UI/Alert';
 
 const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievement, onAchievementUpdate }) => {
   const { user } = useAuth(); // Get current user from auth context
@@ -13,6 +15,8 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   const [commentError, setCommentError] = useState(null);
   const [showLikesList, setShowLikesList] = useState(false);
   const [notification, setNotification] = useState({ show: false, type: 'info', message: '', title: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
   const commentsEndRef = useRef(null);
 
   // Scroll to bottom of comments when modal opens or comments change
@@ -230,38 +234,44 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
       return;
     }
     
-    // Check if comment has an ID for deletion
-    if (comment.id) {
-      const confirmDelete = window.confirm('Are you sure you want to delete this comment?');
-      if (!confirmDelete) return;
-      
-      try {
-        const response = await deleteComment(comment.id);
-        if (response.success) {
-          // Remove comment from UI
-          const updatedAchievement = { ...achievement };
-          updatedAchievement.comments = updatedAchievement.comments.filter((_, index) => index !== commentIndex);
-          updatedAchievement.comment_count = Math.max(0, (updatedAchievement.comment_count || 0) - 1);
-          setAchievement(updatedAchievement);
-          
-          // Notify parent card of the update
-          if (onAchievementUpdate) {
-            onAchievementUpdate(updatedAchievement);
-          }
-        } else {
-          showNotification('Failed to delete comment. Please try again.', 'error', 'Deletion Failed');
+    const handleDelete = async () => {
+        try {
+            const response = await deleteComment(comment.id);
+            if (response.success) {
+                const updatedAchievement = { ...achievement };
+                updatedAchievement.comments = updatedAchievement.comments.filter((_, index) => index !== commentIndex);
+                updatedAchievement.comment_count = Math.max(0, (updatedAchievement.comment_count || 0) - 1);
+                setAchievement(updatedAchievement);
+
+                if (onAchievementUpdate) {
+                    onAchievementUpdate(updatedAchievement);
+                }
+                showNotification('Comment deleted successfully.', 'success', 'Success');
+            } else {
+                showNotification('Failed to delete comment. Please try again.', 'error', 'Deletion Failed');
+            }
+        } catch (err) {
+            console.error('Error deleting comment:', err);
+            showNotification(`Failed to delete comment: ${err.message}`, 'error', 'Deletion Error');
         }
-      } catch (err) {
-        console.error('Error deleting comment:', err);
-        showNotification(`Failed to delete comment: ${err.message}`, 'error', 'Deletion Error');
-      }
+    };
+
+    if (comment.id) {
+        setConfirmModalContent({
+            title: 'Confirm Deletion',
+            message: 'Are you sure you want to delete this comment?',
+            onConfirm: () => {
+                handleDelete();
+                setConfirmModalOpen(false);
+            }
+        });
+        setConfirmModalOpen(true);
     } else {
-      // Show message if no ID available
-      showNotification(
-        `Comment deletion is not yet available. This feature requires the backend to provide comment IDs.\n\nComment: "${comment.content}"\nBy: ${comment.user_profile?.first_name} ${comment.user_profile?.last_name}\nCreated: ${new Date(comment.created_at).toLocaleString()}`,
-        'info',
-        'Feature Not Available'
-      );
+        showNotification(
+            `Comment deletion is not yet available. This feature requires the backend to provide comment IDs.\n\nComment: "${comment.content}"\nBy: ${comment.user_profile?.first_name} ${comment.user_profile?.last_name}\nCreated: ${new Date(comment.created_at).toLocaleString()}`,
+            'info',
+            'Feature Not Available'
+        );
     }
   };
 
@@ -313,64 +323,33 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
 
   return (
     <>
-      {/* Custom Notification Component */}
-      {notification.show && (
-        <div className="fixed top-4 right-4 z-[60] max-w-md">
-          <div className={`rounded-lg shadow-lg p-4 border-l-4 ${
-            notification.type === 'error' ? 'bg-red-50 border-red-500 text-red-800' :
-            notification.type === 'warning' ? 'bg-yellow-50 border-yellow-500 text-yellow-800' :
-            notification.type === 'success' ? 'bg-green-50 border-green-500 text-green-800' :
-            'bg-blue-50 border-blue-500 text-blue-800'
-          }`}>
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                {notification.type === 'error' && (
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                )}
-                {notification.type === 'warning' && (
-                  <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                )}
-                {notification.type === 'success' && (
-                  <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                )}
-                {notification.type === 'info' && (
-                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </div>
-              <div className="ml-3 flex-1">
-                {notification.title && (
-                  <h3 className="text-sm font-medium mb-1">{notification.title}</h3>
-                )}
-                <p className="text-sm whitespace-pre-line">{notification.message}</p>
-              </div>
-              <div className="flex-shrink-0 ml-4">
-                <button
-                  onClick={hideNotification}
-                  className={`inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                    notification.type === 'error' ? 'text-red-500 hover:bg-red-100 focus:ring-red-600' :
-                    notification.type === 'warning' ? 'text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600' :
-                    notification.type === 'success' ? 'text-green-500 hover:bg-green-100 focus:ring-green-600' :
-                    'text-blue-500 hover:bg-blue-100 focus:ring-blue-600'
-                  }`}
-                >
-                  <span className="sr-only">Dismiss</span>
-                  <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={hideNotification}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={confirmModalContent.title}
+      >
+        <p>{confirmModalContent.message}</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmModalContent.onConfirm}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Confirm
+          </button>
         </div>
-      )}
+      </Modal>
 
       {isOpen && (
         <div

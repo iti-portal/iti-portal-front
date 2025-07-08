@@ -3,7 +3,7 @@
  * Professional page for creating new achievements using the new structure
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AchievementTypeSelector from '../components/common/AchievementTypeSelector';
@@ -13,10 +13,14 @@ import { createAchievement } from '../../../services/achievementsService';
 import { ACHIEVEMENT_TYPES } from '../types/achievementTypes';
 import Navbar from '../../../components/Layout/Navbar';
 import { useAuth } from '../../../contexts/AuthContext';
+import Modal from '../../../components/UI/Modal';
+import Alert from '../../../components/UI/Alert';
 
 const CreateAchievement = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   
   const {
     formData,
@@ -49,31 +53,55 @@ const CreateAchievement = () => {
       const result = await createAchievement(submissionData);
       
       if (result.success) {
-        // Show success message
-        alert(`${formData.type} achievement created successfully!`);
-        
-        // Navigate back to my achievements page
-        navigate('/my-achievements');
+        setNotification({ show: true, type: 'success', message: `${formData.type} achievement created successfully!` });
+        setTimeout(() => navigate('/my-achievements'), 2000);
       } else {
         throw new Error(result.message || 'Failed to create achievement');
       }
       
     } catch (error) {
       console.error('Error creating achievement:', error);
-      alert(`Failed to create achievement: ${error.message}`);
+      setNotification({ show: true, type: 'error', message: `Failed to create achievement: ${error.message}` });
     }
   };
 
   const handleCancel = () => {
     if (isDirty) {
-      const confirmLeave = window.confirm('You have unsaved changes. Are you sure you want to leave?');
-      if (!confirmLeave) return;
+      setConfirmModalOpen(true);
+    } else {
+      navigate(-1);
     }
-    navigate(-1);
   };
 
   return (
     <><Navbar /><div className="min-h-screen bg-gray-50 pt-10 pb-10">
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title="Confirm Navigation"
+      >
+        <p>You have unsaved changes. Are you sure you want to leave?</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Stay
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Leave
+          </button>
+        </div>
+      </Modal>
       {/* Spacer between navbar and header */}
       <div className="h-16"></div>
 

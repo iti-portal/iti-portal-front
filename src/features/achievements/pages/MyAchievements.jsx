@@ -10,9 +10,14 @@ import AchievementCard from '../components/common/AchievementCard';
 import { useMyAchievements } from '../hooks/useMyAchievements';
 import { deleteAchievement, likeAchievement, unlikeAchievement } from '../../../services/achievementsService';
 import Navbar from '../../../components/Layout/Navbar';
+import Modal from '../../../components/UI/Modal';
+import Alert from '../../../components/UI/Alert';
 
 const MyAchievements = () => {
   const navigate = useNavigate();
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
   const {
     achievements,
     loading,
@@ -83,26 +88,31 @@ const MyAchievements = () => {
 
   // Handle delete achievement
   const handleDeleteAchievement = async (achievement) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${achievement.title}"? This action cannot be undone.`
-    );
-    
-    if (!confirmDelete) return;
-
-    try {
-      const result = await deleteAchievement(achievement.id);
-      
-      if (result.success) {
-        // Refresh the achievements list
-        await refresh();
-        alert('Achievement deleted successfully!');
-      } else {
-        throw new Error(result.message || 'Failed to delete achievement');
+    const handleDelete = async () => {
+      try {
+        const result = await deleteAchievement(achievement.id);
+        
+        if (result.success) {
+          await refresh();
+          setNotification({ show: true, type: 'success', message: 'Achievement deleted successfully!' });
+        } else {
+          throw new Error(result.message || 'Failed to delete achievement');
+        }
+      } catch (error) {
+        console.error('Error deleting achievement:', error);
+        setNotification({ show: true, type: 'error', message: `Failed to delete achievement: ${error.message}` });
       }
-    } catch (error) {
-      console.error('Error deleting achievement:', error);
-      alert(`Failed to delete achievement: ${error.message}`);
-    }
+    };
+
+    setConfirmModalContent({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete "${achievement.title}"? This action cannot be undone.`,
+        onConfirm: () => {
+            handleDelete();
+            setConfirmModalOpen(false);
+        }
+    });
+    setConfirmModalOpen(true);
   };
 
   // Handle like/unlike
@@ -177,6 +187,33 @@ const MyAchievements = () => {
 
   return (
     <><Navbar /><div className="min-h-screen bg-gray-50 pt-10 pb-10">
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={confirmModalContent.title}
+      >
+        <p>{confirmModalContent.message}</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmModalContent.onConfirm}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
       {/* Spacer between navbar and header */}
       <div className="h-16"></div>
 

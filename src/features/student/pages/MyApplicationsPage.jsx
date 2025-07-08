@@ -16,6 +16,10 @@ import {
     BookOpen, Lightbulb, GraduationCap, FileText, User 
 } from 'lucide-react'; 
 
+// Importing custom UI components
+import Alert from '../../../components/UI/Alert';
+import Modal from '../../../components/UI/Modal';
+
 const MyApplicationsPage = () => {
     const [applications, setApplications] = useState([]); // Stores all applications fetched from backend
     const [isLoading, setIsLoading] = useState(true);
@@ -23,6 +27,29 @@ const MyApplicationsPage = () => {
     const [activeFilter, setActiveFilter] = useState('all'); 
     const [searchQuery, setSearchQuery] = useState(''); // New state for search input
     const navigate = useNavigate();
+
+    // State for custom Alert and Confirm Modal
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState('info'); // success, error, warning, info
+
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmMessage, setConfirmMessage] = useState('');
+    const [confirmAction, setConfirmAction] = useState(null); // Function to execute on confirm
+
+    // Helper to show custom alert
+    const triggerAlert = useCallback((message, type) => {
+        setAlertMessage(message);
+        setAlertType(type);
+        setShowAlert(true);
+    }, []);
+
+    // Helper to show custom confirm modal
+    const triggerConfirm = useCallback((message, action) => {
+        setConfirmMessage(message);
+        setConfirmAction(() => action); // Store the function to be called on confirmation
+        setShowConfirmModal(true);
+    }, []);
 
     // State for Recent Applications Activity
     const [recentApplicationsActivity, setRecentApplicationsActivity] = useState([]);
@@ -229,42 +256,40 @@ const MyApplicationsPage = () => {
     }, [navigate]); 
 
     // Function to handle withdrawing an application (passed to ApplicationCard)
-    const handleWithdrawApplication = useCallback(async (applicationId) => {
-        if (!window.confirm('Are you sure you want to withdraw this application?')) {
-            return; 
-        }
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError('Authentication token not found. Please log in again.');
-            navigate('/login');
-            return;
-        }
-
-        setIsLoading(true); 
-        try {
-            const response = await axios.delete(`http://localhost:8000/api/job-applications/${applicationId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-
-            if (response.data.success) {
-                fetchApplications(); // Re-fetch to update the list and stats
-                alert('Application withdrawn successfully!'); 
-            } else {
-                setError(response.data.message || 'Failed to withdraw application.');
-            }
-        } catch (err) {
-            setError(err.response?.data?.message || 'Error withdrawing application. Please try again.');
-            console.error('Withdraw application error:', err);
-            if (err.response && err.response.status === 401) {
+    const handleWithdrawApplication = useCallback((applicationId) => {
+        triggerConfirm('Are you sure you want to withdraw this application?', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('Authentication token not found. Please log in again.');
                 navigate('/login');
+                return;
             }
-        } finally {
-            setIsLoading(false);
-        }
-    }, [fetchApplications, navigate]); 
+
+            setIsLoading(true); 
+            try {
+                const response = await axios.delete(`http://localhost:8000/api/job-applications/${applicationId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+
+                if (response.data.success) {
+                    fetchApplications(); // Re-fetch to update the list and stats
+                    triggerAlert('Application withdrawn successfully!', 'success'); 
+                } else {
+                    setError(response.data.message || 'Failed to withdraw application.');
+                }
+            } catch (err) {
+                setError(err.response?.data?.message || 'Error withdrawing application. Please try again.');
+                console.error('Withdraw application error:', err);
+                if (err.response && err.response.status === 401) {
+                    navigate('/login');
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        });
+    }, [fetchApplications, navigate, triggerAlert, triggerConfirm]); 
 
     return (
         <div className="min-h-screen bg-gray-100 py-10">
@@ -443,6 +468,42 @@ const MyApplicationsPage = () => {
                     </>
                 )}
             </div>
+
+            {/* Custom Alert */}
+            <Alert
+                show={showAlert}
+                type={alertType}
+                message={alertMessage}
+                onClose={() => setShowAlert(false)}
+            />
+
+            {/* Custom Confirmation Modal */}
+            <Modal
+                isOpen={showConfirmModal}
+                onClose={() => setShowConfirmModal(false)}
+                title="Confirm Action"
+            >
+                <p className="text-gray-700 mb-4">{confirmMessage}</p>
+                <div className="flex justify-end gap-3">
+                    <button
+                        onClick={() => {
+                            setShowConfirmModal(false);
+                            if (confirmAction) {
+                                confirmAction();
+                            }
+                        }}
+                        className="px-4 py-2 bg-iti-primary text-white rounded-md hover:bg-iti-primary-dark transition-colors duration-200"
+                    >
+                        Confirm
+                    </button>
+                    <button
+                        onClick={() => setShowConfirmModal(false)}
+                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors duration-200"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </Modal>
         </div>
     );
 };

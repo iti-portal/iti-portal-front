@@ -179,7 +179,7 @@ function EditProfilePage() {
         initial="initial"
         animate="animate"
       >
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 py-20">
           <motion.div 
             className="bg-white rounded-2xl shadow-2xl p-8 mb-6 max-w-5xl mx-auto border border-gray-200"
             initial={{ opacity: 0, scale: 0.95 }}
