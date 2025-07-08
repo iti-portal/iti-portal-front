@@ -152,8 +152,8 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-      <div className="p-6">
+    <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full">
+      <div className="p-6 flex-grow">
         <div className="flex justify-between items-start mb-5">
           <h3 className="text-xl font-bold text-red-800 line-clamp-2">{job.title}</h3>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -228,8 +228,8 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
         </div>
 
         {requiredSkills.length > 0 && (
-          <div className="mb-5">
-            <h4 className="font-semibold text-gray-700 mb-3 flex items-center">
+          <div className="mb-0">
+            <h4 className="font-semibold text-gray-700 mb-2 flex items-center">
               <Zap className="w-4 h-4 text-red-500 mr-2" />
               Required Skills
             </h4>
@@ -245,12 +245,15 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
             </div>
           </div>
         )}
+      </div>
 
+      <div className="p-6 pt-0 border-t border-gray-100">
         {job.status !== 'closed' ? (
-          <div className="flex flex-col">
-            <div className='flex gap-4'>
+          <div className="flex flex-col space-y-3">
+            <div className="flex gap-3">
               <button 
-                className={`w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                key={`status-button-${job.id}`}
+                className={`flex-1 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center ${
                   job.status === 'active' 
                     ? 'bg-yellow-600 hover:bg-yellow-700'
                     : 'bg-green-600 hover:bg-green-700'
@@ -261,35 +264,32 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
                 }}
                 disabled={isUpdating}
               >
-                {isUpdating ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : null}
                 {job.status === 'active' ? 'Pause Job' : 'Activate Job'}
               </button>
               <button 
-                className={`w-full bg-gray-500 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center ${
+                key={`close-button-${job.id}`}
+                className={`flex-1 bg-gray-500 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center ${
                   isUpdating ? 'opacity-70 cursor-not-allowed' : ''
                 }`}
                 onClick={handleCloseJob}
                 disabled={isUpdating}
               >
-                {isUpdating ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : null}
                 Close Job
               </button>
             </div>
             <button
+              key={`details-button-${job.id}`}
               onClick={() => navigate(`/company/jobs/${job.id}`)} 
-              className='w-full mt-3 bg-red-700 hover:bg-red-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
+              className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
             >
               View Details
             </button>
           </div>
         ) : (
           <button
+            key={`closed-details-button-${job.id}`}
             onClick={() => navigate(`/company/jobs/${job.id}`)} 
-            className='w-full mt-6 bg-red-700 hover:bg-red-800 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
+            className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
           >
             View Details
           </button>

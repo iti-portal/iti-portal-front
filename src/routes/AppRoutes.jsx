@@ -32,6 +32,8 @@ import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
 import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
+import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
+import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -179,6 +181,24 @@ const AppRoutes = () => {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <StudentArticles/> 
+          </PrivateRoute>
+        }
+      />
+
+         <Route
+        path="/student/articles/:id" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ShowDetailArticleData/> 
+          </PrivateRoute>
+        }
+      />
+
+       <Route
+        path="/student/comapnies" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ShowCompanyUser/> 
           </PrivateRoute>
         }
       />
