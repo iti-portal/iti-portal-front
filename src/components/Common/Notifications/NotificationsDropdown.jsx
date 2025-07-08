@@ -2,47 +2,72 @@ import { useState, useRef, useEffect } from 'react';
 import { doc, updateDoc} from 'firebase/firestore';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db, collection, onSnapshot } from '../../../firebase';
-
+import { div } from 'framer-motion/client';
 
 const NotificationDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const {user} = useAuth();
   const [notifications, setNotifications] = useState([]);
+  const [expanded, setExpanded] = useState(false);
   const userId = user?.id;
 
-    // Fetch notifications from Firestore
-    useEffect(() => {
-      console.log("Fetching notifications for user:", userId);
-      if (!userId) return; 
-      const unsubscribe = onSnapshot(collection
-        (db, "notifications", String(userId), "user_notifications"),
-        (snapshot) => {
-          const newNotifications = [];
-  
-          snapshot.docChanges().forEach((change)=> {
-            if(change.type === "added") {
-              newNotifications.push({id: change.doc.id, ...change.doc.data()});
-            }
-          })
-  
-          if (newNotifications.length > 0) {
-            setNotifications((prev) => [...prev, ...newNotifications]);
-          }
-        }
-      )
-      return () => unsubscribe();
-      }, []);
+  // Fetch notifications from Firestore
+  useEffect(() => {
+    console.log("Fetching notifications for user:", userId);
+    if (!userId) return; 
+    
+    const unsubscribe = onSnapshot(
+      collection(db, "notifications", String(userId), "user_notifications"),
+      (snapshot) => {
+        const allNotifications = snapshot.docs.map(doc => {
+          const data = doc.data();
+          let timestamp = data.timestamp;
+          let timestampMs;
+          timestampMs = new Date(timestamp).getTime();
+          
+          return {
+            id: doc.id,
+            ...data,
+            timestamp: timestampMs, 
+            formattedTimestamp: new Date(timestampMs).toLocaleString('en-US', {
+              timeZone: 'Africa/Cairo',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            }),
+          };
+        });
+
+        const sortedNotifications = allNotifications.sort((a, b) => {
+          const aTime = Number(a.timestamp);
+          const bTime = Number(b.timestamp);
+          return bTime - aTime;
+        });
+
+        setNotifications(sortedNotifications);
+      },
+      (error) => {
+        console.error("Error fetching notifications:", error);
+      }
+    );
+    
+    return () => unsubscribe();
+  }, [userId]); 
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
+    };
     
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }}, []);
+  }, []);
 
   const markAsRead = async (notifyId) => {
     try {
@@ -57,11 +82,11 @@ const NotificationDropdown = () => {
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
-  }
+  };
+
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   console.log("Notifications:", notifications);
-
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -88,22 +113,30 @@ const NotificationDropdown = () => {
             </div>
           ) : (
             <div className="max-h-64 overflow-y-auto">
-              {notifications.sort((a, b) => b.timestamp - a.timestamp).map((notification, index) => (
-                <div
-                  key={index}
-                  className="px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer border-b last:border-b-0"
-                  onClick = {() => markAsRead(notification.id)}
-                >
-
-                  <div className="font-medium text-gray-800 flex justify-between items-center">
-                    <span>{notification.title}</span>
-                    <span className="text-xs text-gray-500 whitespace-nowrap">
-                      {new Date(notification.timestamp).toLocaleString()}
-                    </span>
+              {notifications
+                .slice(0, 10) 
+                .map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer border-b last:border-b-0 ${
+                      !notification.read ? 'bg-blue-50' : ''
+                    }`}
+                    onClick={() => markAsRead(notification.id)}
+                  >
+                    <div className="font-medium text-gray-800 flex justify-between items-center">
+                      <span className={!notification.read ? 'font-bold' : ''}>
+                        {notification.title}
+                      </span>
+                      <span className="text-xs text-gray-500 whitespace-nowrap">
+                        {notification.formattedTimestamp}
+                      </span>
+                    </div>
+                    <div className="text-gray-600">{notification.body}</div>
+                    {!notification.read && (
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
+                    )}
                   </div>
-                  <div className="text-gray-600">{notification.body}</div>
-                </div>
-              ))}
+                ))}
             </div>
           )}
         </div>
