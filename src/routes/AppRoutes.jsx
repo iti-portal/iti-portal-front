@@ -23,6 +23,7 @@ import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
 import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
+import ChatPage from '../pages/ChatPage';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -135,6 +136,14 @@ const AppRoutes = () => {
         }
       />
       <Route
+  path="/chat"
+  element={
+    <PrivateRoute isAuthenticated={isAuthenticated}>
+      <ChatPage />
+    </PrivateRoute>
+  }
+/>
+      <Route
         path="/my-achievements"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
@@ -194,6 +203,7 @@ const AppRoutes = () => {
         </PrivateRoute>
       } 
     />
+
     
     {/* Not Found route */}
     <Route path="*" element={<NotFound />} />
