@@ -18,6 +18,15 @@ import { ProfilePage, EditProfilePage } from '../features/student';
 import { CreateAchievement, ViewAchievements, MyAchievements } from '../features/achievements';
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
+import CompanyAdmin from '../features/admin/components/company/CompanyAdmin';  
+import CompanyAdminDetails from '../features/admin/components/company/CompanyAdminDetails';
+import JobsAdmin from '../features/admin/components/jobs/jobsAdmin';
+import JobManagementPage from '../features/admin/pages/JobsManagement';
+import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
+import JobsList from '../features/company/jobs/ShowCompanyJobs';
+import JobDetailsView from '../features/company/jobs/ShowJobDetails';
+import StudentArticles from '../features/student/articles/StudentsArticles';
+
 import ApplicationForm from '../features/student/components/applications/ApplicationForm';
 import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
@@ -106,6 +115,37 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         } 
       />
+
+      
+
+            <Route
+        path="/admin/companies"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <CompanyAdmin />
+          </RoleBasedRoute>
+        }
+      />
+
+      
+           <Route
+        path="/admin/companies/:id"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <CompanyAdminDetails/>
+          </RoleBasedRoute>
+        }
+      />
+
+
+        <Route
+        path="/admin/jobs"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <JobManagementPage  />
+          </RoleBasedRoute>
+        }
+      />
       
       {/* Student profile routes */}
       <Route
@@ -121,6 +161,41 @@ const AppRoutes = () => {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <EditProfilePage /> 
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/student/availablejobs" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <AvaliableJobs/> 
+          </PrivateRoute>
+        }
+      />
+
+          <Route
+        path="/student/articles" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <StudentArticles/> 
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/company/jobs" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <JobsList/> 
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/company/jobs/:id" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <JobDetailsView/> 
           </PrivateRoute>
         }
       />

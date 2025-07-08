@@ -1,0 +1,491 @@
+import React, { useEffect, useState } from "react";
+import { Briefcase, Eye, Trash2 } from "lucide-react";
+
+function JobAdmin() {
+  const [jobs, setJobs] = useState([]);
+  const [filteredJobs, setFilteredJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const[deletingId ,  setDeletingId] = useState(null) ;
+  const [filters, setFilters] = useState({
+    location: "all",
+    status: "all",
+    jobType: "all",
+    sortBy: ""
+  });
+  const token = localStorage.getItem("token") ; 
+
+  const itemsPerPage = 10;
+
+  const paginatedJobs = filteredJobs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const totalPages = Math.ceil(filteredJobs.length / itemsPerPage);
+  const showPagination = filteredJobs.length > itemsPerPage;
+
+    const handleDeleteJob = async (jobId) => {
+    if (window.confirm("Are you sure you want to delete this job?")) {
+      setDeletingId(jobId);
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/api/company/jobs/${jobId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        console.log(response) ; 
+
+        if (!response.ok) {
+          throw new Error("Failed to delete company");
+        }
+        await fetchAllJobs();
+      } catch (error) {
+        console.error("Delete error:", error);
+        setError("Failed to delete company");
+      } finally {
+        setDeletingId(null);
+      }
+    }
+  };
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllJobs();
+  }, []);
+
+  useEffect(() => {
+    applyFilters();
+  }, [jobs, searchTerm, filters]);
+
+  async function fetchAllJobs() {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let allJobs = [];
+      let currentPage = 1;
+      let hasMorePages = true;
+
+      while (hasMorePages) {
+        const response = await fetch(`http://127.0.0.1:8000/api/admin/jobs?page=${currentPage}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
+        const data = await response.json();
+
+        if (data.data && data.data.data && Array.isArray(data.data.data)) {
+          allJobs = [...allJobs, ...data.data.data];
+          
+          if (data.data.next_page_url) {
+            currentPage++;
+          } else {
+            hasMorePages = false;
+          }
+        } else {
+          throw new Error("Invalid data structure received from API");
+        }
+      }
+      
+      setJobs(allJobs);
+      setFilteredJobs(allJobs);
+      
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setError(`Failed to load jobs: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const applyFilters = () => {
+    let result = [...jobs];
+
+    // Apply search filter (only on job title)
+    if (searchTerm) {
+      result = result.filter(job => 
+        job.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply location filter
+    if (filters.location !== "all") {
+      result = result.filter(job => 
+        filters.location === "remote" ? job.is_remote : !job.is_remote
+      );
+    }
+
+    // Apply status filter
+    if (filters.status !== "all") {
+      result = result.filter(job => job.status === filters.status);
+    }
+
+    // Apply job type filter
+    if (filters.jobType !== "all") {
+      result = result.filter(job => job.job_type === filters.jobType);
+    }
+
+    // Apply sorting
+    if (filters.sortBy) {
+      switch (filters.sortBy) {
+        case "title_asc":
+          result.sort((a, b) => a.title.localeCompare(b.title));
+          break;
+        case "title_desc":
+          result.sort((a, b) => b.title.localeCompare(a.title));
+          break;
+        case "company":
+          result.sort((a, b) => {
+            const aCompany = a.company?.email || '';
+            const bCompany = b.company?.email || '';
+            return aCompany.localeCompare(bCompany);
+          });
+          break;
+        case "salary":
+          result.sort((a, b) => {
+            const aSalary = parseFloat(a.salary_max) || 0;
+            const bSalary = parseFloat(b.salary_max) || 0;
+            return bSalary - aSalary;
+          });
+          break;
+        case "date":
+          result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+          break;
+        default:
+          break;
+      }
+    }
+
+    setFilteredJobs(result);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const getStatusBadge = (status) => {
+    const statusColors = {
+      active: "bg-green-100 text-green-700",
+      inactive: "bg-red-100 text-red-700",
+      pending: "bg-yellow-100 text-yellow-700",
+      closed: "bg-gray-100 text-gray-700",
+      expired: "bg-red-100 text-red-700",
+      paused: "bg-orange-100 text-orange-700",
+      suspended: "bg-purple-100 text-purple-700",
+      rejected: "bg-red-100 text-red-700"
+    };
+
+    return (
+      <span
+        className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || "bg-gray-100 text-gray-700"}`}
+      >
+        {status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Unknown'}
+      </span>
+    );
+  };
+
+  const getJobTypeBadge = (type) => {
+    const typeColors = {
+      'full_time': "bg-blue-100 text-blue-700",
+      'part_time': "bg-purple-100 text-purple-700",
+      'contract': "bg-orange-100 text-orange-700",
+      'internship': "bg-teal-100 text-teal-700",
+      'freelance': "bg-pink-100 text-pink-700"
+    };
+
+    return (
+      <span
+        className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${typeColors[type] || "bg-gray-100 text-gray-700"}`}
+      >
+        {type ? type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ') : 'N/A'}
+      </span>
+    );
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-full mx-auto bg-white rounded-lg shadow border p-6">
+          <div className="w-full space-y-4 md:space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800">Jobs Management</h2>
+              <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition w-full md:w-auto">
+                + Add New Job
+              </button>
+            </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <input
+                type="text"
+                placeholder="Search job titles..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-full"
+              />
+
+              <select
+                name="location"
+                value={filters.location}
+                onChange={handleFilterChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/3"
+              >
+                <option value="all">All Locations</option>
+                <option value="on-site">On-site</option>
+                <option value="remote">Remote</option>
+              </select>
+
+              <select
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/3"
+              >
+                <option value="all">All Statuses</option>
+                <option value="closed">Closed</option>
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+              </select>
+
+              <select
+                name="jobType"
+                value={filters.jobType}
+                onChange={handleFilterChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/3"
+              >
+                <option value="all">All Job Types</option>
+                <option value="part_time">Part Time</option>
+                <option value="full_time">Full Time</option>
+                <option value="contract">Contract</option>
+                <option value="internship">Internship</option>
+              </select>
+
+              <select
+                name="sortBy"
+                value={filters.sortBy}
+                onChange={handleFilterChange}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/3"
+              >
+                <option value="">Sort By</option>
+                <option value="title_asc">Job Title (A-Z)</option>
+                <option value="title_desc">Job Title (Z-A)</option>
+                <option value="company">Company Name</option>
+                <option value="salary">Salary (High to Low)</option>
+                <option value="date">Date Posted (Newest First)</option>
+              </select>
+            </div>
+
+            {/* Table Container */}
+            <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto">
+              {loading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading jobs...</p>
+                </div>
+              ) : error ? (
+                <div className="text-center py-12">
+                  <div className="text-red-500 mb-4">
+                    <Briefcase className="mx-auto h-12 w-12" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Error Loading Jobs
+                  </h3>
+                  <p className="text-gray-500 mb-4">{error}</p>
+                  <button
+                    onClick={fetchAllJobs}
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Table */}
+                  <div className="min-w-[1000px] w-full">
+                    <table className="w-full">
+                      <thead className="sticky top-0 z-10 bg-gray-50">
+                        <tr className="text-gray-700">
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">#</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Job Title</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Company</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Location</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Job Type</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Salary</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Status</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Posted Date</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paginatedJobs.length === 0 ? (
+                          <tr>
+                            <td colSpan={9} className="py-6 text-center text-gray-400 text-sm">
+                              No jobs found. {searchTerm ? "Try a different search term." : ""}
+                            </td>
+                          </tr>
+                        ) : (
+                          paginatedJobs.map((job, index) => (
+                            <tr key={job.id || index} className="border-t hover:bg-gray-50 transition-colors">
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="font-medium text-gray-600">
+                                  {(currentPage - 1) * itemsPerPage + index + 1}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="font-medium text-gray-900">
+                                  <div className="truncate max-w-[150px] sm:max-w-[200px]" title={job.title}>
+                                    {job.title || 'N/A'}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600">
+                                  <div className="truncate max-w-[120px] sm:max-w-[160px]" title={job.company?.email || 'N/A'}>
+                                    {job.company?.email || 'N/A'}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600">
+                                  {job.is_remote ? 'Remote' : 'On-site'}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                {getJobTypeBadge(job.job_type)}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600 font-medium">
+                                  {job.salary_min && job.salary_max 
+                                    ? `$${parseFloat(job.salary_min).toLocaleString()} - $${parseFloat(job.salary_max).toLocaleString()}` 
+                                    : 'N/A'}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                {getStatusBadge(job.status)}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600">
+                                  {job.created_at ? formatDate(job.created_at) : 'N/A'}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="flex items-center justify-center gap-2.5">
+                                  <button 
+                                    className="group relative flex items-center justify-center h-8 w-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm"
+                                    onClick={() => console.log('View job:', job.id)}
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </button>
+                                  <button 
+                                    className="group relative flex items-center justify-center h-8 w-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow-sm"
+                                      onClick={() => handleDeleteJob(job.id)}
+                                      >
+                                        {deletingId === job.id ? (
+                                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                        ) : (
+                                        <Trash2 className="w-4 h-4" />
+                                        )}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  {showPagination && (
+                    <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t text-sm text-gray-600 gap-4">
+                      <div>
+                        <span className="hidden sm:inline">
+                          Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                          {Math.min(currentPage * itemsPerPage, filteredJobs.length)} of {filteredJobs.length} results
+                        </span>
+                        <span className="sm:hidden">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          Previous
+                        </button>
+                        
+                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                          const start = Math.max(0, Math.min(currentPage - 3, totalPages - 5));
+                          const pageIndex = start + i;
+                          
+                          if (pageIndex >= 0 && pageIndex < totalPages) {
+                            return (
+                              <button
+                                key={pageIndex}
+                                className={`px-3 py-1 rounded ${
+                                  currentPage === pageIndex + 1
+                                    ? 'bg-red-700 text-white'
+                                    : 'border border-gray-300 bg-white hover:bg-gray-100'
+                                }`}
+                                onClick={() => handlePageChange(pageIndex + 1)}
+                              >
+                                {pageIndex + 1}
+                              </button>
+                            );
+                          }
+                          return null;
+                        }).filter(Boolean)}
+                        
+                        <button
+                          className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+export default JobAdmin;
