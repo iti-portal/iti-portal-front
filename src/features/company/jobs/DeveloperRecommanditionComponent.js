@@ -70,8 +70,8 @@ const HandleCardNumbers = () => {
         console.log("All developers:", allDevelopers.length);
         console.log("Token:", token);
 
-        const rawResponse = await getTopDevelopersForJob(jobId, allDevelopers, token);
-        console.log("Raw response:", rawResponse);
+        // const rawResponse = await getTopDevelopersForJob(jobId, allDevelopers, token);
+        // console.log("Raw response:", rawResponse);
         
         const recommendations = await getTopDevelopersForJob(
           jobId,
