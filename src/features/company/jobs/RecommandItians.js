@@ -139,7 +139,7 @@ export async function getTopDevelopersForJob(jobId, developers, authToken) {
       
       DEVELOPERS TO ANALYZE:
       ${developers.map(dev => `
-        - ID: ${dev.id}
+        ID: ${dev.id}
         Name: "${dev.profile?.first_name || ''} ${dev.profile?.last_name || ''}"
         Skills: ${dev.skills?.map(s => s.name).join(', ') || 'None'}
         Experience: ${dev.profile?.years_of_experience || 0} years
@@ -227,7 +227,7 @@ export async function getTopDevelopersForJob(jobId, developers, authToken) {
       return [];
     }
 
-    // Debug: Log IDs for comparison
+
     console.log('Original developer IDs:', developers.map(d => d.id));
     console.log('Recommended developer IDs:', recommendationData.recommendations.map(r => r.developer_id));
 
@@ -252,6 +252,8 @@ export async function getTopDevelopersForJob(jobId, developers, authToken) {
         console.error('topDevelopers is not an array');
         return [];
         }
+        return topDevelopers; 
+        
 
   } catch (error) {
     console.error('Error in getTopDevelopersForJob:', error);
