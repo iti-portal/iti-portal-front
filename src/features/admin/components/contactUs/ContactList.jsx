@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getContactSubmissions, deleteContactSubmission } from '../../../../services/contactUsService';
+import Modal from '../../../../components/UI/Modal';
+import Alert from '../../../../components/UI/Alert';
 
 /**
  * ContactList component displays contact us submissions with filtering and pagination
@@ -11,6 +13,9 @@ const ContactList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
 
   useEffect(() => {
     const fetchSubmissions = async () => {
@@ -61,18 +66,32 @@ const ContactList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this submission?')) {
+    const submissionToDelete = submissions.find(s => s.id === id);
+    if (!submissionToDelete) return;
+
+    const deleteHandler = async () => {
       try {
         const response = await deleteContactSubmission(id);
         if (response.success) {
           setSubmissions(submissions.filter(submission => submission.id !== id));
+          setNotification({ show: true, type: 'success', message: 'Submission deleted successfully!' });
         } else {
-          alert(response.message || 'Failed to delete submission');
+          setNotification({ show: true, type: 'error', message: response.message || 'Failed to delete submission' });
         }
       } catch (err) {
-        alert(err.message || 'An error occurred while deleting the submission');
+        setNotification({ show: true, type: 'error', message: err.message || 'An error occurred while deleting the submission' });
       }
-    }
+    };
+
+    setConfirmModalContent({
+      title: 'Confirm Deletion',
+      message: 'Are you sure you want to delete this submission?',
+      onConfirm: () => {
+        deleteHandler();
+        setConfirmModalOpen(false);
+      }
+    });
+    setConfirmModalOpen(true);
   };
 
 
@@ -86,6 +105,33 @@ const ContactList = () => {
 
   return (
     <div className="w-full">
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={confirmModalContent.title}
+      >
+        <p>{confirmModalContent.message}</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmModalContent.onConfirm}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <div className="flex-1">
@@ -221,41 +267,21 @@ const ContactList = () => {
       </div>
 
       {/* Message Modal */}
-      {selectedSubmission && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="sm:flex sm:items-start">
-                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                      Message from {selectedSubmission.full_name}
-                    </h3>
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        {selectedSubmission.message}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#901b20] text-base font-medium text-white hover:bg-[#a83236] focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={handleCloseModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+      <Modal
+        isOpen={!!selectedSubmission}
+        onClose={handleCloseModal}
+        title={`Message from ${selectedSubmission?.full_name}`}
+      >
+        <p>{selectedSubmission?.message}</p>
+        <div className="flex justify-end mt-4">
+            <button
+                onClick={handleCloseModal}
+                className="px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+            >
+                Close
+            </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };

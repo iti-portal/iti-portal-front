@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Briefcase, Eye, Trash2 } from "lucide-react";
+import Modal from "../../../../components/UI/Modal";
+import Alert from "../../../../components/UI/Alert";
 
 function JobAdmin() {
   const [jobs, setJobs] = useState([]);
@@ -15,7 +17,10 @@ function JobAdmin() {
     jobType: "all",
     sortBy: ""
   });
-  const token = localStorage.getItem("token") ; 
+  const token = localStorage.getItem("token") ;
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
 
   const itemsPerPage = 10;
 
@@ -28,29 +33,42 @@ function JobAdmin() {
   const showPagination = filteredJobs.length > itemsPerPage;
 
     const handleDeleteJob = async (jobId) => {
-    if (window.confirm("Are you sure you want to delete this job?")) {
-      setDeletingId(jobId);
-      try {
-        const response = await fetch(`http://127.0.0.1:8000/api/company/jobs/${jobId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          }
-        });
-        console.log(response) ; 
+      const jobToDelete = jobs.find(j => j.id === jobId);
+      if (!jobToDelete) return;
 
-        if (!response.ok) {
-          throw new Error("Failed to delete company");
+      const deleteHandler = async () => {
+        setDeletingId(jobId);
+        try {
+          const response = await fetch(`http://127.0.0.1:8000/api/company/jobs/${jobId}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to delete job");
+          }
+          await fetchAllJobs();
+          setNotification({ show: true, type: 'success', message: 'Job deleted successfully!' });
+        } catch (error) {
+          console.error("Delete error:", error);
+          setNotification({ show: true, type: 'error', message: 'Failed to delete job' });
+        } finally {
+          setDeletingId(null);
         }
-        await fetchAllJobs();
-      } catch (error) {
-        console.error("Delete error:", error);
-        setError("Failed to delete company");
-      } finally {
-        setDeletingId(null);
-      }
-    }
+      };
+
+      setConfirmModalContent({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete the job "${jobToDelete.title}"? This action cannot be undone.`,
+        onConfirm: () => {
+          deleteHandler();
+          setConfirmModalOpen(false);
+        }
+    });
+    setConfirmModalOpen(true);
   };
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
