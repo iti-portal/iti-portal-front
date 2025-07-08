@@ -1,374 +1,161 @@
-import React from 'react';
-import { MapPin, Users, Calendar, TrendingUp, Building2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { TrendingUp, MapPin, Users, Calendar, Building2 } from 'lucide-react';
+import { fetchCompanyProfile } from '../../../services/company-profileApi';
 
 function CompanyProfile() {
+  const [company, setCompany] = useState(null);
+
   const applicants = [
     { name: 'Sarah Chen', applied: 'Applied 2024-07-29', avatar: 'SC', status: 'new' },
     { name: 'David Lee', applied: 'Applied 2024-07-30', avatar: 'DL', status: 'reviewed' },
-    { name: 'Alex Johnson', applied: 'Applied 2024-07-31', avatar: 'AJ', status: 'interview' },
-    { name: 'Michael Brown', applied: 'Applied 2024-08-01', avatar: 'MB', status: 'offer' },
+    { name: 'Alex Johnson', applied: 'Applied 2024-07-31', avatar: 'AJ', status: 'interviewed' },
     { name: 'Jessica Davis', applied: 'Applied 2024-08-02', avatar: 'JD', status: 'hired' },
     { name: 'John Smith', applied: 'Applied 2024-07-29', avatar: 'JS', status: 'new' },
     { name: 'María Rodriguez', applied: 'Applied 2024-07-30', avatar: 'MR', status: 'reviewed' },
-    { name: 'Priya Sharma', applied: 'Applied 2024-07-31', avatar: 'PS', status: 'interview' },
+    { name: 'Priya Sharma', applied: 'Applied 2024-07-31', avatar: 'PS', status: 'interviewed' },
     { name: 'Emily White', applied: 'Applied 2024-08-02', avatar: 'EW', status: 'new' },
     { name: 'Daniel Wilson', applied: 'Applied 2024-07-19', avatar: 'DW', status: 'rejected' },
     { name: 'Sophia Miller', applied: 'Applied 2024-07-18', avatar: 'SM', status: 'rejected' }
   ];
 
   const getStatusCounts = () => {
-    const counts = { new: 0, reviewed: 0, interview: 0, offer: 0, hired: 0, rejected: 0 };
+    const counts = { new: 0, reviewed: 0, interviewed: 0, hired: 0, rejected: 0 };
     applicants.forEach(app => counts[app.status]++);
     return counts;
   };
 
   const statusCounts = getStatusCounts();
 
+  useEffect(() => {
+    fetchCompanyProfile()
+      .then((response) => setCompany(response.data.data))
+      .catch((error) => console.error('Failed to fetch company profile:', error));
+  }, []);
+
+  if (!company) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin h-12 w-12 border-4 border-red-700 rounded-full border-b-transparent mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const renderApplicants = (status, label) => (
+    <div className="w-full sm:w-64 shrink-0">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="font-semibold text-gray-800">{label}</h3>
+        <span className="bg-red-700 text-white text-xs px-2 py-1 rounded-full">
+          {statusCounts[status]}
+        </span>
+      </div>
+      <div className="space-y-3">
+        {applicants.filter(a => a.status === status).map((app, idx) => (
+          <div key={idx} className="p-3 border rounded-md bg-white shadow-sm flex items-center space-x-3">
+            <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold text-xs">
+              {app.avatar}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900">{app.name}</p>
+              <p className="text-xs text-gray-500">{app.applied}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="bg-gray-50">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start space-x-4">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
-                <Building2 className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center space-x-3 mb-2">
-                  <h1 className="text-2xl font-bold text-gray-900">Tech Solutions Inc.</h1>
+    <div className="bg-gray-50 py-10 px-4 sm:px-8">
+      <div className="max-w-7xl mx-auto space-y-10">
+
+        {/* Company Info Section */}
+        <div className="bg-white p-8 rounded-xl shadow">
+          <div className="flex items-start space-x-6">
+            <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
+              {company.logo ? (
+                <img src={company.logo} alt="Logo" className="object-cover w-full h-full" />
+              ) : (
+                <Building2 className="text-white w-10 h-10" />
+              )}
+            </div>
+
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-gray-900">{company.company_name}</h1>
+              <p className="text-gray-600 mt-2 text-lg">{company.description || 'No description available.'}</p>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-sm text-gray-600 mt-6">
+                <div className="flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  <span>{company.industry || 'N/A'}</span>
                 </div>
-                <p className="text-gray-600 max-w-2xl">
-                  Tech Solutions Inc. is a leading innovator in cloud-based software development, dedicated to creating scalable and efficient solutions for enterprise clients worldwide. We are committed to fostering a culture of innovation, collaboration, and continuous learning.
-                </p>
-                <div className="flex items-center space-x-6 mt-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <Building2 className="w-4 h-4" />
-                    <span>Industry: Software Development</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>Founded: 2010</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Users className="w-4 h-4" />
-                    <span>Employees: 250+</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>Location: Dubai Headquarters</span>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{company.established_at?.slice(0, 10) || 'N/A'}</span>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Overview Section */}
-          <div className="mt-10">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">Hiring Metrics Overview</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Total Applications</span>
-                    <span className="text-xs text-[#901b20] flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +15% vs last month
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-900">450</p>
+                <div className="flex items-center gap-2 col-span-2 md:col-span-1">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M4 4h16v16H4z" stroke="none" />
+                    <path d="M4 4h16v16H4z" />
+                    <path d="M4 4l16 16" />
+                  </svg>
+                  {company.website ? (
+                    <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      Website
+                    </a>
+                  ) : (
+                    <span>Website: N/A</span>
+                  )}
                 </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Interviews Scheduled</span>
-                    <span className="text-xs text-[#901b20] flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +8% vs last month
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-900">85</p>
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  <span>{company.company_size || 'N/A'}</span>
                 </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Hires This Month</span>
-                    <span className="text-xs text-[#901b20] flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +200% vs last month
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-900">12</p>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>{company.location || 'N/A'}</span>
                 </div>
-
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-500">Offer Acceptance Rate</span>
-                    <span className="text-xs text-[#901b20] flex items-center">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      +3% vs last month
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-gray-900">88%</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* Applicant Management */}
-        <div className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-6">Applicant Management</h2>
-          
-          <div className="flex space-x-6 overflow-x-auto">
-            {/* New Applicants */}
-            <div className="flex-shrink-0 w-64">
-              <div className="flex items-center space-x-2 mb-4">
-                <h3 className="font-medium text-gray-900">New Applicants</h3>
-                <span className="bg-[#901b20] text-white text-xs px-2 py-1 rounded-full">
-                  ({statusCounts.new})
-                </span>
-              </div>
-                  <div className="space-y-3">
-                {applicants.filter(app => app.status === 'new').map((applicant, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {applicant.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm">{applicant.name}</p>
-                        <p className="text-xs text-gray-500">{applicant.applied}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Reviewed */}
-            <div className="flex-shrink-0 w-64">
-              <div className="flex items-center space-x-2 mb-4">
-                <h3 className="font-medium text-gray-900">Reviewed</h3>
-                <span className="bg-[#901b20] text-white text-xs px-2 py-1 rounded-full">
-                  ({statusCounts.reviewed})
-                </span>
-              </div>
-                  <div className="space-y-3">
-                {applicants.filter(app => app.status === 'reviewed').map((applicant, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {applicant.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm">{applicant.name}</p>
-                        <p className="text-xs text-gray-500">{applicant.applied}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Interview Scheduled */}
-            <div className="flex-shrink-0 w-64">
-              <div className="flex items-center space-x-2 mb-4">
-                <h3 className="font-medium text-gray-900">Interview Scheduled</h3>
-                <span className="bg-[#901b20] text-white text-xs px-2 py-1 rounded-full">
-                  ({statusCounts.interview})
-                </span>
-              </div>
-                  <div className="space-y-3">
-                {applicants.filter(app => app.status === 'interview').map((applicant, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {applicant.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm">{applicant.name}</p>
-                        <p className="text-xs text-gray-500">{applicant.applied}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Offer Extended */}
-            <div className="flex-shrink-0 w-64">
-              <div className="flex items-center space-x-2 mb-4">
-                <h3 className="font-medium text-gray-900">Offer Extended</h3>
-                <span className="bg-[#901b20] text-white text-xs px-2 py-1 rounded-full">
-                  ({statusCounts.offer})
-                </span>
-              </div>
-                  <div className="space-y-3">
-                {applicants.filter(app => app.status === 'offer').map((applicant, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {applicant.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm">{applicant.name}</p>
-                        <p className="text-xs text-gray-500">{applicant.applied}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Hired */}
-            <div className="flex-shrink-0 w-64">
-              <div className="flex items-center space-x-2 mb-4">
-                <h3 className="font-medium text-gray-900">Hired</h3>
-                <span className="bg-[#901b20] text-white text-xs px-2 py-1 rounded-full">
-                  ({statusCounts.hired})
-                </span>
-              </div>
-                  <div className="space-y-3">
-                {applicants.filter(app => app.status === 'hired').map((applicant, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {applicant.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm">{applicant.name}</p>
-                        <p className="text-xs text-gray-500">{applicant.applied}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Rejected */}
-            <div className="flex-shrink-0 w-64">
-              <div className="flex items-center space-x-2 mb-4">
-                <h3 className="font-medium text-gray-900">Rejected</h3>
-                <span className="bg-[#901b20] text-white text-xs px-2 py-1 rounded-full">
-                  ({statusCounts.rejected})
-                </span>
-              </div>
-              <div className="space-y-3">
-                {applicants.filter(app => app.status === 'rejected').map((applicant, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-3 border">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                        {applicant.avatar}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900 text-sm">{applicant.name}</p>
-                        <p className="text-xs text-gray-500">{applicant.applied}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                
               </div>
             </div>
           </div>
         </div>
 
-        {/* Application Trend and Recent Activities */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          {/* Application Trend Chart */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Application Trend</h2>
-            <div className="relative h-64">
-              <svg className="w-full h-full" viewBox="0 0 400 200">
-                {/* Y-axis labels */}
-                <text x="20" y="20" className="text-xs fill-gray-400">220</text>
-                <text x="20" y="60" className="text-xs fill-gray-400">165</text>
-                <text x="20" y="100" className="text-xs fill-gray-400">110</text>
-                <text x="20" y="140" className="text-xs fill-gray-400">55</text>
-                <text x="20" y="180" className="text-xs fill-gray-400">0</text>
-                
-                {/* X-axis labels */}
-                <text x="60" y="195" className="text-xs fill-gray-400">Jan</text>
-                <text x="110" y="195" className="text-xs fill-gray-400">Feb</text>
-                <text x="160" y="195" className="text-xs fill-gray-400">Mar</text>
-                <text x="210" y="195" className="text-xs fill-gray-400">Apr</text>
-                <text x="260" y="195" className="text-xs fill-gray-400">May</text>
-                <text x="310" y="195" className="text-xs fill-gray-400">Jun</text>
-                <text x="360" y="195" className="text-xs fill-gray-400">Jul</text>
-                
-                {/* Trend line */}
-                <path
-                  d="M 60 120 L 110 100 L 160 110 L 210 80 L 260 70 L 310 90 L 360 60"
-                  stroke="#901b20"
-                  strokeWidth="2"
-                  fill="none"
-                />
-                
-                {/* Data points */}
-                <circle cx="60" cy="120" r="3" fill="#901b20" />
-                <circle cx="110" cy="100" r="3" fill="#901b20" />
-                <circle cx="160" cy="110" r="3" fill="#901b20" />
-                <circle cx="210" cy="80" r="3" fill="#901b20" />
-                <circle cx="260" cy="70" r="3" fill="#901b20" />
-                <circle cx="310" cy="90" r="3" fill="#901b20" />
-                <circle cx="360" cy="60" r="3" fill="#901b20" />
-              </svg>
-            </div>
+        {/* Metrics Overview */}
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg font-semibold mb-4 text-gray-900">Hiring Metrics</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { title: 'Total Applications', value: 450, change: '+15%' },
+              { title: 'Done Interviews', value: 85, change: '+8%' },
+              { title: 'Hires This Month', value: 12, change: '+200%' },
+              { title: 'Rejected', value: 88, change: '+3%' }
+            ].map((metric, i) => (
+              <div key={i} className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
+                  <span>{metric.title}</span>
+                  <span className="flex items-center text-[#901b20]">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    {metric.change}
+                  </span>
+                </div>
+                <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* Recent Activities */}
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Recent Activities</h2>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-[#901b20] rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-gray-900">Posted new job: Senior Full Stack Developer.</p>
-                  <p className="text-xs text-gray-500">1 hour ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-gray-900">Sarah Chen moved to Interview Scheduled for Marketing Specialist.</p>
-                  <p className="text-xs text-gray-500">3 hours ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-gray-900">Received 5 new applications for Data Analyst Intern.</p>
-                  <p className="text-xs text-gray-500">Yesterday</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-gray-900">Replied to candidate query: John Smith.</p>
-                  <p className="text-xs text-gray-500">Yesterday</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-gray-900">Job posting "HR Manager" reached 40 applicants.</p>
-                  <p className="text-xs text-gray-500">2 days ago</p>
-                </div>
-              </div>
-              
-              <div className="flex items-start space-x-3">
-                <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 flex-shrink-0"></div>
-                <div>
-                  <p className="text-sm text-gray-900">Interview completed for Alex Johnson (Product Designer).</p>
-                  <p className="text-xs text-gray-500">3 days ago</p>
-                </div>
-              </div>
-            </div>
+        {/* Applicants */}
+        <div className="bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg font-semibold mb-6 text-gray-900">Applicant Management</h2>
+          <div className="flex space-x-6 overflow-x-auto pb-2">
+            {renderApplicants('new', 'New')}
+            {renderApplicants('reviewed', 'Reviewed')}
+            {renderApplicants('interviewed', 'Interviewed')}
+            {renderApplicants('hired', 'Hired')}
+            {renderApplicants('rejected', 'Rejected')}
           </div>
         </div>
       </div>

@@ -18,8 +18,8 @@ const CompanySidebar = () => {
   const location = useLocation();
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-      <div className="p-6 flex-1">
+    <div className="w-64 h-[calc(100vh-56px)] fixed left-0 top-[56px] bg-white border-r border-gray-200 flex flex-col justify-between z-20">
+      <div className="p-6 overflow-y-auto flex-1">
         <nav className="space-y-2">
           {sidebarItems.map((item, index) => {
             const Icon = item.icon;

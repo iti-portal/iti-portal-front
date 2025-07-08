@@ -188,14 +188,12 @@ const ArticlesManagement = () => {
       </button>
     ));
 
-  if (loading) {
+    if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <ToastContainer />
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-gray-500">Loading articles...</div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading articles...</p>
         </div>
       </div>
     );
@@ -277,21 +275,21 @@ const ArticlesManagement = () => {
         </div>
 
         {/* Table */}
-        <div className="flex-1">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
           <table className="w-full table-auto border">
             <thead>
               <tr className="bg-gray-100">
-                <th className="p-2 text-left">Title</th>
-                <th className="p-2 text-left">Author</th>
-                <th className="p-2 text-left">Status</th>
-                <th className="p-2 text-left">Date</th>
-                <th className="p-2 text-left">Likes</th>
-                <th className="p-2 text-left">Actions</th>
+                <th className="p-2 text-center">Title</th>
+                <th className="p-2 text-center">Author</th>
+                <th className="p-2 text-center">Status</th>
+                <th className="p-2 text-center">Date</th>
+                <th className="p-2 text-center">Likes</th>
+                <th className="p-2 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200">
               {paginated.map((a) => (
-                <tr key={a.id} className="border-b hover:bg-gray-50">
+                <tr key={a.id} className="hover:bg-gray-50 transition-colors">
                   <td className="p-2">
                     <button
                       onClick={() => handleView(a)}
@@ -306,49 +304,52 @@ const ArticlesManagement = () => {
                   </td>
                   <td className="p-2">{new Date(a.created_at).toLocaleDateString()}</td>
                   <td className="p-2">{a.like_count}</td>
-                  <td className="p-2 flex flex-wrap gap-1">
-                    <button
-                      onClick={() => handleEdit(a)}
-                      className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                    >
-                      <Edit size={12} />
-                      <span className="hidden sm:inline">Edit</span>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(a)}
-                      className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                    >
-                      <Trash2 size={12} />
-                      <span className="hidden sm:inline">Delete</span>
-                    </button>
-                    {a.status === 'draft' && (
+                  <td className="p-2">
+                    <div className="flex gap-1 flex-nowrap overflow-x-auto whitespace-nowrap">
                       <button
-                        onClick={() => handlePublish(a)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
-                      >
-                        <Send size={12} />
-                        <span className="hidden sm:inline">Publish</span>
-                      </button>
-                    )}
-                    {a.status === 'published' && (
-                      <button
-                        onClick={() => handleArchive(a)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors"
-                      >
-                        <Archive size={12} />
-                        <span className="hidden sm:inline">Archive</span>
-                      </button>
-                    )}
-                    {a.status === 'archived' && (
-                      <button
-                        onClick={() => handleUnarchive(a)}
+                        onClick={() => handleEdit(a)}
                         className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                       >
-                        <ArchiveX size={12} />
-                        <span className="hidden sm:inline">Unarchive</span>
+                        <Edit size={12} />
+                        <span className="hidden sm:inline">Edit</span>
                       </button>
-                    )}
+                      <button
+                        onClick={() => handleDelete(a)}
+                        className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
+                      >
+                        <Trash2 size={12} />
+                        <span className="hidden sm:inline">Delete</span>
+                      </button>
+                      {a.status === 'draft' && (
+                        <button
+                          onClick={() => handlePublish(a)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
+                        >
+                          <Send size={12} />
+                          <span className="hidden sm:inline">Publish</span>
+                        </button>
+                      )}
+                      {a.status === 'published' && (
+                        <button
+                          onClick={() => handleArchive(a)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors"
+                        >
+                          <Archive size={12} />
+                          <span className="hidden sm:inline">Archive</span>
+                        </button>
+                      )}
+                      {a.status === 'archived' && (
+                        <button
+                          onClick={() => handleUnarchive(a)}
+                          className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                        >
+                          <ArchiveX size={12} />
+                          <span className="hidden sm:inline">Unarchive</span>
+                        </button>
+                      )}
+                    </div>
                   </td>
+
                 </tr>
               ))}
             </tbody>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronDown, Trash2, UserX, UserCheck } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -70,8 +70,7 @@ const getStudentStatusColor = (status) => {
   }
 };
 
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchUsersApi(currentPage);
@@ -89,11 +88,11 @@ const getStudentStatusColor = (status) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage]);
 
   useEffect(() => {
     fetchUsers();
-  }, [currentPage]);
+  }, [fetchUsers, currentPage]);
 
   const handleApprove = async (user) => {
     setActionLoading(prev => ({ ...prev, [`approve-${user.id}`]: true }));
@@ -211,11 +210,6 @@ const getStudentStatusColor = (status) => {
 
   // Render action buttons based on user status
   const renderActionButtons = (user) => {
-    const isLoading =
-      actionLoading[`suspend-${user.id}`] ||
-      actionLoading[`unsuspend-${user.id}`] ||
-      actionLoading[`delete-${user.id}`] ||
-      actionLoading[`approve-${user.id}`];
 
     return (
       <div className="flex items-center gap-2">
@@ -338,16 +332,12 @@ const getStudentStatusColor = (status) => {
     return [...new Set(values)];
   };
 
-  if (loading) {
+    if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <ToastContainer position="top-right"/>
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-center items-center h-64">
-            <div className="flex items-center gap-2 text-gray-600">
-              Loading users...
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading users...</p>
         </div>
       </div>
     );
@@ -462,22 +452,24 @@ const getStudentStatusColor = (status) => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Name</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Email</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Username</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Program</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Track</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Student Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Created</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900 text-sm">Actions</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Name</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Email</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Username</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Program</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Track</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Status</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Student Status</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Created</th>
+                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-3 px-4 text-sm font-medium text-gray-900">
-                      {user.profile ? `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() : 'N/A'}
+                      <span className="whitespace-nowrap inline-block">
+                        {user.profile ? `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() : 'N/A'}
+                      </span>
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-600">{user.email}</td>
                     <td className="py-3 px-4 text-sm text-gray-600">{user.profile?.username || 'N/A'}</td>

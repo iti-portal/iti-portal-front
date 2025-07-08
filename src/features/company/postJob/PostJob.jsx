@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { Calendar, ChevronDown } from 'lucide-react';
-
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import { fetchAllSkills, addNewSkill, postNewJob } from '../../../services/post-jobApi';
 
 export default function JobPostingForm() {
   const [formData, setFormData] = useState({
@@ -48,45 +48,28 @@ export default function JobPostingForm() {
     { value: 'executive', label: 'Executive' }
   ];
 
-  // Fetch skills from the backend when the component mounts
+  // Fetch skills from the API service when the component mounts
   useEffect(() => {
-    const fetchSkills = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
+    const loadSkills = async () => {
+      if (!localStorage.getItem('token')) {
         toast.warn('You must be logged in to see skill suggestions.');
         return;
       }
 
       try {
-        const response = await axios.get('http://localhost:8000/api/skills/', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        const skillsData = response.data.data;
-        
-        if (Array.isArray(skillsData)) {
-          setAllSkills(skillsData.map(skill => skill.name));
-        } else {
-          console.error("API response for skills did not contain a 'data' array.", response.data);
-          toast.error("Received an unexpected skill format from the server.");
-        }
-
+        const skillsData = await fetchAllSkills();
+        setAllSkills(skillsData);
       } catch (error) {
-        console.error('Failed to fetch skills:', error);
-        toast.error('Could not load skills from the server.');
+        console.error(error);
+        toast.error(error.message);
       }
     };
 
-    fetchSkills();
+    loadSkills();
   }, []);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSkillToggle = (skill) => {
@@ -108,50 +91,25 @@ export default function JobPostingForm() {
   };
 
   const handleAddNewSkill = async () => {
-    const token = localStorage.getItem('token');
     const newSkillName = skillInput.trim();
-
     if (!newSkillName || allSkills.map(s => s.toLowerCase()).includes(newSkillName.toLowerCase())) {
-        return;
+      return;
     }
-    if (!token) {
-        toast.error('Authentication required to add a new skill.');
-        return;
-    }
-
+    
     const loadingToast = toast.loading('Adding new skill...');
     try {
-        const skillFormData = new FormData();
-        skillFormData.append('skill_name', newSkillName); 
+      await addNewSkill(newSkillName);
+      
+      // On success, update UI state
+      setAllSkills(prev => [...prev, newSkillName]);
+      handleSelectSkill(newSkillName);
 
-        // ### FINAL FIX: Use the skill name from the input since the API call was successful ###
-        // The API call returns a success message, not the created object.
-        // We await the call to ensure it completes without error.
-        await axios.post(
-            'http://localhost:8000/api/user-skills/', 
-            skillFormData,
-            { 
-                headers: { 
-                    'Authorization': `Bearer ${token}`
-                } 
-            }
-        );
-        
-        // If the above line doesn't throw an error, the creation was successful.
-        // Now, we use the 'newSkillName' we already have to update the UI.
-        setAllSkills(prev => [...prev, newSkillName]);
-        handleSelectSkill(newSkillName);
-
-        toast.dismiss(loadingToast);
-        toast.success(`Skill "${newSkillName}" added successfully!`);
-
+      toast.update(loadingToast, { render: `Skill "${newSkillName}" added!`, type: "success", isLoading: false, autoClose: 3000 });
     } catch (error) {
-        toast.dismiss(loadingToast);
-        console.error('Failed to add new skill:', error.response?.data || error.message);
-        toast.error(error.response?.data?.message || 'Could not add new skill.');
+      console.error(error);
+      toast.update(loadingToast, { render: error.message, type: "error", isLoading: false, autoClose: 5000 });
     }
   };
-
 
   const handleSubmit = async (action) => {
     if (action === 'Cancel') {
@@ -159,6 +117,7 @@ export default function JobPostingForm() {
       return;
     }
 
+    // --- Validation ---
     if (!formData.title || !formData.description || !formData.requirements) {
       toast.error('Please fill in Job Title, Description, and Requirements.');
       return;
@@ -168,8 +127,8 @@ export default function JobPostingForm() {
       return;
     }
     if (parseInt(formData.salaryMin) > parseInt(formData.salaryMax)) {
-        toast.error('Minimum salary cannot be greater than maximum salary.');
-        return;
+      toast.error('Minimum salary cannot be greater than maximum salary.');
+      return;
     }
     if (!formData.jobType || !formData.experienceLevel) {
       toast.error('Please select Job Type and Experience Level.');
@@ -179,45 +138,35 @@ export default function JobPostingForm() {
     setIsSubmitting(true);
     const loadingToast = toast.loading('Posting job...');
     
+    const jobData = {
+      title: formData.title,
+      description: formData.description,
+      requirements: formData.requirements,
+      job_type: formData.jobType,
+      experience_level: formData.experienceLevel,
+      salary_min: parseInt(formData.salaryMin),
+      salary_max: parseInt(formData.salaryMax),
+      application_deadline: formData.applicationDeadline || null,
+      is_featured: formData.isFeatured,
+      is_remote: formData.isRemote,
+      skills: formData.requiredSkills.map(skill => ({
+        name: skill,
+        is_required: true
+      }))
+    };
+    
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('No authentication token found. Please login first.');
-      }
+      await postNewJob(jobData);
       
-      const jobData = {
-        title: formData.title,
-        description: formData.description,
-        requirements: formData.requirements,
-        job_type: formData.jobType,
-        experience_level: formData.experienceLevel,
-        salary_min: parseInt(formData.salaryMin),
-        salary_max: parseInt(formData.salaryMax),
-        application_deadline: formData.applicationDeadline || null,
-        is_featured: formData.isFeatured,
-        is_remote: formData.isRemote,
-        skills: formData.requiredSkills.map(skill => ({
-          name: skill,
-          is_required: true
-        }))
-      };
-
-      await axios.post('http://localhost:8000/api/company/jobs/', jobData, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      toast.dismiss(loadingToast);
-      toast.success('🎉 Job posted successfully!');
+      toast.update(loadingToast, { render: "🎉 Job posted successfully!", type: "success", isLoading: false, autoClose: 5000 });
       setFormData({
           title: '', description: '', requirements: '', salaryMin: '',
           salaryMax: '', applicationDeadline: '', requiredSkills: [],
           jobType: '', experienceLevel: '', isFeatured: false, isRemote: false
       });
-
     } catch (error) {
-      console.error('Job posting failed:', error.response?.data || error.message);
-      const errorMessage = error.response?.data?.message || error.response?.data?.detail || 'An unexpected error occurred.';
-      toast.error(errorMessage);
+      console.error(error);
+      toast.update(loadingToast, { render: error.message, type: "error", isLoading: false, autoClose: 5000 });
     } finally {
       setIsSubmitting(false);
     }
@@ -232,7 +181,6 @@ export default function JobPostingForm() {
     
   const canAddNewSkill = skillInput.trim() && !allSkills.map(s => s.toLowerCase()).includes(skillInput.trim().toLowerCase());
 
-  // (JSX is unchanged and omitted for brevity)
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
