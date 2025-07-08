@@ -1,17 +1,15 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  User,
   Briefcase,
   List,
   Users
 } from 'lucide-react';
 
 const sidebarItems = [
-  { icon: User, label: 'My Profile', path: '/company/profile' },
-  { icon: Briefcase, label: 'Post Job', path: '/company/post-job' },
-  { icon: List, label: 'Manage Jobs', path: '/company/manage-jobs' },
-  { icon: Users, label: 'Manage Applicants', path: '/company/applicants' },
+  { icon: Briefcase, label: 'Post Job', path: '/company/dashboard/post-job' },
+  { icon: List, label: 'Manage Jobs', path: '/company/jobs' },
+  { icon: Users, label: 'Manage Applicants', path: '/company/dashboard/applicants' },
 ];
 
 const CompanySidebar = () => {

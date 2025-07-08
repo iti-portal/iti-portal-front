@@ -34,7 +34,7 @@ import CompanyLayout from './../layouts/CompanyLayout';
 import CompanyProfile from '../features/company/profile/CompanyProfile';
 import PostJob from '../features/company/postJob/PostJob';
 import ManageApplicants from '../features/company/applicants/Applicants';
-import ExploreItians from './../components/Home/explore-itians/ExploreItians';
+import Network from '../pages/explore-itians/ExploreItians';
 import ManageJobs from '../features/company/jobs/ManageJobs';
 import Analytics from '../features/company/analytics/Analytics';
 import Messages from '../features/company/messages/Messages';
@@ -153,9 +153,7 @@ const AppRoutes = () => {
       />
       {/* Company routes */}
 
-      
-
-            <Route
+      <Route
         path="/admin/companies"
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
@@ -186,15 +184,21 @@ const AppRoutes = () => {
       
       {/* Student profile routes */}
       <Route
-        path="/company"
+        path="/company/profile"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <CompanyProfile />
+          </PrivateRoute>
+        }
+      ></Route>
+      <Route
+        path="/company/dashboard"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <CompanyLayout />
           </PrivateRoute>
         }
       >
-        <Route index element={<CompanyProfile />} />
-        <Route path="profile" element={<CompanyProfile />} />
         <Route path="post-job" element={<PostJob />} />
         <Route path="manage-jobs" element={<ManageJobs />} />
         <Route path="applicants" element={<ManageApplicants />} />
@@ -205,10 +209,10 @@ const AppRoutes = () => {
 
 
       <Route
-        path="/explore-itians"
+        path="/network"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <ExploreItians />
+            <Network />
           </PrivateRoute>
         }
       />
