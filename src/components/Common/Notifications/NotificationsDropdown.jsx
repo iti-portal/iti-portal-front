@@ -12,7 +12,6 @@ const NotificationDropdown = () => {
   const [expanded, setExpanded] = useState(false);
   const userId = user?.id;
 
-  // Fetch notifications from Firestore
   useEffect(() => {
     console.log("Fetching notifications for user:", userId);
     if (!userId) return; 
