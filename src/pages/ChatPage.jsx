@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ChatWindow from '../components/ChatWindow';
 import MessageInput from '../components/MessageInput';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ChatPage() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [refreshFlag, setRefreshFlag] = useState(false);
-  const currentUserId = Number(localStorage.getItem('user_id'));
+  const { user } = useAuth();
+  const currentUserId = user ? user.id : null;
 
   return (
     <div className="flex h-screen overflow-hidden">

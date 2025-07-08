@@ -66,6 +66,29 @@
   animation: slide-down 0.3s ease-out;
 }
 
+@keyframes message-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message-appear {
+  animation: message-appear 0.3s ease-out;
+}
+
+.message-bubble {
+  transition: box-shadow 0.3s ease;
+}
+
+.message-bubble:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, var(--iti-primary-dark), #b91c1c);
 }

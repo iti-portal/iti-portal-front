@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { API_BASE_URL, getAuthHeaders, handleNetworkError } from './apiConfig';
 
-export const fetchMessages = async (conversationId) => {
+export const fetchMessages = async (conversationId, since = null) => {
   try {
+    const params = since ? { since } : {};
     const response = await axios.get(`${API_BASE_URL}/conversations/${conversationId}/messages`, {
       headers: getAuthHeaders(),
+      params,
     });
     return response.data;
   } catch (error) {
