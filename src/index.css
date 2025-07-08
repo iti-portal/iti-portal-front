@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --iti-primary: #901b20;
   --iti-primary-dark: #7a1619;

@@ -132,6 +132,10 @@ const AppRoutes = () => {
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
             <StaffManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
         path="/admin/contact-us" 
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
@@ -209,6 +213,14 @@ const AppRoutes = () => {
         }
       />
       {/* Student profile routes */}
+       <Route
+        path="/student/profile" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ProfilePage /> 
+          </PrivateRoute>
+        }
+      />
       <Route
         path="/student/profile/edit" 
         element={

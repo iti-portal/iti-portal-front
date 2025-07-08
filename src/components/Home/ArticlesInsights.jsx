@@ -19,23 +19,7 @@ const ArticleCard = ({ article, index }) => {
     return content.substring(0, maxLength) + '...';
   };
 
-  useEffect(() => {
-    const getArticles = async () => {
-      try {
-        const response = await fetchAllArticles();
-        if (response.data && response.data.length > 0) {
-          setArticles(response.data);
-        } else {
-          setArticles(staticArticles);
-        }
-      } catch (error) {
-        console.error("Error fetching articles:", error);
-        setArticles(staticArticles);
-      }
-    };
 
-    getArticles();
-  }, []);
 
   return (
     <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/20 hover:border-[#901b20]/30 transform hover:-translate-y-2">
