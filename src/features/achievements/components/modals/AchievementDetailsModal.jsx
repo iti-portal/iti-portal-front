@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { likeAchievement, unlikeAchievement, addComment, deleteComment, getAchievementDetails } from '../../../../services/achievementsService';
-import { mapBackendTypeToFrontend } from '../../../../services/achievementsService';
+import { likeAchievement, unlikeAchievement, addComment, deleteComment, getAchievementDetails,mapBackendTypeToFrontend } from '../../../../services/achievements';
 import { useAuth } from '../../../../contexts/AuthContext';
 import Modal from '../../../../components/UI/Modal';
 import Alert from '../../../../components/UI/Alert';
