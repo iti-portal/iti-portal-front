@@ -10,6 +10,9 @@ import NotFound from '../pages/NotFound';
 import Unauthorized from '../pages/Unauthorized';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import UsersManagementPage from '../pages/UsersManagementPage';
+import ApprovalsManagementPage from '../features/admin/pages/ApprovalsManagementPage';
+import ArticlesManagementPage from '../features/admin/pages/ArticlesManagementPage';
+import NewArticleFormPage from '../features/admin/pages/NewArticleFormPage';
 import ContactUsManagementPage from '../features/admin/pages/ContactUsManagementPage';
 import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
@@ -26,6 +29,15 @@ import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
 import JobsList from '../features/company/jobs/ShowCompanyJobs';
 import JobDetailsView from '../features/company/jobs/ShowJobDetails';
 import StudentArticles from '../features/student/articles/StudentsArticles';
+
+import CompanyLayout from './../layouts/CompanyLayout';
+import CompanyProfile from '../features/company/profile/CompanyProfile';
+import PostJob from '../features/company/postJob/PostJob';
+import ManageApplicants from '../features/company/applicants/Applicants';
+import Network from '../pages/explore-itians/ExploreItians';
+import ManageJobs from '../features/company/jobs/ManageJobs';
+import Analytics from '../features/company/analytics/Analytics';
+import Messages from '../features/company/messages/Messages';
 
 import ApplicationForm from '../features/student/components/applications/ApplicationForm';
 import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
@@ -84,18 +96,42 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/admin/staff" 
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-            <StaffManagementPage />
-          </RoleBasedRoute>
-        } 
-      />
-      <Route 
         path="/admin/users" 
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
             <UsersManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/approvals" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ApprovalsManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/articles" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ArticlesManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/articles/new" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <NewArticleFormPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/staff" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <StaffManagementPage />
           </RoleBasedRoute>
         } 
       />
@@ -115,10 +151,9 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         } 
       />
+      {/* Company routes */}
 
-      
-
-            <Route
+      <Route
         path="/admin/companies"
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
@@ -149,10 +184,44 @@ const AppRoutes = () => {
       
       {/* Student profile routes */}
       <Route
-        path="/student/profile"
+        path="/company/profile"
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
-            <ProfilePage />
+            <CompanyProfile />
+          </PrivateRoute>
+        }
+      ></Route>
+      <Route
+        path="/company/dashboard"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <CompanyLayout />
+          </PrivateRoute>
+        }
+      >
+        <Route path="post-job" element={<PostJob />} />
+        <Route path="manage-jobs" element={<ManageJobs />} />
+        <Route path="applicants" element={<ManageApplicants />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="messages" element={<Messages />} />
+      </Route>
+
+
+
+      <Route
+        path="/network"
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <Network />
+          </PrivateRoute>
+        }
+      />
+      {/* Student profile routes */}
+       <Route
+        path="/student/profile" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ProfilePage /> 
           </PrivateRoute>
         }
       />
