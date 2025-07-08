@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { likeAchievement, unlikeAchievement, addComment, deleteComment, getAchievementDetails } from '../../../../services/achievementsService';
 import { mapBackendTypeToFrontend } from '../../../../services/achievementsService';
 import { useAuth } from '../../../../contexts/AuthContext';
+import Modal from '../../../../components/UI/Modal';
+import Alert from '../../../../components/UI/Alert';
 
 const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievement, onAchievementUpdate }) => {
   const { user } = useAuth(); // Get current user from auth context
@@ -12,6 +14,9 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commentError, setCommentError] = useState(null);
   const [showLikesList, setShowLikesList] = useState(false);
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '', title: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
   const commentsEndRef = useRef(null);
 
   // Scroll to bottom of comments when modal opens or comments change
@@ -43,6 +48,18 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
       setTimeout(scrollToBottom, 100);
     }
   }, [achievement?.comments]);
+
+  // Notification helpers
+  const showNotification = (message, type = 'info', title = '') => {
+    setNotification({ show: true, type, message, title });
+    setTimeout(() => {
+      setNotification({ show: false, type: 'info', message: '', title: '' });
+    }, 5000);
+  };
+
+  const hideNotification = () => {
+    setNotification({ show: false, type: 'info', message: '', title: '' });
+  };
 
   // Handle like/unlike
   const handleLikeToggle = async () => {
@@ -213,44 +230,48 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     });
     
     if (!isAchievementOwner && !isCommentAuthor) {
-      alert('You can only delete your own comments or comments on your achievements.');
+      showNotification('You can only delete your own comments or comments on your achievements.', 'warning', 'Permission Denied');
       return;
     }
     
-    // Check if comment has an ID for deletion
-    if (comment.id) {
-      const confirmDelete = window.confirm('Are you sure you want to delete this comment?');
-      if (!confirmDelete) return;
-      
-      try {
-        const response = await deleteComment(comment.id);
-        if (response.success) {
-          // Remove comment from UI
-          const updatedAchievement = { ...achievement };
-          updatedAchievement.comments = updatedAchievement.comments.filter((_, index) => index !== commentIndex);
-          updatedAchievement.comment_count = Math.max(0, (updatedAchievement.comment_count || 0) - 1);
-          setAchievement(updatedAchievement);
-          
-          // Notify parent card of the update
-          if (onAchievementUpdate) {
-            onAchievementUpdate(updatedAchievement);
-          }
-        } else {
-          alert('Failed to delete comment');
-        }
-      } catch (err) {
-        console.error('Error deleting comment:', err);
-        alert(`Failed to delete comment: ${err.message}`);
-      }
-    } else {
-      // Show message if no ID available
-      alert(`Comment deletion is not yet available. 
-      
-Comment: "${comment.content}"
-By: ${comment.user_profile?.first_name} ${comment.user_profile?.last_name}
-Created: ${new Date(comment.created_at).toLocaleString()}
+    const handleDelete = async () => {
+        try {
+            const response = await deleteComment(comment.id);
+            if (response.success) {
+                const updatedAchievement = { ...achievement };
+                updatedAchievement.comments = updatedAchievement.comments.filter((_, index) => index !== commentIndex);
+                updatedAchievement.comment_count = Math.max(0, (updatedAchievement.comment_count || 0) - 1);
+                setAchievement(updatedAchievement);
 
-This feature requires the backend to provide comment IDs.`);
+                if (onAchievementUpdate) {
+                    onAchievementUpdate(updatedAchievement);
+                }
+                showNotification('Comment deleted successfully.', 'success', 'Success');
+            } else {
+                showNotification('Failed to delete comment. Please try again.', 'error', 'Deletion Failed');
+            }
+        } catch (err) {
+            console.error('Error deleting comment:', err);
+            showNotification(`Failed to delete comment: ${err.message}`, 'error', 'Deletion Error');
+        }
+    };
+
+    if (comment.id) {
+        setConfirmModalContent({
+            title: 'Confirm Deletion',
+            message: 'Are you sure you want to delete this comment?',
+            onConfirm: () => {
+                handleDelete();
+                setConfirmModalOpen(false);
+            }
+        });
+        setConfirmModalOpen(true);
+    } else {
+        showNotification(
+            `Comment deletion is not yet available. This feature requires the backend to provide comment IDs.\n\nComment: "${comment.content}"\nBy: ${comment.user_profile?.first_name} ${comment.user_profile?.last_name}\nCreated: ${new Date(comment.created_at).toLocaleString()}`,
+            'info',
+            'Feature Not Available'
+        );
     }
   };
 
@@ -302,6 +323,34 @@ This feature requires the backend to provide comment IDs.`);
 
   return (
     <>
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={hideNotification}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={confirmModalContent.title}
+      >
+        <p>{confirmModalContent.message}</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmModalContent.onConfirm}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
+
       {isOpen && (
         <div
           className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4"

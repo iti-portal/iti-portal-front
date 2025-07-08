@@ -1,6 +1,8 @@
 import React from 'react';
 import { Routes, Route} from 'react-router-dom';
 import Home from '../pages/Home';
+import About from '../pages/About';
+import Contact from '../pages/Contact';
 import Layout from '../components/Layout/LayoutRegistration';
 import { RegistrationPage, EmailVerificationPage } from '../features/registration';
 import { LoginPage, ForgotPasswordPage, ResetPasswordPage } from '../features/auth';
@@ -8,6 +10,7 @@ import NotFound from '../pages/NotFound';
 import Unauthorized from '../pages/Unauthorized';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import UsersManagementPage from '../pages/UsersManagementPage';
+import ContactUsManagementPage from '../features/admin/pages/ContactUsManagementPage';
 import { StaffManagementPage, ServiceManagementPage } from '../features/admin';
 import PrivateRoute from './PrivateRoute';
 import RoleBasedRoute from './RoleBasedRoute';
@@ -15,6 +18,15 @@ import { ProfilePage, EditProfilePage } from '../features/student';
 import { CreateAchievement, ViewAchievements, MyAchievements } from '../features/achievements';
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
+import CompanyAdmin from '../features/admin/components/company/CompanyAdmin';  
+import CompanyAdminDetails from '../features/admin/components/company/CompanyAdminDetails';
+import JobsAdmin from '../features/admin/components/jobs/jobsAdmin';
+import JobManagementPage from '../features/admin/pages/JobsManagement';
+import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
+import JobsList from '../features/company/jobs/ShowCompanyJobs';
+import JobDetailsView from '../features/company/jobs/ShowJobDetails';
+import StudentArticles from '../features/student/articles/StudentsArticles';
+
 import ApplicationForm from '../features/student/components/applications/ApplicationForm';
 import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
@@ -23,31 +35,34 @@ import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
-  // Show loading spinner while checking authentication
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Routes>
-      {/* Protected Home route */}
+      {/* Public Home route - accessible without login, no loading check */}
       <Route
         path="/"
-        element={
-          <PrivateRoute isAuthenticated={isAuthenticated}>
-            <Home />
-          </PrivateRoute>
-        }
+        element={<Home/>}
       />
       
-      {/* Registration routes */}
+      {/* Public About and Contact routes */}
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      
+      {/* Routes that need loading check */}
+      {loading ? (
+        <Route 
+          path="*" 
+          element={
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading...</p>
+              </div>
+            </div>
+          } 
+        />
+      ) : (
+        <>
+          {/* Registration routes */}
       <Route path="/register" element={<Layout><RegistrationPage /></Layout>} />
       <Route path="/verify-email" element={<EmailVerificationPage />} />
       
@@ -85,12 +100,51 @@ const AppRoutes = () => {
         } 
       />
       <Route 
+        path="/admin/contact-us" 
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <ContactUsManagementPage />
+          </RoleBasedRoute>
+        } 
+      />
+      <Route 
         path="/admin/services" 
         element={
           <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
             <ServiceManagementPage />
           </RoleBasedRoute>
         } 
+      />
+
+      
+
+            <Route
+        path="/admin/companies"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <CompanyAdmin />
+          </RoleBasedRoute>
+        }
+      />
+
+      
+           <Route
+        path="/admin/companies/:id"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <CompanyAdminDetails/>
+          </RoleBasedRoute>
+        }
+      />
+
+
+        <Route
+        path="/admin/jobs"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <JobManagementPage  />
+          </RoleBasedRoute>
+        }
       />
       
       {/* Student profile routes */}
@@ -107,6 +161,41 @@ const AppRoutes = () => {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <EditProfilePage /> 
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/student/availablejobs" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <AvaliableJobs/> 
+          </PrivateRoute>
+        }
+      />
+
+          <Route
+        path="/student/articles" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <StudentArticles/> 
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/company/jobs" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <JobsList/> 
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/company/jobs/:id" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <JobDetailsView/> 
           </PrivateRoute>
         }
       />
@@ -147,25 +236,44 @@ const AppRoutes = () => {
       />
     {/* My Applications route */}
     <Route
-    path="/my-applications" 
-    element={
-      <PrivateRoute isAuthenticated={isAuthenticated}>
-        <MyApplicationsPage />
-      </PrivateRoute>
-  }
-/>
-  <Route 
-  path="/my-applications/:applicationId" 
-  element={
-     <PrivateRoute isAuthenticated={isAuthenticated}>
-        <ApplicationDetailsPage />
-      </PrivateRoute> 
-  }
-   />
-     <Route path="/company/jobs/:jobId/applications" element={<CompanyJobApplicationsPage />} />
-     <Route path="/admin/applications" element={<AdminApplicationsPage />} />
-
-      <Route path="*" element={<NotFound />} />
+      path="/my-applications" 
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <MyApplicationsPage />
+        </PrivateRoute>
+      }
+    />
+    <Route 
+      path="/my-applications/:applicationId" 
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <ApplicationDetailsPage />
+        </PrivateRoute> 
+      }
+    />
+    
+    {/* Company and Admin Application routes */}
+    <Route 
+      path="/admin/applications" 
+      element={
+        <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+          <AdminApplicationsPage />
+        </RoleBasedRoute>
+      } 
+    />
+    <Route 
+      path="/company/jobs/:jobId/applications" 
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <CompanyJobApplicationsPage />
+        </PrivateRoute>
+      } 
+    />
+    
+    {/* Not Found route */}
+    <Route path="*" element={<NotFound />} />
+          </>
+        )}
     </Routes>
   );
 };

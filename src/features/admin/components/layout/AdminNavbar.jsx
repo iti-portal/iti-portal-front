@@ -19,7 +19,6 @@ const AdminNavbar = ({ className = '' }) => (
     
     {/* Right: User Icon and Avatar */}
     <div className="flex items-center gap-4">
-      <span className="material-icons text-gray-500 text-2xl cursor-pointer">person</span>
       <img
         src="/avatar.png"
         alt="Admin"

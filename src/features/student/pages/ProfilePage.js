@@ -302,7 +302,7 @@ function ProfilePage() {
   return (
     <>
     <Navbar/>
-    <div className=" min-h-screen pb-10">
+    <div className=" min-h-screen pb-10 py-10">
       <div className="container mx-auto px-4 py-8">
         <ProfileHeader data={profile.user} onUpdatePhoto={handlePhotoUpdate} />
 

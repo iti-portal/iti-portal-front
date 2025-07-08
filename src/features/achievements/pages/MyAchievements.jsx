@@ -10,9 +10,14 @@ import AchievementCard from '../components/common/AchievementCard';
 import { useMyAchievements } from '../hooks/useMyAchievements';
 import { deleteAchievement, likeAchievement, unlikeAchievement } from '../../../services/achievementsService';
 import Navbar from '../../../components/Layout/Navbar';
+import Modal from '../../../components/UI/Modal';
+import Alert from '../../../components/UI/Alert';
 
 const MyAchievements = () => {
   const navigate = useNavigate();
+  const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
+  const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
   const {
     achievements,
     loading,
@@ -83,26 +88,31 @@ const MyAchievements = () => {
 
   // Handle delete achievement
   const handleDeleteAchievement = async (achievement) => {
-    const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${achievement.title}"? This action cannot be undone.`
-    );
-    
-    if (!confirmDelete) return;
-
-    try {
-      const result = await deleteAchievement(achievement.id);
-      
-      if (result.success) {
-        // Refresh the achievements list
-        await refresh();
-        alert('Achievement deleted successfully!');
-      } else {
-        throw new Error(result.message || 'Failed to delete achievement');
+    const handleDelete = async () => {
+      try {
+        const result = await deleteAchievement(achievement.id);
+        
+        if (result.success) {
+          await refresh();
+          setNotification({ show: true, type: 'success', message: 'Achievement deleted successfully!' });
+        } else {
+          throw new Error(result.message || 'Failed to delete achievement');
+        }
+      } catch (error) {
+        console.error('Error deleting achievement:', error);
+        setNotification({ show: true, type: 'error', message: `Failed to delete achievement: ${error.message}` });
       }
-    } catch (error) {
-      console.error('Error deleting achievement:', error);
-      alert(`Failed to delete achievement: ${error.message}`);
-    }
+    };
+
+    setConfirmModalContent({
+        title: 'Confirm Deletion',
+        message: `Are you sure you want to delete "${achievement.title}"? This action cannot be undone.`,
+        onConfirm: () => {
+            handleDelete();
+            setConfirmModalOpen(false);
+        }
+    });
+    setConfirmModalOpen(true);
   };
 
   // Handle like/unlike
@@ -176,50 +186,111 @@ const MyAchievements = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-        <Navbar/>
+    <><Navbar /><div className="min-h-screen bg-gray-50 pt-10 pb-10">
+      <Alert
+        show={notification.show}
+        type={notification.type}
+        message={notification.message}
+        onClose={() => setNotification({ ...notification, show: false })}
+      />
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setConfirmModalOpen(false)}
+        title={confirmModalContent.title}
+      >
+        <p>{confirmModalContent.message}</p>
+        <div className="flex justify-end space-x-4 mt-4">
+          <button
+            onClick={() => setConfirmModalOpen(false)}
+            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={confirmModalContent.onConfirm}
+            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+          >
+            Confirm
+          </button>
+        </div>
+      </Modal>
+      {/* Spacer between navbar and header */}
+      <div className="h-16"></div>
+
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-4xl mx-auto px-4">
           {/* Title and Add Button */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">My Achievements</h1>
-              <p className="text-gray-600">Manage and showcase your personal accomplishments</p>
+              <h1 className="text-2xl font-bold text-gray-900">My Achievements</h1>
+              <p className="text-gray-600 mt-1">Manage and showcase your personal accomplishments</p>
             </div>
-            <button
-              onClick={() => navigate('/achievements/create')}
-              className=" text-white px-4 py-2 rounded-lg bg-red-800 transition-colors flex items-center space-x-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Add Achievement</span>
-            </button>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => navigate('/achievements/create')}
+                className="bg-red-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors font-medium"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                <span>Add Achievement</span>
+              </button>
+            </div>
           </div>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-6">
-            <div className="bg-gray-50 rounded-lg p-4 text-center">
+            <motion.div
+              className="bg-gray-50 rounded-lg p-4 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+            >
               <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
               <div className="text-sm text-gray-600">Total</div>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-4 text-center">
+            </motion.div>
+            <motion.div
+              className="bg-blue-50 rounded-lg p-4 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+            >
               <div className="text-2xl font-bold text-blue-600">{stats.projects}</div>
               <div className="text-sm text-blue-600">Projects</div>
-            </div>
-            <div className="bg-purple-50 rounded-lg p-4 text-center">
+            </motion.div>
+            <motion.div
+              className="bg-purple-50 rounded-lg p-4 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.3 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+            >
               <div className="text-2xl font-bold text-purple-600">{stats.certificates}</div>
               <div className="text-sm text-purple-600">Certificates</div>
-            </div>
-            <div className="bg-yellow-50 rounded-lg p-4 text-center">
+            </motion.div>
+            <motion.div
+              className="bg-yellow-50 rounded-lg p-4 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.4 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+            >
               <div className="text-2xl font-bold text-yellow-600">{stats.awards}</div>
               <div className="text-sm text-yellow-600">Awards</div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4 text-center">
+            </motion.div>
+            <motion.div
+              className="bg-green-50 rounded-lg p-4 text-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.5 }}
+              whileHover={{ scale: 1.05, y: -2 }}
+            >
               <div className="text-2xl font-bold text-green-600">{stats.jobs}</div>
               <div className="text-sm text-green-600">Jobs</div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Search and Filters */}
@@ -235,82 +306,69 @@ const MyAchievements = () => {
                   placeholder="Search my achievements..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent"
-                />
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent" />
               </div>
             </div>
 
             <div className="flex items-center justify-between lg:justify-end space-x-4">
               {/* Type Filter Buttons */}
               <div className="flex items-center space-x-2">
-                <button 
+                <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'project' ? null : 'project')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
-                    activeTypeFilter === 'project'
+                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'project'
                       ? 'bg-blue-100 border-blue-300 text-blue-700'
-                      : 'bg-white hover:bg-gray-50'
-                  }`}
+                      : 'bg-white hover:bg-gray-50'}`}
                   title="Projects"
                 >
                   🚀
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'job' ? null : 'job')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
-                    activeTypeFilter === 'job'
+                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'job'
                       ? 'bg-green-100 border-green-300 text-green-700'
-                      : 'bg-white hover:bg-gray-50'
-                  }`}
+                      : 'bg-white hover:bg-gray-50'}`}
                   title="Jobs"
                 >
                   💼
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' || activeTypeFilter === 'certificate' ? null : 'certification')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
-                    activeTypeFilter === 'certification' || activeTypeFilter === 'certificate'
+                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'certification' || activeTypeFilter === 'certificate'
                       ? 'bg-purple-100 border-purple-300 text-purple-700'
-                      : 'bg-white hover:bg-gray-50'
-                  }`}
+                      : 'bg-white hover:bg-gray-50'}`}
                   title="Certificate"
                 >
                   🎓
                 </button>
-                <button 
+                <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'award' ? null : 'award')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
-                    activeTypeFilter === 'award'
+                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'award'
                       ? 'bg-yellow-100 border-yellow-300 text-yellow-700'
-                      : 'bg-white hover:bg-gray-50'
-                  }`}
+                      : 'bg-white hover:bg-gray-50'}`}
                   title="Award"
                 >
                   🏆
                 </button>
               </div>
-              
+
               {/* View Toggle */}
               <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
-                <button 
+                <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded transition-colors ${
-                    viewMode === 'grid'
+                  className={`p-2 rounded transition-colors ${viewMode === 'grid'
                       ? 'text-red-600 bg-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                      : 'text-gray-400 hover:text-gray-600'}`}
                   title="Grid View"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   </svg>
                 </button>
-                <button 
+                <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded transition-colors ${
-                    viewMode === 'list'
+                  className={`p-2 rounded transition-colors ${viewMode === 'list'
                       ? 'text-red-600 bg-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
+                      : 'text-gray-400 hover:text-gray-600'}`}
                   title="List View"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,22 +385,20 @@ const MyAchievements = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Loading State for Initial Load */}
         {loading && !achievements.length ? (
-          <div className={viewMode === 'grid' 
+          <div className={viewMode === 'grid'
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            : "space-y-4"
-          }>
+            : "space-y-4"}>
             {[...Array(6)].map((_, i) => (
-              <div key={i} className={`bg-white rounded-lg border border-gray-200 animate-pulse ${
-                viewMode === 'grid' ? 'p-6' : 'p-4'
-              }`}>
+              <div key={i} className={`bg-white rounded-lg border border-gray-200 animate-pulse ${viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'}`}>
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
                   <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col flex-1 space-y-3">
                   <div className="h-6 bg-gray-200 rounded w-3/4"></div>
                   <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-12 bg-gray-200 rounded"></div>
+                  <div className="h-12 bg-gray-200 rounded flex-1"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4 mt-auto"></div>
                 </div>
               </div>
             ))}
@@ -357,16 +413,22 @@ const MyAchievements = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className={viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  : "space-y-4"
-                }
+                className={viewMode === 'grid'
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
+                  : "space-y-4"}
               >
                 {filteredAchievements.length > 0 ? (
                   filteredAchievements.map((achievement, index) => (
-                    <div
+                    <motion.div
                       key={`${achievement.id}-${index}`}
                       ref={index === filteredAchievements.length - 1 ? lastAchievementRef : null}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: index * 0.1,
+                        ease: "easeOut"
+                      }}
                     >
                       <AchievementCard
                         achievement={achievement}
@@ -375,21 +437,19 @@ const MyAchievements = () => {
                         viewMode={viewMode}
                         onView={() => {
                           // Handle view achievement - modal opens automatically
-                        }}
+                        } }
                         onEdit={(achievement) => {
                           navigate(`/achievements/edit/${achievement.id}`);
-                        }}
+                        } }
                         onDelete={handleDeleteAchievement}
                         onLike={handleLike}
-                        onComment={handleComment}
-                      />
-                    </div>
+                        onComment={handleComment} />
+                    </motion.div>
                   ))
                 ) : (
-                  <div className={viewMode === 'grid' 
+                  <div className={viewMode === 'grid'
                     ? "col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-gray-200 p-8 text-center"
-                    : "bg-white rounded-xl border border-gray-200 p-8 text-center"
-                  }>
+                    : "bg-white rounded-xl border border-gray-200 p-8 text-center"}>
                     <div className="text-gray-400 mb-4">
                       <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -401,8 +461,7 @@ const MyAchievements = () => {
                     <p className="text-gray-600 mb-4">
                       {searchQuery || activeTypeFilter
                         ? 'Try adjusting your search or filters'
-                        : 'Start by adding your first achievement to showcase your accomplishments'
-                      }
+                        : 'Start by adding your first achievement to showcase your accomplishments'}
                     </p>
                     {!searchQuery && !activeTypeFilter && (
                       <button
@@ -431,7 +490,7 @@ const MyAchievements = () => {
           </>
         )}
       </div>
-    </div>
+    </div></>
   );
 };
 

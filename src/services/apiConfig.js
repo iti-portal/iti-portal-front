@@ -44,6 +44,10 @@ export const getFileUploadHeaders = () => {
  * Handle API response and errors
  */
 export const handleApiResponse = async (response) => {
+  if (response.status === 204 || response.headers.get('Content-Length') === '0') {
+    return { success: true, data: null, message: 'Operation successful.' };
+  }
+
   const result = await response.json();
 
   if (!response.ok) {

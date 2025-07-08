@@ -7,14 +7,21 @@ import ExperienceSection from './ExperienceSection.jsx';
 import ExperienceForm from './ExperienceForm.jsx';
 import { addWorkExperience, updateWorkExperience, deleteWorkExperience } from '../../../../../services/workExperienceService';
 
-function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showNotifications = true }) {
+function ExperienceManagement({ 
+  workExperiences = [], 
+  onUpdateExperiences, 
+  showNotifications = true,
+  onShowNotification,
+  onShowConfirmation,
+  onHideConfirmation 
+}) {
   const [currentExperiences, setCurrentExperiences] = useState(workExperiences || []);
   
   // Modal state
   const [showExperienceModal, setShowExperienceModal] = useState(false);
   const [editingExperience, setEditingExperience] = useState(null);
   
-  // Notification state
+  // Notification state (fallback if parent doesn't provide notification system)
   const [notification, setNotification] = useState({ 
     show: false, 
     type: 'info', 
@@ -29,7 +36,12 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
   // Helper function to show notifications
   const showNotification = (message, type = 'success') => {
     if (showNotifications) {
-      setNotification({ show: true, type, message });
+      // Use parent notification system if available, otherwise fallback to local
+      if (onShowNotification && typeof onShowNotification === 'function') {
+        onShowNotification(message, type);
+      } else {
+        setNotification({ show: true, type, message });
+      }
     }
   };
 
@@ -50,10 +62,12 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
 
   const handleExperienceSubmit = async (formData) => {
     try {
+      console.log('handleExperienceSubmit called with data:', formData);
       let result;
       
       if (editingExperience) {
         // Update existing experience
+        console.log('Updating experience:', editingExperience.id);
         result = await updateWorkExperience(editingExperience.id, formData);
         
         if (result.success) {
@@ -81,13 +95,18 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
             exp.id === editingExperience.id ? mappedData : exp
           );
           setCurrentExperiences(updatedExperiences);
-          onUpdateExperiences(updatedExperiences);
+          
+          // Call parent update function safely
+          if (onUpdateExperiences && typeof onUpdateExperiences === 'function') {
+            onUpdateExperiences(updatedExperiences);
+          }
           
           // Only show success message if notifications are enabled
           showNotification('Work experience updated successfully!', 'success');
         }
       } else {
         // Add new experience
+        console.log('Adding new experience');
         result = await addWorkExperience(formData);
         
         if (result.success) {
@@ -113,7 +132,11 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
           
           const updatedExperiences = [...currentExperiences, mappedData];
           setCurrentExperiences(updatedExperiences);
-          onUpdateExperiences(updatedExperiences);
+          
+          // Call parent update function safely
+          if (onUpdateExperiences && typeof onUpdateExperiences === 'function') {
+            onUpdateExperiences(updatedExperiences);
+          }
           
           // Only show success message if notifications are enabled
           showNotification('🎉 Work experience added successfully! Your experience has been saved.', 'success');
@@ -123,6 +146,7 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
       // Close modal on success
       setShowExperienceModal(false);
       setEditingExperience(null);
+      console.log('Experience operation completed successfully');
       
     } catch (error) {
       console.error('Error saving work experience:', error);
@@ -131,25 +155,50 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
   };
 
   const handleExperienceDelete = async (idToDelete) => {
-    // Show confirmation dialog
-    const confirmDelete = window.confirm('Are you sure you want to delete this work experience?');
+    console.log('handleExperienceDelete called with ID:', idToDelete);
     
-    if (!confirmDelete) {
-      return;
-    }
-
-    try {
-      const result = await deleteWorkExperience(idToDelete);
-      
-      if (result.success) {
-        const updatedExperiences = currentExperiences.filter(exp => exp.id !== idToDelete);
-        setCurrentExperiences(updatedExperiences);
-        onUpdateExperiences(updatedExperiences);
-        showNotification('Work experience deleted successfully!', 'success');
-      }
-    } catch (error) {
-      console.error('Error deleting work experience:', error);
-      showNotification(`Error deleting work experience: ${error.message}`, 'error');
+    // Use parent confirmation system if available, otherwise fallback to window.confirm
+    if (onShowConfirmation && typeof onShowConfirmation === 'function') {
+      onShowConfirmation(
+        'Delete Work Experience',
+        'Are you sure you want to delete this work experience? This action cannot be undone.',
+        async () => {
+          try {
+            console.log('Confirmation accepted, attempting to delete experience with ID:', idToDelete);
+            const result = await deleteWorkExperience(idToDelete);
+            console.log('Delete result:', result);
+            
+            if (result.success) {
+              const updatedExperiences = currentExperiences.filter(exp => exp.id !== idToDelete);
+              console.log('Updated experiences:', updatedExperiences);
+              
+              setCurrentExperiences(updatedExperiences);
+              
+              // Call parent update function safely
+              if (onUpdateExperiences && typeof onUpdateExperiences === 'function') {
+                onUpdateExperiences(updatedExperiences);
+              }
+              
+              showNotification('Work experience deleted successfully!', 'success');
+              console.log('Experience deleted successfully');
+            } else {
+              throw new Error(result.message || 'Failed to delete work experience');
+            }
+          } catch (error) {
+            console.error('Error deleting work experience:', error);
+            showNotification(`Error deleting work experience: ${error.message}`, 'error');
+          } finally {
+            // Always hide confirmation modal
+            if (onHideConfirmation && typeof onHideConfirmation === 'function') {
+              onHideConfirmation();
+            }
+          }
+        },
+        'danger'
+      );
+    } else {
+      // If no confirmation system is available, show error
+      showNotification('Cannot delete experience: confirmation system not available.', 'error');
     }
   };
 
@@ -160,8 +209,8 @@ function ExperienceManagement({ workExperiences = [], onUpdateExperiences, showN
 
   return (
     <>
-      {/* Notification - only show if notifications are enabled */}
-      {showNotifications && (
+      {/* Notification - only show local fallback if parent doesn't provide notification system */}
+      {showNotifications && !onShowNotification && (
         <Alert
           show={notification.show}
           type={notification.type}

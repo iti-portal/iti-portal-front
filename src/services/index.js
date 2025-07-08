@@ -86,3 +86,23 @@ export {
   constructProfilePictureUrl, 
   constructCertificateImageUrl 
 } from './apiConfig';
+
+// Staff service exports
+export {
+  retrieveStaff,
+  createStaff,
+  updateStaff,
+  deleteStaff,
+  getStaffDetails,
+  suspendUser,
+  unsuspendUser
+} from './staffService';
+
+// Services service exports
+export {
+  getUsedServices,
+  getAlumniServiceDetails,
+  getUnusedServices,
+  evaluateService,
+  deleteService
+} from './servicesService';

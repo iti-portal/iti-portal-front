@@ -4,24 +4,118 @@ import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
 import Logo from '../Common/Logo';
 
-import NotificationDropdown from '../Common/Notifications/NotificationsDropdown';
-
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
   const [refreshingProfile, setRefreshingProfile] = useState(false);
+  const [alert, setAlert] = useState({ show: false, message: '', type: 'info' });
+  const [loginSuccessAlert, setLoginSuccessAlert] = useState({ show: false, message: '' });
+  const [hasShownLoginAlert, setHasShownLoginAlert] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout, refreshUserProfile } = useAuth();
+  const { user, logout, refreshUserProfile, isAuthenticated } = useAuth();
   const desktopDropdownRef = useRef(null);
   const mediumDropdownRef = useRef(null);
   const smallDropdownRef = useRef(null);
 
-  // Debug: Log user data
-  React.useEffect(() => {
-    
-  }, [user]);
+  // Show welcome message after login with completion percentage (only once per session on home page)
+  useEffect(() => {
+    const showLoginAlert = async () => {
+      // Only show on home page ('/' route)
+      const isHomePage = location.pathname === '/';
+      
+      // Check if alert has already been shown in this session
+      const alertShownKey = `loginAlert_${user?.id}_shown`;
+      const hasShownInSession = sessionStorage.getItem(alertShownKey) === 'true';
+      
+      if (isAuthenticated && user && user.profile && !hasShownInSession && isHomePage) {
+        const userName = user.profile.first_name || user.name || 'User';
+        
+        // Check if user is student/alumni to fetch completion percentage
+        const isStudentOrAlumni = user.role === USER_ROLES.STUDENT || 
+          user.role === USER_ROLES.ALUMNI || 
+          user.role === 'student' || 
+          user.role === 'alumni' ||
+          (user.role === undefined && user.profile && (user.profile.track || user.profile.intake));
+
+        let completionMessage = `Welcome back, ${userName}! 👋`;
+        
+        if (isStudentOrAlumni) {
+          try {
+            const response = await getGeneralStatistics();
+            if (response && response.success && response.data && response.data.completion_percentage !== undefined) {
+              const percentage = Math.round(response.data.completion_percentage);
+              completionMessage = `Welcome back, ${userName}! 👋 Your profile is ${percentage}% complete.`;
+            }
+          } catch (error) {
+            console.error('Failed to fetch completion percentage for login alert:', error);
+          }
+        }
+        
+        setLoginSuccessAlert({
+          show: true,
+          message: completionMessage
+        });
+        
+        // Mark as shown in session storage
+        sessionStorage.setItem(alertShownKey, 'true');
+        setHasShownLoginAlert(true);
+        
+        // Auto-hide after 5 seconds (increased to give time to read percentage)
+        const timer = setTimeout(() => {
+          setLoginSuccessAlert({ show: false, message: '' });
+        }, 5000);
+        
+        return () => clearTimeout(timer);
+      }
+    };
+
+    showLoginAlert();
+  }, [isAuthenticated, user, location.pathname]);
+
+
+
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      // Check if user is authenticated and has a profile (indicating student/alumni)
+      // Since role is undefined, we'll check if user has a student profile
+      const isStudentOrAlumni = isAuthenticated && user && user.profile && (
+        user.role === USER_ROLES.STUDENT || 
+        user.role === USER_ROLES.ALUMNI || 
+        user.role === 'student' || 
+        user.role === 'alumni' ||
+        // If role is undefined but user has student profile data, assume they're a student/alumni
+        (user.role === undefined && user.profile && (user.profile.track || user.profile.intake))
+      );
+
+      if (isStudentOrAlumni) {
+        try {
+          const response = await getGeneralStatistics();
+          
+          if (response && response.success && response.data) {
+            if (response.data.completion_percentage < 100 && response.data.missing_fields && response.data.missing_fields.length > 0) {
+              const missingFields = response.data.missing_fields.join(', ');
+              setAlert({
+                show: true,
+                message: `Your profile is incomplete. Please add: ${missingFields}.`,
+                type: 'warning',
+              });
+            } else {
+              setAlert({ show: false, message: '', type: 'info' });
+            }
+          }
+        } catch (error) {
+          console.error('Failed to fetch statistics:', error);
+        }
+      }
+    };
+
+    // Add a small delay to ensure user data is fully loaded
+    if (user) {
+      setTimeout(fetchStatistics, 100);
+    }
+  }, [isAuthenticated, user]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -58,6 +152,15 @@ const Navbar = () => {
     try {
       setLogoutLoading(true);
       const result = await logout();
+      
+      // Clear login alert session storage
+      if (user?.id) {
+        sessionStorage.removeItem(`loginAlert_${user.id}_shown`);
+      }
+      
+      // Reset login alert state
+      setHasShownLoginAlert(false);
+      setLoginSuccessAlert({ show: false, message: '' });
       
       if (result.success) {
         navigate('/login');
@@ -97,8 +200,8 @@ const Navbar = () => {
     
     if (isDesktop) {
       return isActive 
-        ? "text-[#901b20] border-b-2 border-[#901b20] pb-1 whitespace-nowrap font-semibold"
-        : "text-gray-700 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-200";
+        ? "text-[#901b20] font-semibold border-b-2 border-[#901b20] pb-1 whitespace-nowrap"
+        : "text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300";
     } else {
       // Mobile sidebar styles
       return isActive
@@ -107,7 +210,35 @@ const Navbar = () => {
     }
   };
 
-  return (    <header className="w-full bg-white shadow-sm border-b px-2 sm:px-4 py-2 flex items-center justify-between relative">
+  // Function to handle protected navigation
+  const handleProtectedNavigation = (e, path) => {
+    if (!user) {
+      e.preventDefault();
+      navigate('/login');
+    }
+  };
+
+  return (
+    <>
+      {/* Login Success Alert - Floating notification */}
+      {loginSuccessAlert.show && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[60] animate-slide-down">
+          <div className="bg-green-100 border border-green-400 text-green-700 px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 max-w-md">
+            <span className="material-icons text-green-600 text-xl">check_circle</span>
+            <div className="flex-1">
+              <span className="font-medium text-sm">{loginSuccessAlert.message}</span>
+            </div>
+            <button
+              onClick={() => setLoginSuccessAlert({ show: false, message: '' })}
+              className="ml-2 text-green-600 hover:text-green-800 transition-colors flex-shrink-0"
+            >
+              <span className="material-icons text-lg">close</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <header className="w-full bg-white/95 backdrop-blur-md shadow-lg border-b border-white/20 px-2 sm:px-4 py-2 flex items-center justify-between fixed z-50 top-0 left-0">
       {/* Logo - Always visible on left */}
       <div className="flex items-center gap-1 sm:gap-2 font-bold text-sm sm:text-base lg:text-lg text-[#901b20] flex-shrink-0">
         <Logo size="small" className="!mb-0 !mx-0 h-6 sm:h-8" />
@@ -117,15 +248,23 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-between ml-4 xl:ml-6">
         <nav className="flex items-center gap-2 xl:gap-4 text-xs xl:text-sm font-medium">
           <Link to="/" className={getLinkClasses('/')}>Home</Link>
-          <Link to="/student/profile" className={getLinkClasses('/profile')}>Profile</Link>
-          <Link to="/jobs" className={getLinkClasses('/jobs')}>Jobs</Link>
-          <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
-          {user?.role === USER_ROLES.ADMIN && (
-            <Link to="/admin/dashboard" className={getLinkClasses('/admin')}>Admin</Link>
+          {user ? (
+            <>
+              <Link to="/student/availablejobs" className={getLinkClasses('/jobs')}>Jobs</Link>
+              <Link to="/company" className={getLinkClasses('/company')}>Company</Link>
+              {user?.role === USER_ROLES.ADMIN && (
+                <Link to="/admin/dashboard" className={getLinkClasses('/admin')}>Admin</Link>
+              )}
+              <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
+              <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
+              <Link to="/student/articles" className={getLinkClasses('/articles')}>Articles</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/about" className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">About Us</Link>
+              <Link to="/contact" className="text-gray-800 hover:text-[#901b20] whitespace-nowrap pb-1 border-b-2 border-transparent hover:border-[#901b20] transition-all duration-300">Contact Us</Link>
+            </>
           )}
-          <Link to="/network" className={getLinkClasses('/network')}>Network</Link>
-          <Link to="/achievements" className={getLinkClasses('/achievements')}>Achievements</Link>
-          <Link to="/articles" className={getLinkClasses('/articles')}>Articles</Link>
         </nav>
         <div className="flex items-center gap-2 xl:gap-4">
           <input
@@ -136,18 +275,7 @@ const Navbar = () => {
           <button className="bg-[#901b20] text-white px-2 xl:px-4 py-1 xl:py-2 rounded font-semibold hover:bg-[#a83236] transition text-xs xl:text-sm whitespace-nowrap">
             Post Job
           </button>
-
-
-
-
-          {/* <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl dropdown">notifications_none</span> */}
-          <NotificationDropdown />
-          
-                    
-          
-          
-          
-          
+          <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">notifications_none</span>
           <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
           <button
             onClick={handleLogout}
@@ -181,6 +309,22 @@ const Navbar = () => {
                     {user?.email || 'No email available'}
                   </div>
                 </div>
+                {alert.show && (
+                  <div className="px-4 py-3 border-b border-gray-200 bg-yellow-50">
+                    <Alert
+                      message={alert.message}
+                      type={alert.type}
+                      onClose={() => setAlert({ ...alert, show: false })}
+                    />
+                    <Link
+                      to="/student/profile/edit"
+                      onClick={() => setProfileDropdownOpen(false)}
+                      className="inline-block mt-2 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                    >
+                      Complete Profile →
+                    </Link>
+                  </div>
+                )}
                 
                 <button 
                   onClick={(e) => {
@@ -190,7 +334,7 @@ const Navbar = () => {
                     setProfileDropdownOpen(false);
                     navigate('/student/profile');
                   }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
                 >
                   <span className="material-icons text-lg mr-3">person</span>
                   View Profile
@@ -204,7 +348,7 @@ const Navbar = () => {
                     setProfileDropdownOpen(false);
                     navigate('/my-achievements');
                   }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
                 >
                   <span className="material-icons text-lg mr-3">emoji_events</span>
                   My Achievements
@@ -218,24 +362,10 @@ const Navbar = () => {
                     setProfileDropdownOpen(false);
                     navigate('/student/profile/edit');
                   }}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
                 >
                   <span className="material-icons text-lg mr-3">edit</span>
                   Edit Profile
-                </button>
-                
-                <button 
-                  onClick={() => {
-                    setProfileDropdownOpen(false);
-                    handleRefreshProfile();
-                  }}
-                  disabled={refreshingProfile}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left disabled:opacity-50"
-                >
-                  <span className="material-icons text-lg mr-3">
-                    {refreshingProfile ? 'hourglass_empty' : 'refresh'}
-                  </span>
-                  {refreshingProfile ? 'Refreshing...' : 'Refresh Profile'}
                 </button>
                 
                 <div className="border-t border-gray-200 mt-2 pt-2">
@@ -245,7 +375,7 @@ const Navbar = () => {
                       handleLogout();
                     }}
                     disabled={logoutLoading}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <span className="material-icons text-lg mr-3">
                       {logoutLoading ? 'hourglass_empty' : 'logout'}
@@ -255,7 +385,8 @@ const Navbar = () => {
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -495,98 +626,137 @@ const Navbar = () => {
                 <span className="material-icons text-lg mr-3 align-middle">home</span>
                 Home
               </Link>
-              <Link to="/student/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">person</span>
-                Profile
-              </Link>
-              <Link to="/jobs" className={getLinkClasses('/jobs', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">work</span>
-                Jobs
-              </Link>
-              <Link to="/company" className={getLinkClasses('/company', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">business</span>
-                Company
-              </Link>
-              {user?.role === USER_ROLES.ADMIN && (
-                <Link to="/admin/dashboard" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
-                  <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
-                  Admin
-                </Link>
+              {user ? (
+                <>
+                  <Link to="/student/profile" className={getLinkClasses('/profile', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">person</span>
+                    Profile
+                  </Link>
+                  <Link to="/jobs" className={getLinkClasses('/jobs', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">work</span>
+                    Jobs
+                  </Link>
+                  <Link to="/company" className={getLinkClasses('/company', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">business</span>
+                    Company
+                  </Link>
+                  {user?.role === USER_ROLES.ADMIN && (
+                    <Link to="/admin/dashboard" className={getLinkClasses('/admin', false)} onClick={() => setMenuOpen(false)}>
+                      <span className="material-icons text-lg mr-3 align-middle">admin_panel_settings</span>
+                      Admin
+                    </Link>
+                  )}
+                  <Link to="/network" className={getLinkClasses('/network', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">group</span>
+                    Network
+                  </Link>              <Link to="/achievements" className={getLinkClasses('/achievements', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">emoji_events</span>
+                    Achievements
+                  </Link>
+                  <Link to="/my-achievements" className={getLinkClasses('/my-achievements', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">star</span>
+                    My Achievements
+                  </Link>
+                  <Link to="/articles" className={getLinkClasses('/articles', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">article</span>
+                    Articles
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/about" className={getLinkClasses('/about', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">info</span>
+                    About Us
+                  </Link>
+                  <Link to="/contact" className={getLinkClasses('/contact', false)} onClick={() => setMenuOpen(false)}>
+                    <span className="material-icons text-lg mr-3 align-middle">contact_mail</span>
+                    Contact Us
+                  </Link>
+                </>
               )}
-              <Link to="/network" className={getLinkClasses('/network', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">group</span>
-                Network
-              </Link>              <Link to="/achievements" className={getLinkClasses('/achievements', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">emoji_events</span>
-                Achievements
-              </Link>
-              <Link to="/my-achievements" className={getLinkClasses('/my-achievements', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">star</span>
-                My Achievements
-              </Link>
-              <Link to="/articles" className={getLinkClasses('/articles', false)} onClick={() => setMenuOpen(false)}>
-                <span className="material-icons text-lg mr-3 align-middle">article</span>
-                Articles
-              </Link>
             </nav>
             
-            {/* Search and Actions */}
-            <div className="p-4 border-t border-gray-200 space-y-3">
-              <input
-                type="text"
-                placeholder="Search ITI Portal..."
-                className="border border-[#901b20] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-full"
-              />
-              <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition text-sm w-full">
-                <span className="material-icons text-lg mr-2 align-middle">add</span>
-                Post Job
-              </button>
-            </div>
+            {/* Search and Actions - Only for authenticated users */}
+            {user && (
+              <div className="p-4 border-t border-gray-200 space-y-3">
+                <input
+                  type="text"
+                  placeholder="Search ITI Portal..."
+                  className="border border-[#901b20] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-full"
+                />
+                <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition text-sm w-full">
+                  <span className="material-icons text-lg mr-2 align-middle">add</span>
+                  Post Job
+                </button>
+              </div>
+            )}
             
-            {/* User Section */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex items-center gap-3 mb-3">
-                <Link to="/student/profile" onClick={() => setMenuOpen(false)}>
-                  <img
-                    src={user?.profile?.profile_picture || "/avatar.png"}
-                    alt="User"
-                    className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
-                  />
-                </Link>
-                <div className="flex-1">
-                  <div className="font-semibold text-gray-800 text-sm">
-                    {user?.profile?.first_name && user?.profile?.last_name 
-                      ? `${user.profile.first_name} ${user.profile.last_name}` 
-                      : user?.name || 'User'}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {user?.email || 'No email available'}
+            {/* User Section - Only for authenticated users */}
+            {user && (
+              <div className="p-4 border-t border-gray-200 bg-gray-50">
+                <div className="flex items-center gap-3 mb-3">
+                  <Link to="/student/profile" onClick={() => setMenuOpen(false)}>
+                    <img
+                      src={user?.profile?.profile_picture || "/avatar.png"}
+                      alt="User"
+                      className="w-10 h-10 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+                    />
+                  </Link>
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-800 text-sm">
+                      {user?.profile?.first_name && user?.profile?.last_name 
+                        ? `${user.profile.first_name} ${user.profile.last_name}` 
+                        : user?.name || 'User'}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {user?.email || 'No email available'}
+                    </div>
                   </div>
                 </div>
+                <div className="flex items-center justify-around pt-2 border-t border-gray-200">
+                  <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
+                    <span className="material-icons text-gray-500">notifications_none</span>
+                    <span className="text-xs text-gray-600">Notifications</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
+                    <span className="material-icons text-gray-500">settings</span>
+                    <span className="text-xs text-gray-600">Settings</span>
+                  </button>
+                  <button 
+                    onClick={handleLogout}
+                    disabled={logoutLoading}
+                    className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <span className="material-icons text-gray-500">
+                      {logoutLoading ? 'hourglass_empty' : 'logout'}
+                    </span>
+                    <span className="text-xs text-gray-600">
+                      {logoutLoading ? 'Logging out...' : 'Logout'}
+                    </span>
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center justify-around pt-2 border-t border-gray-200">
-                <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                  <span className="material-icons text-gray-500">notifications_none</span>
-                  <span className="text-xs text-gray-600">Notifications</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                  <span className="material-icons text-gray-500">settings</span>
-                  <span className="text-xs text-gray-600">Settings</span>
-                </button>
-                <button 
-                  onClick={handleLogout}
-                  disabled={logoutLoading}
-                  className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            )}
+            
+            {/* Login/Register Section - Only for unauthenticated users */}
+            {!user && (
+              <div className="p-4 border-t border-gray-200 space-y-3">
+                <Link 
+                  to="/login" 
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition text-sm text-center"
                 >
-                  <span className="material-icons text-gray-500">
-                    {logoutLoading ? 'hourglass_empty' : 'logout'}
-                  </span>
-                  <span className="text-xs text-gray-600">
-                    {logoutLoading ? 'Logging out...' : 'Logout'}
-                  </span>
-                </button>
+                  Login
+                </Link>
+                <Link 
+                  to="/register" 
+                  onClick={() => setMenuOpen(false)}
+                  className="block w-full border border-[#901b20] text-[#901b20] px-4 py-2 rounded-lg font-semibold hover:bg-[#901b20] hover:text-white transition text-sm text-center"
+                >
+                  Register
+                </Link>
               </div>
-            </div>
+            )}
           </div>
           
           {/* Overlay */}
@@ -597,6 +767,7 @@ const Navbar = () => {
         </>
       )}
     </header>
+    </>
   );
 };
 

@@ -68,7 +68,7 @@ const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
 
   return (
     <img
-      src={currentSrc || PLACEHOLDERS.AVATAR_USER}
+      src={currentSrc || "/avatar.png"}
       alt={alt}
       className={className}
       onLoad={handleImageLoad}
