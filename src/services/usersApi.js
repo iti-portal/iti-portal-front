@@ -44,3 +44,27 @@ export const deleteUser = async (userId) => {
   });
   return response.data;
 };
+
+
+export const createConnection = async (userId, message) => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/connections/connect`, 
+      {
+        user_id: Number(userId),
+        message: message
+      },
+      {
+        headers: getAuthHeaders(),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('API Error Details:', {
+      config: error.config,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    throw error;
+  }
+};

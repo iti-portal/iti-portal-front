@@ -226,6 +226,14 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/profile/:id" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ProfilePage /> 
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/student/profile/edit" 
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
