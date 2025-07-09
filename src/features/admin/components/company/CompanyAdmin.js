@@ -8,7 +8,7 @@ import Alert from "../../../../components/UI/Alert";
 
 function JobAdmin() {
   const [companies, setCompanies] = useState([]);
-  const [copycompanies, setCopyCompanies] = useState([]);
+  const [copyCompanies, setCopyCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sortOption, setSortOption] = useState("");
@@ -18,9 +18,45 @@ function JobAdmin() {
   const [notification, setNotification] = useState({ show: false, type: 'info', message: '' });
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
+  const [deletingId, setDeletingId] = useState(null);
 
+  const itemsPerPage = 6;
 
-   const [deletingId, setDeletingId] = useState(null);
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  async function fetchCompanies() {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token');
+      const response = await fetch("http://127.0.0.1:8000/api/companies", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch companies");
+      }
+
+      const data = await response.json();
+      const approvedCompanies = data.data.filter(company => 
+        company.user?.status === "approved"
+      );
+      
+      setCompanies(approvedCompanies);       
+      setCopyCompanies(approvedCompanies);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setError(error.message || "Failed to load companies. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const handleDeleteCompany = async (companyId) => {
     const companyToDelete = companies.find(c => c.id === companyId);
@@ -53,17 +89,15 @@ function JobAdmin() {
     };
 
     setConfirmModalContent({
-        title: 'Confirm Deletion',
-        message: `Are you sure you want to delete "${companyToDelete.company_name}"? This action cannot be undone.`,
-        onConfirm: () => {
-            handleDelete();
-            setConfirmModalOpen(false);
-        }
+      title: 'Confirm Deletion',
+      message: `Are you sure you want to delete "${companyToDelete.company_name}"? This action cannot be undone.`,
+      onConfirm: () => {
+        handleDelete();
+        setConfirmModalOpen(false);
+      }
     });
     setConfirmModalOpen(true);
   };
-
-  const itemsPerPage = 6;
 
   const paginatedCompanies = companies.slice(
     (currentPage - 1) * itemsPerPage,
@@ -78,41 +112,6 @@ function JobAdmin() {
       setCurrentPage(page);
     }
   };
-
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
-
-  async function fetchCompanies() {
-    try {
-      const token = localStorage.getItem('token');
-      setLoading(true);
-      const response = await fetch("http://127.0.0.1:8000/api/companies", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const data = await response.json();
-         const approvedCompanies = data.data.filter(company => 
-      company.user?.status === "approved"
-    );
-      setCompanies(approvedCompanies);       
-      setCopyCompanies(approvedCompanies);
-    } catch (error) {
-      console.error("Fetch error:", error);
-      setError("Failed to load companies. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString();
@@ -139,17 +138,15 @@ function JobAdmin() {
     const term = e.target.value;
     setSearchTerm(term);
     if (term) {
-      const filterData = copycompanies.filter((company) =>
+      const filterData = copyCompanies.filter((company) =>
         company.company_name.toLowerCase().includes(term.toLowerCase())
       );
       setCompanies(filterData);
       setCurrentPage(1);
     } else {
-      setCompanies(copycompanies);
+      setCompanies(copyCompanies);
     }
   };
-
-
 
   const handleSortChange = (e) => {
     const selected = e.target.value;
@@ -219,215 +216,220 @@ function JobAdmin() {
       </Modal>
    
       <div className="flex flex-1 bg-gray-50 overflow-hidden">
-        {/* Sidebar */}
         <AdminSidebar />
         
-        {/* Main Content */}
         <main className="flex-1 overflow-auto p-6">
-          <div className="max-w-full mx-auto bg-white rounded-lg shadow border p-6">
-            <div className="w-full space-y-4 md:space-y-6">
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-800">Company Management</h2>
-              </div>
-
-              {/* Filters */}
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                <input
-                  type="text"
-                  placeholder="Search companies..."
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-full"
-                />
-
-                <select
-                  value={sortOption}
-                  onChange={handleSortChange}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/3"
-                >
-                  <option value="">Sort By</option>
-                  <option value="name_asc">Name (A-Z)</option>
-                  <option value="name_desc">Name (Z-A)</option>
-                  <option value="location">Location</option>
-                  <option value="industry">Industry</option>
-                  <option value="company_size">Company Size</option>
-                </select>
-              </div>
-
-              {/* Table Container */}
-              <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto">
-                {loading ? (
-                  <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
-                    <p className="text-gray-500">Loading companies...</p>
-                  </div>
-                ) : error ? (
-                  <div className="text-center py-12">
-                    <div className="text-red-500 mb-4">
-                      <Building className="mx-auto h-12 w-12" />
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                      Error Loading Companies  Error: {error}
-                    </h3>
-                    <p className="text-gray-500 mb-4">{error}</p>
-                    <button
-                      onClick={fetchCompanies}
-                      className="bg-[#901b20] hover:bg-[#a83236] text-white px-4 py-2 rounded-lg text-sm font-medium"
-                    >
-                      Try Again
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    {/* Table */}
-                    <div className="min-w-[800px] w-full">
-                      <table className="w-full">
-                        <thead className="sticky top-0 z-10 bg-gray-50">
-                          <tr className="text-gray-700">
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">#</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Company Name</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Location</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Industry</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Size</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Status</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Established</th>
-                            <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {displayCompanies.length === 0 ? (
-                            <tr>
-                              <td colSpan={8} className="py-6 text-center text-gray-400 text-sm">
-                                No companies found.
-                              </td>
-                            </tr>
-                          ) : (
-                            displayCompanies.map((company, index) => (
-                              <tr key={company.id || index} className="border-t hover:bg-gray-50 transition-colors">
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <div className="font-medium text-gray-600">
-                                    {(currentPage - 1) * itemsPerPage + index + 1}
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <div className="font-medium text-gray-900">
-                                    <div className="truncate max-w-[120px] sm:max-w-[180px]" title={company.company_name}>
-                                      {company.company_name}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <div className="text-gray-600">
-                                    <div className="truncate max-w-[100px] sm:max-w-[140px]" title={company.location}>
-                                      {company.location}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <div className="text-gray-600">
-                                    <div className="truncate max-w-[100px] sm:max-w-[140px]" title={company.industry || 'N/A'}>
-                                      {company.industry || 'N/A'}
-                                    </div>
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-                                    {company.company_size || 'N/A'}
-                                  </span>
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  {getStatusBadge(company.user.status)}
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <div className="text-gray-600">
-                                    {formatDate(company.established_at)}
-                                  </div>
-                                </td>
-                                <td className="py-3 px-4 text-sm text-center">
-                                  <div className="flex items-center justify-center gap-2.5">
-                                    <button 
-                                      className="group relative flex items-center justify-center h-8 w-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm"
-                                      onClick={() => navigate(`/admin/companies/${company.id}`)}
-                                    >
-                                      <Eye className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                      className="group relative flex items-center justify-center h-8 w-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow-sm"
-                                        onClick={() => handleDeleteCompany(company.id)}
-                                   >
-                                        {deletingId === company.id ? (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                                            ) : (
-                                            <Trash2 className="w-4 h-4" />
-                                        )}
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* Pagination */}
-                    {showPagination && (
-                      <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t text-sm text-gray-600 gap-4">
-                        <div>
-                          <span className="hidden sm:inline">
-                            Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
-                            {Math.min(currentPage * itemsPerPage, companies.length)} of {companies.length} results
-                          </span>
-                          <span className="sm:hidden">
-                            Page {currentPage} of {totalPages}
-                          </span>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                          >
-                            Previous
-                          </button>
-                          
-                          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                            const start = Math.max(0, Math.min(currentPage - 3, totalPages - 5));
-                            const pageIndex = start + i;
-                            
-                            if (pageIndex >= 0 && pageIndex < totalPages) {
-                              return (
-                                <button
-                                  key={pageIndex}
-                                  className={`px-3 py-1 rounded ${
-                                    currentPage === pageIndex + 1
-                                      ? 'bg-[#901b20] text-white'
-                                      : 'border border-gray-300 bg-white hover:bg-gray-100'
-                                  }`}
-                                  onClick={() => handlePageChange(pageIndex + 1)}
-                                >
-                                  {pageIndex + 1}
-                                </button>
-                              );
-                            }
-                            return null;
-                          }).filter(Boolean)}
-                          
-                          <button
-                            className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                          >
-                            Next
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
+          {loading ? (
+            <div className="flex justify-center items-center h-full">
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
+                <p className="text-gray-500">Loading companies...</p>
               </div>
             </div>
-          </div>
+          ) : error ? (
+            <div className="max-w-full mx-auto bg-white rounded-lg shadow border p-6">
+              <div className="text-center py-12">
+                <div className="text-red-500 mb-4">
+                  <Building className="mx-auto h-12 w-12" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Error Loading Companies
+                </h3>
+                <p className="text-gray-500 mb-4">{error}</p>
+                <button
+                  onClick={fetchCompanies}
+                  className="bg-[#901b20] hover:bg-[#a83236] text-white px-4 py-2 rounded-lg text-sm font-medium"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-full mx-auto bg-white rounded-lg shadow border p-6">
+              <div className="w-full space-y-4 md:space-y-6">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-800">Company Management</h2>
+                </div>
+
+                {/* Filters */}
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                  <input
+                    type="text"
+                    placeholder="Search companies..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-full"
+                  />
+
+                  <select
+                    value={sortOption}
+                    onChange={handleSortChange}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-sm w-1/3"
+                  >
+                    <option value="">Sort By</option>
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                    <option value="location">Location</option>
+                    <option value="industry">Industry</option>
+                    <option value="company_size">Company Size</option>
+                  </select>
+                </div>
+
+                {/* Table Container */}
+                <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto">
+                  {/* Table */}
+                  <div className="min-w-[800px] w-full">
+                    <table className="w-full">
+                      <thead className="sticky top-0 z-10 bg-gray-50">
+                        <tr className="text-gray-700">
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">#</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Company Name</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Location</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Industry</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Size</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Status</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Established</th>
+                          <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {displayCompanies.length === 0 ? (
+                          <tr>
+                            <td colSpan={8} className="py-6 text-center text-gray-400 text-sm">
+                              {searchTerm ? "No companies match your search. Try a different search term." : "No companies found."}
+                            </td>
+                          </tr>
+                        ) : (
+                          displayCompanies.map((company, index) => (
+                            <tr key={company.id || index} className="border-t hover:bg-gray-50 transition-colors">
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="font-medium text-gray-600">
+                                  {(currentPage - 1) * itemsPerPage + index + 1}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="font-medium text-gray-900">
+                                  <div className="truncate max-w-[120px] sm:max-w-[180px]" title={company.company_name}>
+                                    {company.company_name}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600">
+                                  <div className="truncate max-w-[100px] sm:max-w-[140px]" title={company.location}>
+                                    {company.location}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600">
+                                  <div className="truncate max-w-[100px] sm:max-w-[140px]" title={company.industry || 'N/A'}>
+                                    {company.industry || 'N/A'}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                                  {company.company_size || 'N/A'}
+                                </span>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                {getStatusBadge(company.user?.status)}
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="text-gray-600">
+                                  {company.established_at ? formatDate(company.established_at) : 'N/A'}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-sm text-center">
+                                <div className="flex items-center justify-center gap-2.5">
+                                  <button 
+                                    className="group relative flex items-center justify-center h-8 w-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm"
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </button>
+                                  <button 
+                                    className="group relative flex items-center justify-center h-8 w-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow-sm"
+                                    onClick={() => handleDeleteCompany(company.id)}
+                                  >
+                                    {deletingId === company.id ? (
+                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                                    ) : (
+                                      <Trash2 className="w-4 h-4" />
+                                    )}
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination */}
+                  {showPagination && totalPages > 1 && (
+                    <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t text-sm text-gray-600 gap-4">
+                      <div>
+                        <span className="hidden sm:inline">
+                          Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                          {Math.min(currentPage * itemsPerPage, companies.length)} of {companies.length} results
+                        </span>
+                        <span className="sm:hidden">
+                          Page {currentPage} of {totalPages}
+                        </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => handlePageChange(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          Previous
+                        </button>
+                        
+                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                          let pageToShow;
+                          if (totalPages <= 5) {
+                            pageToShow = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageToShow = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageToShow = totalPages - 4 + i;
+                          } else {
+                            pageToShow = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <button
+                              key={pageToShow}
+                              className={`px-3 py-1 rounded ${
+                                currentPage === pageToShow
+                                  ? 'bg-[#901b20] text-white'
+                                  : 'border border-gray-300 bg-white hover:bg-gray-100'
+                              }`}
+                              onClick={() => handlePageChange(pageToShow)}
+                            >
+                              {pageToShow}
+                            </button>
+                          );
+                        })}
+                        
+                        <button
+                          className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                          onClick={() => handlePageChange(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          Next
+                        </button>
+                      </div>
+                      
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>
