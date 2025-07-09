@@ -418,20 +418,24 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
         onClose={() => setConfirmModalOpen(false)}
         title={confirmModalContent.title}
       >
-        <p>{confirmModalContent.message}</p>
-        <div className="flex justify-end space-x-4 mt-4">
-          <button
-            onClick={() => setConfirmModalOpen(false)}
-            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={confirmModalContent.onConfirm}
-            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
-          >
-            Confirm
-          </button>
+        <div className="flex justify-center items-center w-full">
+          <div className="max-w-sm w-full mx-auto">
+            <p>{confirmModalContent.message}</p>
+            <div className="flex justify-end space-x-4 mt-4">
+              <button
+                onClick={() => setConfirmModalOpen(false)}
+                className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmModalContent.onConfirm}
+                className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
         </div>
       </Modal>
 

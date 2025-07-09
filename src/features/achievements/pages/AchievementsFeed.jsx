@@ -7,6 +7,7 @@ import React, { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import AchievementCard from '../components/common/AchievementCard';
+import AchievementDetailsModal from '../components/modals/AchievementDetailsModal';
 import { useAchievementsAPI, ACHIEVEMENT_SOURCES } from '../hooks/useAchievementsAPI';
 import { likeAchievement, unlikeAchievement } from '../../../services/achievementsService';
 
@@ -36,6 +37,8 @@ const AchievementsFeed = () => {
   const [filteredAchievements, setFilteredAchievements] = useState([]);
   const [activeTypeFilter, setActiveTypeFilter] = useState(null); // null means "all"
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAchievement, setSelectedAchievement] = useState(null);
 
   // Initialize the hook manually
   React.useEffect(() => {
@@ -155,6 +158,12 @@ const AchievementsFeed = () => {
     }
   };
 
+  // Handle view achievement (open modal)
+  const handleViewAchievement = (achievement) => {
+    setSelectedAchievement(achievement);
+    setModalOpen(true);
+  };
+
   // Source tabs configuration
   const tabs = [
     {
@@ -223,39 +232,32 @@ const AchievementsFeed = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 pt-10 pb-10">
-      {/* Spacer between navbar and header */}
-      <div className="h-6"></div>
-      
-      {/* Header */}
-      <div className="bg-gradient-to-br from-gray-70 via-orange-50 to-red-50 backdrop-blur-sm border-b border-slate-200/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between py-8">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-800">
-                Achievements
-              </h1>
-              <p className="text-slate-600 mt-2 text-lg">Showcase your accomplishments and milestones</p>
-            </div>
-            <div className="flex items-center space-x-4">
+    <>
+      <AchievementDetailsModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        achievement={selectedAchievement}
+        onAchievementUpdate={handleAchievementUpdate}
+      />
+      <div className="w-full bg-white/90 min-h-[60vh] pt-0 pb-10 rounded-xl shadow-md border border-gray-100 relative z-10">
+        {/* Header & Controls */}
+        <div className="max-w-5xl mx-auto px-2 md:px-0 pt-0">
+          {/* Stats & Actions */}
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 py-8">
+            <div className="flex flex-1 gap-4">
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all duration-200 disabled:opacity-50 hover:scale-105 shadow-sm border border-slate-200"
+                className="p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all duration-200 disabled:opacity-50 border border-slate-200"
                 title="Refresh"
               >
-                <svg 
-                  className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
+                <svg className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
               <button
                 onClick={() => navigate('/achievements/create')}
-                className="bg-gradient-to-r from-red-900 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-8 py-3 rounded-xl flex items-center space-x-2 transition-all duration-200 font-semibold hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r from-red-700 to-red-500 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl flex items-center space-x-2 font-semibold shadow-sm"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -263,372 +265,231 @@ const AchievementsFeed = () => {
                 <span>Add Achievement</span>
               </button>
             </div>
-          </div>
-
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-4 gap-6 pb-8">
-            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-slate-700">{filteredAchievements.length}</div>
-                  <div className="text-slate-500 text-sm font-medium">Total Achievements</div>
-                </div>
-                <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">🎯</span>
-                </div>
+            {/* Stats */}
+            <div className="flex gap-4 flex-wrap justify-end">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                <div className="text-xl font-bold text-slate-700">{filteredAchievements.length}</div>
+                <div className="text-slate-500 text-xs font-medium">Total</div>
               </div>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">
-                    {filteredAchievements.filter(a => a.type === 'project').length}
-                  </div>
-                  <div className="text-slate-500 text-sm font-medium">Projects</div>
-                </div>
-                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">🚀</span>
-                </div>
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                <div className="text-xl font-bold text-blue-600">{filteredAchievements.filter(a => a.type === 'project').length}</div>
+                <div className="text-slate-500 text-xs font-medium">Projects</div>
               </div>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-indigo-600">
-                    {filteredAchievements.filter(a => a.type === 'certification').length}
-                  </div>
-                  <div className="text-slate-500 text-sm font-medium">Certificates</div>
-                </div>
-                <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl text-indigo-600">🎓</span>
-                </div>
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                <div className="text-xl font-bold text-indigo-600">{filteredAchievements.filter(a => a.type === 'certification').length}</div>
+                <div className="text-slate-500 text-xs font-medium">Certificates</div>
               </div>
-            </div>
-            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-emerald-600">
-                    {filteredAchievements.filter(a => a.type === 'award').length}
-                  </div>
-                  <div className="text-slate-500 text-sm font-medium">Awards</div>
-                </div>
-                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl text-emerald-600">🏆</span>
-                </div>
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                <div className="text-xl font-bold text-emerald-600">{filteredAchievements.filter(a => a.type === 'award').length}</div>
+                <div className="text-slate-500 text-xs font-medium">Awards</div>
               </div>
             </div>
           </div>
-
-          {/* Search Bar */}
-          <div className="pb-8">
-            <div className="flex items-center space-x-4">
-              <div className="flex-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search achievements, people, or skills..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-12 pr-4 py-3 border border-gray-300/60 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-[#901b20]/50 focus:border-[#901b20]/50 shadow-md transition-all duration-200"
-                />
+          {/* Search & Filters */}
+          <div className="flex flex-col md:flex-row md:items-center gap-4 pb-6">
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
               </div>
+              <input
+                type="text"
+                placeholder="Search achievements, people, or skills..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#901b20]/30 focus:border-[#901b20]/30 shadow-sm"
+              />
+            </div>
+            <div className="flex gap-2">
               <button 
                 onClick={() => setActiveTypeFilter(null)}
-                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm hover:scale-105 ${
-                  !activeTypeFilter 
-                    ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-md' 
-                    : 'bg-white/80 hover:bg-white text-gray-700 border border-gray-200/60 hover:border-gray-300/60'
-                }`}
+                className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${!activeTypeFilter ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-gray-700 border-gray-200'}`}
               >
                 All Types
               </button>
-              {/* Type Filter Icons */}
-              <div className="flex items-center space-x-3">
-                <button 
-                  onClick={() => setActiveTypeFilter(activeTypeFilter === 'project' ? null : 'project')}
-                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
-                    activeTypeFilter === 'project'
-                      ? 'bg-blue-600 border-blue-600 text-white shadow-md'
-                      : 'bg-white/80 hover:bg-blue-50 hover:border-blue-300/60'
-                  }`}
-                  title="Projects"
-                >
-                  <span className="text-lg">🚀</span>
-                </button>
-                <button 
-                  onClick={() => setActiveTypeFilter(activeTypeFilter === 'job' ? null : 'job')}
-                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
-                    activeTypeFilter === 'job'
-                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
-                      : 'bg-white/80 hover:bg-emerald-50 hover:border-emerald-300/60'
-                  }`}
-                  title="Jobs"
-                >
-                  <span className="text-lg">💼</span>
-                </button>
-                <button 
-                  onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' ? null : 'certification')}
-                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
-                    activeTypeFilter === 'certification'
-                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
-                      : 'bg-white/80 hover:bg-indigo-50 hover:border-indigo-300/60'
-                  }`}
-                  title="Certifications"
-                >
-                  <span className="text-lg">🎓</span>
-                </button>
-                <button 
-                  onClick={() => setActiveTypeFilter(activeTypeFilter === 'award' ? null : 'award')}
-                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
-                    activeTypeFilter === 'award'
-                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
-                      : 'bg-white/80 hover:bg-emerald-50 hover:border-emerald-300/60'
-                  }`}
-                  title="Awards"
-                >
-                  <span className="text-lg">🏆</span>
-                </button>
-              </div>
-              
-              {/* View Toggle */}
-              <div className="flex items-center space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-sm border border-gray-200/60">
-                <button 
-                  onClick={() => setViewMode('grid')}
-                  className={`p-3 rounded-lg transition-all duration-200 ${
-                    viewMode === 'grid'
-                      ? 'text-slate-700 bg-slate-100 shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                  title="Grid View"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={() => setViewMode('list')}
-                  className={`p-3 rounded-lg transition-all duration-200 ${
-                    viewMode === 'list'
-                      ? 'text-slate-700 bg-slate-100 shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                  title="List View"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="flex items-center justify-between bg-white/60 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-gray-200/50">
-            <div className="flex items-center space-x-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={tab.action}
-                  disabled={switching}
-                  className={`px-6 py-3 font-semibold text-sm transition-all duration-200 rounded-lg disabled:opacity-50 hover:scale-105 ${
-                    currentSource === tab.id
-                      ? 'bg-slate-700 text-white shadow-md'
-                      : 'text-gray-600 hover:text-slate-700 hover:bg-slate-50'
-                  }`}
-                >
-                  {switching && currentSource !== tab.id ? (
-                    <div className="flex items-center">
-                      <svg className="w-4 h-4 animate-spin mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                      </svg>
-                      {tab.label}
-                    </div>
-                  ) : (
-                    tab.label
-                  )}
-                </button>
-              ))}
-            </div>
-            
-            {/* View Toggle */}
-            <div className="flex items-center space-x-2">
-              <div className="text-sm text-gray-500 font-medium">View:</div>
               <button 
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'grid' 
-                    ? 'text-slate-700 bg-slate-100' 
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-                onClick={() => setViewMode('grid')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-              </button>
+                onClick={() => setActiveTypeFilter(activeTypeFilter === 'project' ? null : 'project')}
+                className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'project' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200'}`}
+                title="Projects"
+              >🚀</button>
               <button 
-                className={`p-2 rounded-lg transition-all duration-200 ${
-                  viewMode === 'list' 
-                    ? 'text-slate-700 bg-slate-100' 
-                    : 'text-gray-400 hover:text-gray-600'
-                }`}
-                onClick={() => setViewMode('list')}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
-              </button>
+                onClick={() => setActiveTypeFilter(activeTypeFilter === 'job' ? null : 'job')}
+                className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'job' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-200'}`}
+                title="Jobs"
+              >💼</button>
+              <button 
+                onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' ? null : 'certification')}
+                className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'certification' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200'}`}
+                title="Certifications"
+              >🎓</button>
+              <button 
+                onClick={() => setActiveTypeFilter(activeTypeFilter === 'award' ? null : 'award')}
+                className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'award' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-200'}`}
+                title="Awards"
+              >🏆</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Loading State for Initial Load */}
-        {loading && !achievements.length ? (
-          <div className={viewMode === 'grid' 
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            : "space-y-4"
-          }>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className={`bg-white rounded-lg border border-gray-200 animate-pulse ${
-                viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'
-              }`}>
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
-                  <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
-                </div>
-                <div className="flex flex-col flex-1 space-y-3">
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-12 bg-gray-200 rounded flex-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mt-auto"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
-            {/* Achievements Display */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={`${currentSource}-${viewMode}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className={viewMode === 'grid' 
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
-                  : "space-y-4"
-                }
+          {/* Tabs */}
+          <div className="flex items-center gap-2 pb-6">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={tab.action}
+                disabled={switching}
+                className={`px-5 py-2 font-semibold text-xs rounded-lg transition-all duration-200 border ${currentSource === tab.id ? 'bg-slate-700 text-white border-slate-700' : 'text-gray-600 bg-white border-gray-200'}`}
               >
-                {filteredAchievements.length > 0 ? (
-                  filteredAchievements.map((achievement, index) => (
-                    <motion.div
-                      key={`${achievement.id}-${index}`}
-                      ref={index === filteredAchievements.length - 1 ? lastAchievementRef : null}
-                      initial={{ opacity: 0, y: 30 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ 
-                        duration: 0.4, 
-                        delay: index * 0.1,
-                        ease: "easeOut"
-                      }}
-                    >
-                      <AchievementCard
-                        achievement={achievement}
-                        showUser={true}
-                        showActions={false}
-                        viewMode={viewMode}
-                        onView={(achievement) => {
-                          // Handle view achievement - modal opens automatically
-                        }}
-                        onLike={handleLike}
-                        onComment={handleComment}
-                        onAchievementUpdate={handleAchievementUpdate}
-                      />
-                    </motion.div>
-                  ))
-                ) : (
-                  <div className={viewMode === 'grid' 
-                    ? "col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-gray-200 p-8 text-center"
-                    : "bg-white rounded-xl border border-gray-200 p-8 text-center"
-                  }>
-                    <div className="text-gray-400 mb-4">
-                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {searchQuery.trim() || activeTypeFilter ? 'No matching achievements found' : 'No achievements yet'}
-                    </h3>
-                    <p className="text-gray-600">
-                      {searchQuery.trim() || activeTypeFilter
-                        ? 'Try adjusting your search terms or clearing the filters to see all achievements'
-                        : currentSource === ACHIEVEMENT_SOURCES.CONNECTIONS
-                        ? 'Connect with others to see their achievements here'
-                        : currentSource === ACHIEVEMENT_SOURCES.POPULAR
-                        ? 'Popular achievements will appear here'
-                        : 'Achievements will appear here as they are created'
-                      }
-                    </p>
-                    {(searchQuery.trim() || activeTypeFilter) && (
-                      <button
-                        onClick={() => {
-                          setSearchQuery('');
-                          setActiveTypeFilter(null);
-                        }}
-                        className="mt-4 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-                      >
-                        Clear Filters
-                      </button>
-                    )}
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Load More Indicator */}
-            {loadingMore && (
-              <div className="flex justify-center py-8">
-                <div className="flex items-center space-x-2 text-gray-500">
-                  <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {switching && currentSource !== tab.id ? (
+                  <svg className="w-4 h-4 animate-spin inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <span className="text-sm font-medium">Loading more achievements...</span>
+                ) : tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        {/* Content */}
+        <div className="max-w-5xl mx-auto px-2 md:px-0">
+          {/* Loading State for Initial Load */}
+          {loading && !achievements.length ? (
+            <div className={viewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              : "space-y-4"
+            }>
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className={`bg-white rounded-lg border border-gray-200 animate-pulse ${
+                  viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'
+                }`}>
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
+                    <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
+                  </div>
+                  <div className="flex flex-col flex-1 space-y-3">
+                    <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-12 bg-gray-200 rounded flex-1"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/4 mt-auto"></div>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* End of Feed Indicator */}
-            {!hasMore && achievements.length > 0 && (
-              <div className="text-center py-8">
-                <p className="text-gray-500 text-sm">
-                  You've reached the end of the feed
-                </p>
-              </div>
-            )}
-
-            {/* Error State for Load More */}
-            {error && achievements.length > 0 && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                <p className="text-red-600 text-sm mb-2">{error}</p>
-                <button
-                  onClick={loadMore}
-                  className="text-red-600 hover:text-red-700 text-sm font-medium"
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Achievements Display */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`${currentSource}-${viewMode}`}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className={viewMode === 'grid' 
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start"
+                    : "space-y-4"
+                  }
                 >
-                  Try Again
-                </button>
-              </div>
-            )}
-          </>
-        )}
+                  {filteredAchievements.length > 0 ? (
+                    filteredAchievements.map((achievement, index) => (
+                      <motion.div
+                        key={`${achievement.id}-${index}`}
+                        ref={index === filteredAchievements.length - 1 ? lastAchievementRef : null}
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ 
+                          duration: 0.4, 
+                          delay: index * 0.1,
+                          ease: "easeOut"
+                        }}
+                      >
+                        <AchievementCard
+                          achievement={achievement}
+                          showUser={true}
+                          showActions={false}
+                          viewMode={viewMode}
+                          onView={handleViewAchievement}
+                          onLike={handleLike}
+                          onComment={handleComment}
+                          onAchievementUpdate={handleAchievementUpdate}
+                        />
+                      </motion.div>
+                    ))
+                  ) : (
+                    <div className={viewMode === 'grid' 
+                      ? "col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-gray-200 p-8 text-center"
+                      : "bg-white rounded-xl border border-gray-200 p-8 text-center"
+                    }>
+                      <div className="text-gray-400 mb-4">
+                        <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {searchQuery.trim() || activeTypeFilter ? 'No matching achievements found' : 'No achievements yet'}
+                      </h3>
+                      <p className="text-gray-600">
+                        {searchQuery.trim() || activeTypeFilter
+                          ? 'Try adjusting your search terms or clearing the filters to see all achievements'
+                          : currentSource === ACHIEVEMENT_SOURCES.CONNECTIONS
+                          ? 'Connect with others to see their achievements here'
+                          : currentSource === ACHIEVEMENT_SOURCES.POPULAR
+                          ? 'Popular achievements will appear here'
+                          : 'Achievements will appear here as they are created'
+                        }
+                      </p>
+                      {(searchQuery.trim() || activeTypeFilter) && (
+                        <button
+                          onClick={() => {
+                            setSearchQuery('');
+                            setActiveTypeFilter(null);
+                          }}
+                          className="mt-4 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Load More Indicator */}
+              {loadingMore && (
+                <div className="flex justify-center py-8">
+                  <div className="flex items-center space-x-2 text-gray-500">
+                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span className="text-sm font-medium">Loading more achievements...</span>
+                  </div>
+                </div>
+              )}
+
+              {/* End of Feed Indicator */}
+              {!hasMore && achievements.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-sm">
+                    You've reached the end of the feed
+                  </p>
+                </div>
+              )}
+
+              {/* Error State for Load More */}
+              {error && achievements.length > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+                  <p className="text-red-600 text-sm mb-2">{error}</p>
+                  <button
+                    onClick={loadMore}
+                    className="text-red-600 hover:text-red-700 text-sm font-medium"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

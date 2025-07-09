@@ -58,7 +58,7 @@ function Modal({ isOpen, onClose, title, children, className = '' }) {  // Lock 
           onClick={handleBackdropClick}
         >
           <div
-            className={`modal-content bg-white rounded-xl shadow-xl w-full overflow-hidden ${className}`}
+            className={`modal-content bg-white rounded-xl shadow-xl max-w-sm w-full mx-auto overflow-hidden ${className}`}
             style={{ zIndex: 100000 }}
           >
             <div className="flex justify-between items-center p-4 border-b border-gray-200">

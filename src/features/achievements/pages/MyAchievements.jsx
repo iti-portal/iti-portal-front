@@ -200,262 +200,139 @@ const MyAchievements = () => {
   }
 
   return (
-    <><Navbar />    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 pt-10 pb-10">
-      <Alert
-        show={notification.show}
-        type={notification.type}
-        message={notification.message}
-        onClose={() => setNotification({ ...notification, show: false })}
-      />
-      <Modal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setConfirmModalOpen(false)}
-        title={confirmModalContent.title}
-      >
-        <p>{confirmModalContent.message}</p>
-        <div className="flex justify-end space-x-4 mt-4">
-          <button
-            onClick={() => setConfirmModalOpen(false)}
-            className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={confirmModalContent.onConfirm}
-            className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
-          >
-            Confirm
-          </button>
-        </div>
-      </Modal>
-      {/* Spacer between navbar and header */}
-      <div className="h-6"></div>
-
-      {/* Header Section */}
-      <div className="bg-gradient-to-br from-red-70 via-orange-70 to-gray-100 backdrop-blur-sm border-b border-slate-200/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6">
-          {/* Title and Add Button */}
-          <div className="flex items-center justify-between py-8">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-800">
-                🎯 My Achievements
-              </h1>
-              <p className="text-slate-600 mt-2 text-lg">Manage and showcase your personal accomplishments</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/achievements/create')}
-                className="bg-gradient-to-r from-red-900 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-8 py-3 rounded-xl flex items-center space-x-2 transition-all duration-200 font-semibold hover:scale-105 shadow-lg"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Add Achievement</span>
-              </button>
-            </div>
+    <>
+      <Navbar />
+      <div className="min-h-screen pt-10 pb-10">
+        <Alert
+          show={notification.show}
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification({ ...notification, show: false })}
+        />
+        <Modal
+          isOpen={isConfirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+          title={confirmModalContent.title}
+        >
+          <p>{confirmModalContent.message}</p>
+          <div className="flex justify-end space-x-4 mt-4">
+            <button
+              onClick={() => setConfirmModalOpen(false)}
+              className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmModalContent.onConfirm}
+              className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
+            >
+              Confirm
+            </button>
           </div>
+        </Modal>
+        {/* Spacer between navbar and header */}
+        <div className="h-6"></div>
 
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 pb-8">
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-slate-700">{stats.total}</div>
-                  <div className="text-slate-500 text-sm font-medium">Total</div>
-                </div>
-                <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">🎯</span>
-                </div>
-              </div>
-            </motion.div>
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">{stats.projects}</div>
-                  <div className="text-slate-500 text-sm font-medium">Projects</div>
-                </div>
-                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl">🚀</span>
-                </div>
-              </div>
-            </motion.div>
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.3 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-indigo-600">{stats.certificates}</div>
-                  <div className="text-slate-500 text-sm font-medium">Certificates</div>
-                </div>
-                <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl text-indigo-600">🎓</span>
-                </div>
-              </div>
-            </motion.div>
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.4 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-emerald-600">{stats.awards}</div>
-                  <div className="text-slate-500 text-sm font-medium">Awards</div>
-                </div>
-                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl text-emerald-600">🏆</span>
-                </div>
-              </div>
-            </motion.div>
-            <motion.div
-              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.5 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-emerald-600">{stats.jobs}</div>
-                  <div className="text-slate-500 text-sm font-medium">Jobs</div>
-                </div>
-                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
-                  <span className="text-2xl text-emerald-600">💼</span>
-                </div>
-              </div>
-            </motion.div>
-          </div>
+        {/* Header Section */}
+        <section className="relative flex flex-col items-center justify-center py-16 px-4 bg-gradient-to-br from-[#fff7f0] via-[#fbeee6] to-[#f7faff]">
+          <h1 className="text-4xl font-bold bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] bg-clip-text text-transparent ">My Achievements</h1>
+          <p className="text-lg md:text-xl text-gray-500 text-center max-w-2xl mb-10">Manage and showcase your personal accomplishments</p>
+        </section>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            {/* Search */}
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+        {/* Content */}
+        <main className="flex-1 w-full max-w-5xl mx-auto px-2 md:px-0 pb-16">
+          <div className="rounded-xl bg-white/90 shadow-md border border-gray-100 p-6 md:p-8 mt-[-60px] relative z-10">
+            {/* Controls and Stats Row */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pb-6">
+              <div className="flex gap-4 items-center mb-4 md:mb-0">
+                <button
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  className="p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all duration-200 disabled:opacity-50 border border-slate-200"
+                  title="Refresh"
+                >
+                  <svg className={`w-5 h-5 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => navigate('/achievements/create')}
+                  className="bg-gradient-to-r from-red-700 to-red-500 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl flex items-center space-x-2 font-semibold shadow-sm"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>Add Achievement</span>
+                </button>
+              </div>
+              <div className="flex gap-4 flex-wrap justify-end">
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                  <div className="text-xl font-bold text-slate-700">{stats.total}</div>
+                  <div className="text-slate-500 text-xs font-medium">Total</div>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                  <div className="text-xl font-bold text-blue-600">{stats.projects}</div>
+                  <div className="text-slate-500 text-xs font-medium">Projects</div>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                  <div className="text-xl font-bold text-indigo-600">{stats.certificates}</div>
+                  <div className="text-slate-500 text-xs font-medium">Certificates</div>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                  <div className="text-xl font-bold text-emerald-600">{stats.awards}</div>
+                  <div className="text-slate-500 text-xs font-medium">Awards</div>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100 min-w-[120px] text-center">
+                  <div className="text-xl font-bold text-emerald-600">{stats.jobs}</div>
+                  <div className="text-slate-500 text-xs font-medium">Jobs</div>
+                </div>
+              </div>
+            </div>
+            {/* Search Bar and Filters Row */}
+            <div className="flex flex-col md:flex-row md:items-center gap-4 pb-8">
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
                 <input
                   type="text"
-                  placeholder="Search my achievements..."
+                  placeholder="Search achievements, people, or skills..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 placeholder-slate-400" />
+                  className="block w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#901b20]/30 focus:border-[#901b20]/30 shadow-sm"
+                />
               </div>
-            </div>
-
-            <div className="flex items-center justify-between lg:justify-end space-x-4">
-              {/* Type Filter Buttons */}
-              <div className="flex items-center space-x-2">
-                <button
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setActiveTypeFilter(null)}
+                  className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${!activeTypeFilter ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-gray-700 border-gray-200'}`}
+                >
+                  All Types
+                </button>
+                <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'project' ? null : 'project')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'project'
-                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                      : 'bg-white text-blue-600 border-slate-200 hover:bg-blue-50'}`}
+                  className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'project' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-200'}`}
                   title="Projects"
-                >
-                  🚀 Projects
-                </button>
-                <button
+                >🚀</button>
+                <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'job' ? null : 'job')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'job'
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
-                      : 'bg-white text-emerald-600 border-slate-200 hover:bg-emerald-50'}`}
+                  className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'job' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-200'}`}
                   title="Jobs"
-                >
-                  💼 Jobs
-                </button>
-                <button
-                  onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' || activeTypeFilter === 'certificate' ? null : 'certification')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'certification' || activeTypeFilter === 'certificate'
-                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
-                      : 'bg-white text-indigo-600 border-slate-200 hover:bg-indigo-50'}`}
-                  title="Certificates"
-                >
-                  🎓 Certificates
-                </button>
-                <button
+                >💼</button>
+                <button 
+                  onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' ? null : 'certification')}
+                  className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'certification' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-700 border-gray-200'}`}
+                  title="Certifications"
+                >🎓</button>
+                <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'award' ? null : 'award')}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'award'
-                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
-                      : 'bg-white text-emerald-600 border-slate-200 hover:bg-emerald-50'}`}
+                  className={`px-4 py-2 rounded-lg font-semibold text-xs transition-all duration-200 shadow-sm border ${activeTypeFilter === 'award' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-gray-700 border-gray-200'}`}
                   title="Awards"
-                >
-                  🏆 Awards
-                </button>
-              </div>
-
-              {/* View Toggle */}
-              <div className="flex items-center space-x-1 bg-white rounded-xl p-1 shadow-sm border border-slate-200">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${viewMode === 'grid'
-                      ? 'bg-slate-700 text-white shadow-md'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
-                  title="Grid View"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                  </svg>
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${viewMode === 'list'
-                      ? 'bg-slate-700 text-white shadow-md'
-                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
-                  title="List View"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                  </svg>
-                </button>
+                >🏆</button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Loading State for Initial Load */}
-        {loading && !achievements.length ? (
-          <div className={viewMode === 'grid'
-            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            : "space-y-4"}>
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className={`bg-white rounded-xl border border-slate-200 animate-pulse shadow-sm ${viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'}`}>
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-16 h-6 bg-slate-200 rounded-full"></div>
-                  <div className="w-2 h-2 bg-slate-200 rounded-full"></div>
-                </div>
-                <div className="flex flex-col flex-1 space-y-3">
-                  <div className="h-6 bg-slate-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
-                  <div className="h-12 bg-slate-200 rounded flex-1"></div>
-                  <div className="h-4 bg-slate-200 rounded w-1/4 mt-auto"></div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <>
             {/* Achievements Display */}
             <AnimatePresence mode="wait">
               <motion.div
@@ -483,15 +360,13 @@ const MyAchievements = () => {
                     >
                       <AchievementCard
                         achievement={achievement}
-                        showUser={false} // Don't show user info since these are all mine
-                        showActions={true} // Show edit/delete actions
+                        showUser={false}
+                        showActions={true}
                         viewMode={viewMode}
-                        onView={() => {
-                          // Handle view achievement - modal opens automatically
-                        } }
+                        onView={() => {}}
                         onEdit={(achievement) => {
                           navigate(`/achievements/edit/${achievement.id}`);
-                        } }
+                        }}
                         onDelete={handleDeleteAchievement}
                         onLike={handleLike}
                         onComment={handleComment}
@@ -525,7 +400,6 @@ const MyAchievements = () => {
                 )}
               </motion.div>
             </AnimatePresence>
-
             {/* Loading More Indicator */}
             {loadingMore && (
               <div className="flex justify-center py-8">
@@ -537,10 +411,10 @@ const MyAchievements = () => {
                 </div>
               </div>
             )}
-          </>
-        )}
+          </div>
+        </main>
       </div>
-    </div></>
+    </>
   );
 };
 
