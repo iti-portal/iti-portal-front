@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ThumbsUp, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Navbar from '../../../components/Layout/Navbar';
 
 function ShowDetailArticleData() {
   const { id } = useParams();
@@ -121,6 +122,7 @@ function ShowDetailArticleData() {
 
   if (loading) {
     return (
+   
       <div className="flex flex-col items-center justify-center h-64">
         <motion.div
           animate={{ rotate: 360 }}
@@ -157,7 +159,9 @@ function ShowDetailArticleData() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <>
+    <Navbar/>
+    <div className="mt-14  p-6 max-w-5xl mx-auto">
    
 
       {likeError && (
@@ -278,7 +282,9 @@ function ShowDetailArticleData() {
         </motion.div>
       </motion.div>
     </div>
+  </>
   );
+
 }
 
 export default ShowDetailArticleData;

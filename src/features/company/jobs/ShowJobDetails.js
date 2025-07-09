@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import getAllJobApplications from './GetJobApps';
 import getJobdetails from './GetJobDetails';
 import { getTopApplicationsForJob } from './RecomandApps';
 import DeveloperRecommendations from './DeveloperRecommanditionComponent';
-
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 import {
   Briefcase,
@@ -22,10 +23,21 @@ import {
   Mail,
   ChevronRight,
   BadgeCheck,
+  FileText,
+  Linkedin,
+  Github,
+  Globe,
+  GraduationCap,
+  Code,
+  User,
+  CheckCircle
 } from 'lucide-react';
+
+const MySwal = withReactContent(Swal);
 
 const JobDetailsView = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [job, setJob] = useState(null);
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +91,206 @@ const JobDetailsView = () => {
     fetchRecommendations();
   }, [job, apps, id]);
 
+const handleApplicationClick = (application) => {
+  MySwal.fire({
+    title: <strong>{application.user?.profile?.first_name}'s Application</strong>,
+    html: (
+      <div className="text-left space-y-4 max-h-[70vh] overflow-y-auto">
+     
+        <div className="flex items-start gap-4">
+          <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center text-red-600 overflow-hidden">
+            {application.user?.profile?.profile_picture ? (
+              <img
+                src={`http://127.0.0.1:8000/storage/${application.user.profile.profile_picture}`}
+                alt={`${application.user.profile.first_name} ${application.user.profile.last_name}`}
+                className="rounded-full w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.parentElement.innerHTML = `
+                    <span class="text-xl font-medium">
+                      ${application.user?.profile?.first_name?.charAt(0) || ''}
+                      ${application.user?.profile?.last_name?.charAt(0) || ''}
+                    </span>
+                  `;
+                }}
+              />
+            ) : (
+              <span className="text-xl font-medium">
+                {application.user?.profile?.first_name?.charAt(0) || ''}
+                {application.user?.profile?.last_name?.charAt(0) || ''}
+              </span>
+            )}
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-800">
+              {application.user?.profile?.first_name} {application.user?.profile?.last_name}
+            </h3>
+            <p className="text-gray-600">{application.user?.profile?.track}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className={`px-2 py-1 text-xs rounded-full ${
+                application.status === 'reviewed' ? 'bg-blue-50 text-blue-600' :
+                application.status === 'hired' ? 'bg-green-50 text-green-600' :
+                application.status === 'interviewed' ? 'bg-orange-50 text-orange-700' :
+                'bg-red-50 text-red-600'
+              }`}>
+                {application.status?.charAt(0).toUpperCase() + application.status?.slice(1)}
+              </span>
+              <span className="text-xs text-gray-500">
+                Applied {application.applied_at ? new Date(application.applied_at).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Application Details */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">APPLICATION DETAILS</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">Application ID</p>
+              <p className="text-sm font-medium">{application.id}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Applied Date</p>
+              <p className="text-sm font-medium">
+                {application.applied_at ? new Date(application.applied_at).toLocaleString() : 'N/A'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Cover Letter */}
+        {application.cover_letter && (
+          <div className="mt-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">COVER LETTER</h4>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-700 whitespace-pre-line">{application.cover_letter}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Contact Info */}
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">CONTACT INFORMATION</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center text-sm">
+              <Mail className="w-4 h-4 mr-2 text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-500">Email</p>
+                <p className="text-gray-600">{application.user?.email}</p>
+              </div>
+            </div>
+            <div className="flex items-center text-sm">
+              <Phone className="w-4 h-4 mr-2 text-gray-400" />
+              <div>
+                <p className="text-xs text-gray-500">Phone</p>
+                <p className="text-gray-600">
+                  {application.user?.profile?.phone || 'Not provided'}
+                </p>
+              </div>
+            </div>
+            {application.user?.profile?.whatsapp && (
+              <div className="flex items-center text-sm">
+                <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                <div>
+                  <p className="text-xs text-gray-500">WhatsApp</p>
+                  <p className="text-gray-600">{application.user.profile.whatsapp}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Skills */}
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">SKILLS</h4>
+          <div className="flex flex-wrap gap-2">
+            {application.user?.skills?.map(skill => (
+              <span 
+                key={skill.id} 
+                className="px-3 py-1 bg-gray-50 text-gray-700 text-xs rounded-full font-medium"
+              >
+                {skill.name}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Education */}
+        {application.user?.educations?.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">EDUCATION</h4>
+            {application.user.educations.map(edu => (
+              <div key={edu.id} className="bg-gray-50 p-3 rounded-lg mb-2">
+                <div className="flex items-start gap-2">
+                  <GraduationCap className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{edu.institution}</p>
+                    <p className="text-xs text-gray-600">{edu.degree} in {edu.field_of_study}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(edu.start_date).getFullYear()} - {new Date(edu.end_date).getFullYear()}
+                    </p>
+                    {edu.description && (
+                      <p className="text-xs text-gray-500 mt-1">{edu.description}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Links */}
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">LINKS</h4>
+          <div className="flex flex-wrap gap-2">
+            {application.user?.profile?.linkedin && (
+              <a 
+                href={application.user.profile.linkedin} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full"
+              >
+                <Linkedin className="w-3 h-3 mr-1" /> LinkedIn
+              </a>
+            )}
+            {application.user?.profile?.github && (
+              <a 
+                href={application.user.profile.github} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center px-3 py-1 bg-gray-50 text-gray-700 text-xs rounded-full"
+              >
+                <Github className="w-3 h-3 mr-1" /> GitHub
+              </a>
+            )}
+            {application.user?.profile?.portfolio_url && (
+              <a 
+                href={application.user.profile.portfolio_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full"
+              >
+                <Globe className="w-3 h-3 mr-1" /> Portfolio
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    ),
+    showCloseButton: true,
+    showConfirmButton: false,
+    width: '800px',
+    padding: '1.5rem',
+    customClass: {
+      popup: 'rounded-lg shadow-xl',
+      title: 'text-2xl font-bold text-gray-800 mb-4',
+      htmlContainer: 'text-left',
+      closeButton: 'text-gray-400 hover:text-gray-600'
+    }
+  });
+};
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
@@ -117,6 +329,7 @@ const JobDetailsView = () => {
 
   return (
     <div className="w-5/6 mx-auto p-6">
+      {/* Job Header Section */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8">
         <div className="p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-6">
@@ -148,6 +361,7 @@ const JobDetailsView = () => {
             </span>
           </div>
 
+          {/* Job Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex items-center">
@@ -202,6 +416,7 @@ const JobDetailsView = () => {
             </div>
           </div>
 
+          {/* Job Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center text-gray-800">
@@ -235,39 +450,36 @@ const JobDetailsView = () => {
         </div>
       </div>
 
-   {apps.length > 0 && (
-      <div className="mt-8">
-       
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-          <Users className="w-6 h-6 mr-2 text-red-600" />
-          All Applications ({apps.length})
-        </h2>
-        
+      {/* Applications Section */}
+      {apps.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <Users className="w-6 h-6 mr-2 text-red-600" />
+            All Applications ({apps.length})
+          </h2>
 
-        {noAppsError ? (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-red-500" />
-              <div>
-                <h3 className="text-sm font-medium text-red-800">No applications found</h3>
-                <p className="text-sm text-red-700">No applications have been submitted for this job posting (Job ID: {id})</p>
-              </div>
-            </div>
-          </div>
-        ) : apps.length > 0 ? (
           <div className="relative">
             <div className="flex space-x-6 overflow-x-auto pb-6 -mx-2 px-2 scrollbar-hide">
               {apps.map((app) => (
                 <div 
                   key={app.id} 
-                  className="flex-shrink-0 w-80 bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition-all"
+                  className="flex-shrink-0 w-80 bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => handleApplicationClick(app)}
                 >
                   <div className="p-5 border-b border-gray-100">
                     <div className="flex items-center gap-4">
-                      <div className="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center text-red-600">
-                        <span className="text-sm font-medium">
-                          {app.user?.profile?.first_name?.charAt(0)}{app.user?.profile?.last_name?.charAt(0)}
-                        </span>
+                      <div className="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center text-red-600 overflow-hidden">
+                        {app.user?.profile?.profile_picture ? (
+                          <img
+                            src={`http://127.0.0.1:8000/storage/${app.user.profile.profile_picture}`}
+                            alt={`${app.user.profile.first_name} ${app.user.profile.last_name}`}
+                            className="rounded-full w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-sm font-medium">
+                            {app.user?.profile?.first_name?.charAt(0)}{app.user?.profile?.last_name?.charAt(0)}
+                          </span>
+                        )}
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-800">
@@ -327,7 +539,13 @@ const JobDetailsView = () => {
                   </div>
 
                   <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-lg">
-                    <button className="w-full flex items-center justify-between px-4 py-2 bg-red-700 border border-gray-200 rounded-md text-sm font-medium text-white hover:bg-red-800">
+                    <button 
+                      className="w-full flex items-center justify-between px-4 py-2 bg-red-700 border border-gray-200 rounded-md text-sm font-medium text-white hover:bg-red-800"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleApplicationClick(app);
+                      }}
+                    >
                       <span className='text-white'>View Application</span>
                       <ChevronRight className="w-4 h-4 text-white" />
                     </button>
@@ -336,28 +554,21 @@ const JobDetailsView = () => {
               ))}
             </div>
           </div>
-        ) : (
-          <div className="text-center py-12 bg-gray-50 rounded-lg">
-            <Users className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-600">No applications received yet</p>
-          </div>
-        )}
-      </div>)}
-
- {job.status == 'active' || job.status=='paused' ?
-      <div className="mt-8">
-        
-       
-        
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-            <BadgeCheck className="w-6 h-6 mr-2 text-red-600" />
-            AI Recommended Itians 
-          </h2>
         </div>
-        <DeveloperRecommendations jobId={id} jobData={job} /> :
-     
-      </div> :null}
+      )}
+
+      {/* Recommendations Section */}
+      {(job.status === 'active' || job.status === 'paused') && (
+        <div className="mt-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+              <BadgeCheck className="w-6 h-6 mr-2 text-red-600" />
+              AI Recommended Itians 
+            </h2>
+          </div>
+          <DeveloperRecommendations jobId={id} jobData={job} />
+        </div>
+      )}
     </div>
   );
 };

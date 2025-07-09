@@ -22,7 +22,7 @@ import { CreateAchievement, ViewAchievements, MyAchievements } from '../features
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
 import CompanyAdmin from '../features/admin/components/company/CompanyAdmin';  
-import CompanyAdminDetails from '../features/admin/components/company/CompanyAdminDetails';
+
 import JobsAdmin from '../features/admin/components/jobs/jobsAdmin';
 import JobManagementPage from '../features/admin/pages/JobsManagement';
 import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
@@ -165,14 +165,7 @@ const AppRoutes = () => {
       />
 
       
-           <Route
-        path="/admin/companies/:id"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-            <CompanyAdminDetails/>
-          </RoleBasedRoute>
-        }
-      />
+
 
 
         <Route
