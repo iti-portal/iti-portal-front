@@ -262,7 +262,7 @@ const Navbar = () => {
                   <button className="bg-[#901b20] text-white px-2 xl:px-4 py-1 xl:py-2 rounded font-semibold hover:bg-[#a83236] transition text-xs xl:text-sm whitespace-nowrap">
                     Post Job
                   </button>
-                  <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">notifications_none</span>
+                  <NotificationDropdown/>
                   <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
                   <button
                     onClick={handleLogout}
@@ -494,7 +494,7 @@ const Navbar = () => {
               placeholder="Search..."
               className="border border-[#901b20] rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-[#901b20] w-20"
             />
-            <span className="material-icons text-gray-500 cursor-pointer text-lg">notifications_none</span>
+            <NotificationDropdown/> 
             <button
               onClick={handleLogout}
               disabled={logoutLoading}
@@ -672,7 +672,7 @@ const Navbar = () => {
         {/* Small Screen Content (640px-768px) */}
         {!isAdmin && !isCompany ? (
           <div className="hidden sm:flex md:hidden items-center gap-2 flex-1 justify-end">
-            <span className="material-icons text-gray-500 cursor-pointer text-lg">notifications_none</span>
+            <NotificationDropdown/>
             <button
               onClick={handleLogout}
               disabled={logoutLoading}
@@ -996,10 +996,7 @@ const Navbar = () => {
                   <div className="flex items-center justify-around pt-2 border-t border-gray-200">
                     {!isAdmin && (
                       <>
-                        <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                          <span className="material-icons text-gray-500">notifications_none</span>
-                          <span className="text-xs text-gray-600">Notifications</span>
-                        </button>
+                        <NotificationDropdown/>
                         <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
                           <span className="material-icons text-gray-500">settings</span>
                           <span className="text-xs text-gray-600">Settings</span>

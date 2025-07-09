@@ -123,13 +123,13 @@ const NotificationDropdown = () => {
                   >
                     <div className="font-medium text-gray-800 flex justify-between items-center">
                       <span className={!notification.read ? 'font-bold' : ''}>
-                        {notification.title}
+                      {notification.body}
                       </span>
                       <span className="text-xs text-gray-500 whitespace-nowrap">
                         {notification.formattedTimestamp}
                       </span>
                     </div>
-                    <div className="text-gray-600">{notification.body}</div>
+                    {/* <div className="text-gray-600">{notification.body}</div> */}
                     {!notification.read && (
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
                     )}
