@@ -33,6 +33,7 @@ import ApplicationDetailsPage from '../features/student/pages/ApplicationDetails
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
 import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
 import ChatPage from '../pages/ChatPage';
+import AccountSettings from '../features/auth/components/AccountSettings';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -279,6 +280,14 @@ const AppRoutes = () => {
       } 
     />
 
+    <Route
+      path="/account/settings"
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <AccountSettings />
+        </PrivateRoute>
+      }
+    />
     
     {/* Not Found route */}
     <Route path="*" element={<NotFound />} />
