@@ -107,7 +107,8 @@ export const constructProfilePictureUrl = (picturePath) => {
     return picturePath;
   }
 
-  const baseUrl = 'http://127.0.0.1:8000';
+  // Use environment variable, removing /api for storage URLs
+  const baseUrl = (process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '');
   
   // Return the most likely URL pattern for Laravel
   if (picturePath.startsWith('storage/')) {

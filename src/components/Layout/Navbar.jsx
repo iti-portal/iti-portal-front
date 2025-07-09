@@ -30,12 +30,20 @@ const Navbar = () => {
       
       if (isAuthenticated && user && user.profile && !hasShownInSession && isHomePage) {
         const userName = user.profile.first_name || user.name || 'User';
+        
+        // Check if user is student/alumni to fetch completion percentage
+        const isStudentOrAlumni = user.role === USER_ROLES.STUDENT || 
+          user.role === USER_ROLES.ALUMNI || 
+          user.role === 'student' || 
+          user.role === 'alumni' ||
+          (user.role === undefined && user.profile && (user.profile.track || user.profile.intake));
+
         let completionMessage = `Welcome back, ${userName}! 👋`;
         
-        if (user.role === USER_ROLES.STUDENT || user.role === USER_ROLES.ALUMNI) {
+        if (isStudentOrAlumni) {
           try {
             const response = await getGeneralStatistics();
-            if (response?.success && response.data?.completion_percentage !== undefined) {
+            if (response && response.success && response.data && response.data.completion_percentage !== undefined) {
               const percentage = Math.round(response.data.completion_percentage);
               completionMessage = `Welcome back, ${userName}! 👋 Your profile is ${percentage}% complete.`;
             }
@@ -65,15 +73,23 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchStatistics = async () => {
-      const isStudentOrAlumni = isAuthenticated && user && user.profile && 
-        (user.role === USER_ROLES.STUDENT || user.role === USER_ROLES.ALUMNI);
+      // Check if user is authenticated and has a profile (indicating student/alumni)
+      // Since role is undefined, we'll check if user has a student profile
+      const isStudentOrAlumni = isAuthenticated && user && user.profile && (
+        user.role === USER_ROLES.STUDENT || 
+        user.role === USER_ROLES.ALUMNI || 
+        user.role === 'student' || 
+        user.role === 'alumni' ||
+        // If role is undefined but user has student profile data, assume they're a student/alumni
+        (user.role === undefined && user.profile && (user.profile.track || user.profile.intake))
+      );
 
       if (isStudentOrAlumni) {
         try {
           const response = await getGeneralStatistics();
           
-          if (response?.success && response.data) {
-            if (response.data.completion_percentage < 100 && response.data.missing_fields?.length > 0) {
+          if (response && response.success && response.data) {
+            if (response.data.completion_percentage < 100 && response.data.missing_fields && response.data.missing_fields.length > 0) {
               const missingFields = response.data.missing_fields.join(', ');
               setAlert({
                 show: true,

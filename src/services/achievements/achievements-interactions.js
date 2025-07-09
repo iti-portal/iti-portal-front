@@ -50,6 +50,8 @@ export const unlikeAchievement = async (id) => {
  */
 export const addComment = async (achievementId, content) => {
   try {
+    console.log('💬 Adding comment:', { achievementId, content });
+    
     const response = await fetch(`${API_BASE_URL}/achievements/comment`, {
       method: 'POST',
       headers: {
@@ -62,8 +64,22 @@ export const addComment = async (achievementId, content) => {
       }),
     });
 
-    return await handleApiResponse(response);
+    console.log('💬 Comment response status:', response.status);
+    
+    // Check if response is HTML (error page) instead of JSON
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const textResponse = await response.text();
+      console.error('💬 Non-JSON response:', textResponse);
+      throw new Error(`Server returned non-JSON response: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await handleApiResponse(response);
+    console.log('💬 Comment result:', result);
+    
+    return result;
   } catch (error) {
+    console.error('❌ Add comment error:', error);
     throw new Error(`Failed to add comment: ${error.message}`);
   }
 };
@@ -95,8 +111,7 @@ export const getComments = async (achievementId, params = {}) => {
  */
 export const deleteComment = async (commentId) => {
   try {
-    // Use localhost instead of 127.0.0.1 to match your working API calls
-    const url = `http://localhost:8000/api/achievements/comment/${commentId}`;
+    const url = `${API_BASE_URL}/achievements/comment/${commentId}`;
     
     console.log('🗑️ Attempting to delete comment:', commentId, 'URL:', url);
     
@@ -107,13 +122,38 @@ export const deleteComment = async (commentId) => {
 
     console.log('🗑️ Delete comment response status:', response.status, response.statusText);
     
+    // Check if response is HTML (error page) instead of JSON
+    const contentType = response.headers.get('content-type');
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('🗑️ Delete comment error response:', errorText);
-      throw new Error(`API error: ${response.status} ${response.statusText} - ${errorText}`);
+      let errorMessage = `${response.status} ${response.statusText}`;
+      
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (e) {
+          // If JSON parsing fails, fall back to text
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+      } else {
+        const errorText = await response.text();
+        errorMessage = errorText || errorMessage;
+      }
+      
+      console.error('🗑️ Delete comment error response:', errorMessage);
+      throw new Error(`API error: ${errorMessage}`);
     }
     
-    const result = await handleApiResponse(response);
+    // Only try to parse JSON if the response is OK and has JSON content type
+    let result;
+    if (contentType && contentType.includes('application/json')) {
+      result = await response.json();
+    } else {
+      // Some DELETE endpoints return empty responses
+      result = { success: true, message: 'Comment deleted successfully' };
+    }
+    
     console.log('✅ Delete comment success response:', result);
     
     return result;

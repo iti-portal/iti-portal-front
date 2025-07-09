@@ -25,7 +25,8 @@ const MyAchievements = () => {
     error,
     hasMore,
     loadMore,
-    refresh
+    refresh,
+    updateAchievement
   } = useMyAchievements();
 
   const observer = useRef();
@@ -136,6 +137,19 @@ const MyAchievements = () => {
     // The AchievementCard already handles opening the modal
     // No additional action needed here
   };
+
+  // Handle achievement updates (likes, comments) from cards
+  const handleAchievementUpdate = useCallback((updatedAchievement) => {
+    console.log('📡 MyAchievements received achievement update:', updatedAchievement);
+    
+    // Update the achievement in the main achievements list (hook)
+    updateAchievement(updatedAchievement);
+    
+    // Update the achievement in the local filtered state
+    setFilteredAchievements(prev => prev.map(achievement => 
+      achievement.id === updatedAchievement.id ? updatedAchievement : achievement
+    ));
+  }, [updateAchievement]);
 
   // Calculate statistics
   const getStatistics = () => {
@@ -443,7 +457,8 @@ const MyAchievements = () => {
                         } }
                         onDelete={handleDeleteAchievement}
                         onLike={handleLike}
-                        onComment={handleComment} />
+                        onComment={handleComment}
+                        onAchievementUpdate={handleAchievementUpdate} />
                     </motion.div>
                   ))
                 ) : (
