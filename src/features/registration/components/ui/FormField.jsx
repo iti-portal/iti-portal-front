@@ -27,10 +27,11 @@ const FormField = ({
   const inputId = `${name}-input`;
   
   const baseInputClasses = `
-    block w-full px-3 py-2 border rounded-md shadow-sm text-sm
-    focus:outline-none focus:ring-1 focus:ring-[#901b20] focus:border-[#901b20]
+    block w-full px-3 py-2.5 border border-gray-200 rounded-lg shadow-sm text-sm
+    focus:outline-none focus:ring-2 focus:ring-[#901b20]/20 focus:border-[#901b20]
     disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed
-    ${error ? 'border-red-300 text-red-900 placeholder-red-300' : 'border-gray-300 text-gray-900'}
+    transition-all duration-200
+    ${error ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-200' : 'border-gray-200 text-gray-800 focus:border-[#901b20]'}
     ${inputClassName}
   `;
 
@@ -89,10 +90,11 @@ const FormField = ({
             className={`
               block w-full text-sm text-gray-500
               file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
+              file:rounded-lg file:border-0
               file:text-sm file:font-medium
-              file:bg-[#901b20] file:text-white
-              hover:file:bg-[#7a1419]
+              file:bg-gradient-to-r file:from-[#901b20] file:to-[#203947] file:text-white
+              hover:file:from-[#7a1419] hover:file:to-[#1a2f3a]
+              file:transition-all file:duration-200
               ${inputClassName}
             `}
             {...props}
@@ -189,21 +191,21 @@ const FormField = ({
       {label && (
         <label
           htmlFor={inputId}
-          className={`block text-sm font-medium mb-1 ${error ? 'text-red-700' : 'text-gray-700'} ${labelClassName}`}
+          className={`block text-sm font-medium mb-2 ${error ? 'text-red-700' : 'text-gray-700'} ${labelClassName}`}
         >
           {label}
-          {required && <span className="text-red-600 ml-1">*</span>}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       
       {renderInput()}
       
       {helpText && !error && (
-        <p className="mt-1 text-xs text-gray-500">{helpText}</p>
+        <p className="mt-1.5 text-xs text-gray-500">{helpText}</p>
       )}
       
       {error && (
-        <p className={`mt-1 text-sm text-red-600 ${errorClassName}`}>{error}</p>
+        <p className={`mt-1.5 text-sm text-red-600 ${errorClassName}`}>{error}</p>
       )}
     </div>
   );

@@ -73,7 +73,7 @@ const AccountTypeForm = ({
         <motion.div variants={itemVariants} className="space-y-4">
           {/* Account Type Selection */}
           <div className="space-y-3">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">
+            <h4 className="text-sm font-semibold text-gray-800 mb-3">
               Select Account Type
             </h4>
             
@@ -81,10 +81,10 @@ const AccountTypeForm = ({
               {ACCOUNT_TYPE_OPTIONS.map((type) => (                <motion.div
                   key={type.value}
                   variants={itemVariants}                  className={`
-                    relative border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 flex flex-col h-full
+                    relative border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 flex flex-col h-full
                     ${formData.role === type.value 
-                      ? 'border-[#901b20] bg-[#901b20]/5 shadow-md scale-[1.02]' 
-                      : 'border-gray-200 hover:border-gray-300 hover:scale-[1.01]'
+                      ? 'border-[#901b20] bg-gradient-to-br from-[#901b20]/5 to-[#203947]/5 shadow-lg scale-[1.02] ring-2 ring-[#901b20]/20' 
+                      : 'border-gray-200 hover:border-gray-300 hover:scale-[1.01] hover:shadow-md'
                     }
                   `}
                   onClick={() => onChange({ target: { name: 'role', value: type.value } })}
@@ -95,7 +95,7 @@ const AccountTypeForm = ({
                       value={type.value}
                       checked={formData.role === type.value}
                       onChange={onChange}
-                      className={`h-4 w-4 mt-1 focus:ring-[#901b20] border-gray-300 ${formData.role === type.value ? 'text-[#901b20] ring-2 ring-[#901b20]/20' : ''}`}
+                      className={`h-4 w-4 mt-1 focus:ring-[#901b20] border-gray-300 transition-all duration-200 ${formData.role === type.value ? 'text-[#901b20] ring-2 ring-[#901b20]/20' : ''}`}
                     />
                     <div className="ml-3 flex-1">                      <div className="flex items-center">
                         <span className={`text-xl mr-2 ${formData.role === type.value ? 'text-[#901b20]' : 'text-gray-500'}`}>{type.icon}</span>
