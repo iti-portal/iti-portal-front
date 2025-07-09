@@ -1,3 +1,5 @@
+import { motion } from 'framer-motion';
+
 import { getAllDevelopers, getTopDevelopersForJob } from './RecommandItians';
 import { useState, useEffect } from 'react';
 import {
@@ -41,7 +43,7 @@ const HandleCardNumbers = () => {
    
     const fetchData = async () => {
       try {
-        if (jobData?.status !== 'active') {
+        if (jobData.status == 'closed') {
           setLoading(false);
           setAnalysis('This job is not active');
           return;
@@ -175,7 +177,9 @@ const DeveloperCard = ({ developer }) => {
 
 
   return (
-    <div className="bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition-all flex flex-col h-full">
+
+     <div className="bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition-all flex flex-col h-full">
+
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-center gap-4">
           <div className="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center text-red-600">
@@ -325,6 +329,9 @@ const DeveloperCard = ({ developer }) => {
 
 
     </div>
+  
+    
+   
     
  
   );
