@@ -3,6 +3,9 @@ import { Search, User } from 'lucide-react';
 import UserCard from './UserCard ';
 import { fetchUsers } from '../../services/usersApi';
 import Navbar from '../../components/Layout/Navbar';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ExploreItians = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +16,18 @@ const ExploreItians = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterOptions, setFilterOptions] = useState({
+    tracks: [],
+    programs: [],
+    branches: [],
+    intakes: []
+  });
+  const [connectedUsers, setConnectedUsers] = useState([]);
+  const { user: currentUser } = useAuth(); //get currentUser from context
+
+  const handleConnectionSuccess = (userId) => {
+    setConnectedUsers(prev => [...prev, userId]);
+  };
 
   useEffect(() => {
     const getUsers = async () => {
@@ -24,14 +39,12 @@ const ExploreItians = () => {
         
         console.log('API Response:', response);
 
-        // Extract users array from the nested structure
         const usersArray = response?.data?.users?.data || [];
         
         if (!Array.isArray(usersArray)) {
           throw new Error('Users data is not in expected array format');
         }
 
-        // Transform the data to match component's expected structure
         const transformedUsers = usersArray.map(user => {
           const profile = user.profile || {};
           return {
@@ -44,11 +57,25 @@ const ExploreItians = () => {
             program: profile.program || 'Unknown',
             branch: profile.branch || 'Unknown',
             image: profile.profile_picture || `https://ui-avatars.com/api/?name=${profile.first_name || 'User'}+${profile.last_name || ''}&background=901b20&color=fff&size=150`,
-            profile 
+            profile,
+            status: user.status,
+            mutualConnections: user.mutual_connections_count ?? 0,
           };
         });
 
         setUsers(transformedUsers);
+
+        const tracks = [...new Set(usersArray.map(user => user.profile?.track).filter(Boolean))];
+        const programs = [...new Set(usersArray.map(user => user.profile?.program).filter(Boolean))];
+        const branches = [...new Set(usersArray.map(user => user.profile?.branch).filter(Boolean))];
+        const intakes = [...new Set(usersArray.map(user => user.profile?.intake).filter(Boolean))];
+
+        setFilterOptions({
+          tracks,
+          programs,
+          branches,
+          intakes: intakes.sort((a, b) => parseInt(b) - parseInt(a))
+        });
       } catch (err) {
         console.error('Error fetching users:', err);
         setError(err.response?.data?.message || err.message || 'Failed to fetch users');
@@ -59,10 +86,6 @@ const ExploreItians = () => {
 
     getUsers();
   }, []);
-
-  const tracks = ['Open Source', 'PD', 'AI', 'Java', 'Web and UI', 'Testing', 'Mobile Development'];
-  const programs = ['PTP', 'ITP'];
-  const branches = ['Smart', 'Mansoura', 'Alexandria', 'Asyut', 'Aswan', 'Tanta', 'Zagazig', 'Menofia'];
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -80,6 +103,11 @@ const ExploreItians = () => {
     });
   }, [searchTerm, selectedIntake, selectedTrack, selectedProgram, selectedBranch, users]);
 
+  // Filter out connected users
+  const usersToDisplay = useMemo(() => {
+    return filteredUsers.filter(user => !connectedUsers.includes(user.id));
+  }, [filteredUsers, connectedUsers]);
+
   const clearFilters = () => {
     setSelectedIntake('');
     setSelectedTrack('');
@@ -89,14 +117,16 @@ const ExploreItians = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ToastContainer />
       <Navbar />
-      <main className="pt-20 pb-10 px-4 sm:px-8"> {/* Added padding-top to account for navbar */}
+      <main className="pt-20 pb-10 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Explore Itians</h1>
             <p className="text-gray-600">Connect with students and alumni</p>
           </div>
 
+          {/* Filter section remains the same */}
           <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
             <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-end">
               <div className="lg:col-span-2">
@@ -121,8 +151,8 @@ const ExploreItians = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
                 >
                   <option value="">All Intakes</option>
-                  {Array.from({ length: 45 }, (_, i) => i + 1).map(num => (
-                    <option key={num} value={num.toString()}>Intake {num}</option>
+                  {filterOptions.intakes.map(intake => (
+                    <option key={intake} value={intake}>Intake {intake}</option>
                   ))}
                 </select>
               </div>
@@ -135,7 +165,7 @@ const ExploreItians = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
                 >
                   <option value="">All Tracks</option>
-                  {tracks.map(track => (
+                  {filterOptions.tracks.map(track => (
                     <option key={track} value={track}>{track}</option>
                   ))}
                 </select>
@@ -149,8 +179,8 @@ const ExploreItians = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
                 >
                   <option value="">All Programs</option>
-                  {programs.map(program => (
-                    <option key={program} value={program}>{program}</option>
+                  {filterOptions.programs.map(program => (
+                    <option key={program} value={program}>{program.toUpperCase()}</option>
                   ))}
                 </select>
               </div>
@@ -163,7 +193,7 @@ const ExploreItians = () => {
                   className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
                 >
                   <option value="">All Branches</option>
-                  {branches.map(branch => (
+                  {filterOptions.branches.map(branch => (
                     <option key={branch} value={branch}>{branch}</option>
                   ))}
                 </select>
@@ -199,14 +229,19 @@ const ExploreItians = () => {
             <>
               <div className="mb-6">
                 <p className="text-gray-600">
-                  Showing {filteredUsers.length} of {users.length} members
+                  Showing {usersToDisplay.length} of {users.length} members
                 </p>
               </div>
 
-              {filteredUsers.length > 0 ? (
+              {usersToDisplay.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredUsers.map(user => (
-                    <UserCard key={user.id} user={user} />
+                  {usersToDisplay.map(user => (
+                    <UserCard 
+                      key={user.id} 
+                      user={user} 
+                      onConnectionSuccess={handleConnectionSuccess}
+                      currentUser={currentUser}
+                    />
                   ))}
                 </div>
               ) : (
