@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import AdminSidebar from '../layout/AdminSidebar';
 import AdminNavbar from '../layout/AdminNavbar';
-import { Building, Eye, Trash2 } from "lucide-react";
+import { Building, Eye, Trash2 ,Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Modal from "../../../../components/UI/Modal";
 import Alert from "../../../../components/UI/Alert";
 
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 function JobAdmin() {
   const [companies, setCompanies] = useState([]);
   const [copyCompanies, setCopyCompanies] = useState([]);
@@ -25,6 +27,8 @@ function JobAdmin() {
   useEffect(() => {
     fetchCompanies();
   }, []);
+
+
 
   async function fetchCompanies() {
     try {
@@ -184,6 +188,119 @@ function JobAdmin() {
 
   const displayCompanies = showPagination ? paginatedCompanies : companies;
 
+
+  const MySwal = withReactContent(Swal);
+
+const handleCompanyProfileClick = (companyProfile) => {
+  MySwal.fire({
+    title: <strong>{companyProfile.company_name}'s Profile</strong>,
+    html: (
+      <div className="text-left space-y-4 max-h-[70vh] overflow-y-auto">
+        {/* Company Header */}
+        <div className="flex items-start gap-4">
+          <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center text-red-600 overflow-hidden">
+            {companyProfile.logo ? (
+              <img
+                src={`http://127.0.0.1:8000/storage/${companyProfile.logo}`}
+                alt={companyProfile.company_name}
+                className="rounded-full w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.parentElement.innerHTML = `
+                    <span class="text-xl font-medium">
+                      ${companyProfile.company_name?.charAt(0) || ''}
+                    </span>
+                  `;
+                }}
+              />
+            ) : (
+              <span className="text-xl font-medium">
+                {companyProfile.company_name?.charAt(0) || ''}
+              </span>
+            )}
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-800">
+              {companyProfile.company_name}
+            </h3>
+            <p className="text-gray-600">{companyProfile.industry}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="px-2 py-1 text-xs rounded-full bg-red-50 text-red-600">
+                {companyProfile.company_size} employees
+              </span>
+              <span className="text-xs text-gray-500">
+                Established {companyProfile.established_at ? new Date(companyProfile.established_at).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Company Description */}
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">ABOUT THE COMPANY</h4>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-700 whitespace-pre-line">
+              {companyProfile.description || 'No description provided'}
+            </p>
+          </div>
+        </div>
+
+        {/* Company Details */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">COMPANY DETAILS</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-gray-500">Industry</p>
+              <p className="text-sm font-medium">{companyProfile.industry || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Company Size</p>
+              <p className="text-sm font-medium">{companyProfile.company_size || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Location</p>
+              <p className="text-sm font-medium">{companyProfile.location || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Established</p>
+              <p className="text-sm font-medium">
+                {companyProfile.established_at ? new Date(companyProfile.established_at).getFullYear() : 'N/A'}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Website */}
+        {companyProfile.website && (
+          <div className="mt-4">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">WEBSITE</h4>
+            <div className="flex items-center text-sm">
+              <Globe className="w-4 h-4 mr-2 text-gray-400" />
+              <a 
+                href={companyProfile.website} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline"
+              >
+                {companyProfile.website}
+              </a>
+            </div>
+          </div>
+        )}
+      </div>
+    ),
+    showCloseButton: true,
+    showConfirmButton: false,
+    width: '800px',
+    padding: '1.5rem',
+    customClass: {
+      popup: 'rounded-lg shadow-xl',
+      title: 'text-2xl font-bold text-gray-800 mb-4',
+      htmlContainer: 'text-left',
+      closeButton: 'text-gray-400 hover:text-gray-600'
+    }
+  });
+};
   return (
     <div className="flex flex-col min-h-screen">
       <AdminNavbar/>
@@ -345,7 +462,8 @@ function JobAdmin() {
                                 <div className="flex items-center justify-center gap-2.5">
                                   <button 
                                     className="group relative flex items-center justify-center h-8 w-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm"
-                                  >
+                                    onClick={() => handleCompanyProfileClick(company)}
+                                 >
                                     <Eye className="w-4 h-4" />
                                   </button>
                                   <button 
@@ -423,7 +541,7 @@ function JobAdmin() {
                           Next
                         </button>
                       </div>
-                      
+
                     </div>
                   )}
                 </div>

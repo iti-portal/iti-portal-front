@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Briefcase, Eye, Trash2 } from "lucide-react";
+import { Briefcase, Eye, Trash2 ,Clock, DollarSign, BarChart2, MapPin, CheckCircle, XCircle} from "lucide-react";
 import Modal from "../../../../components/UI/Modal";
-import Alert from "../../../../components/UI/Alert";
+import Alert from "../../../../components/UI/Alert";import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 function JobAdmin() {
   const [jobs, setJobs] = useState([]);
@@ -22,6 +23,159 @@ function JobAdmin() {
   const [isConfirmModalOpen, setConfirmModalOpen] = useState(false);
   const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
 
+
+
+
+
+const MySwal = withReactContent(Swal);
+
+const handleJobDetailsClick = (job) => {
+  MySwal.fire({
+    title: <strong>{job.title}</strong>,
+    html: (
+      <div className="text-left space-y-4 max-h-[70vh] overflow-y-auto">
+        {/* Job Header */}
+        <div className="flex items-start gap-4">
+          <div className="bg-red-100 rounded-lg w-16 h-16 flex items-center justify-center text-red-600">
+            <Briefcase className="w-8 h-8" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-gray-800">{job.title}</h3>
+            <div className="flex flex-wrap items-center gap-2 mt-1">
+              <span className={`px-2 py-1 text-xs rounded-full ${
+                job.status === 'open' ? 'bg-green-50 text-green-600' :
+                job.status === 'closed' ? 'bg-red-50 text-red-600' :
+                'bg-gray-50 text-gray-600'
+              }`}>
+                {job.status?.charAt(0).toUpperCase() + job.status?.slice(1)}
+              </span>
+              <span className="flex items-center text-xs text-gray-500">
+                <Clock className="w-3 h-3 mr-1" />
+                Posted {new Date(job.created_at).toLocaleDateString()}
+              </span>
+             
+            </div>
+          </div>
+        </div>
+
+        {/* Job Highlights */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-xs text-gray-500">Job Type</p>
+            <p className="text-sm font-medium">
+              {job.job_type?.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+              ).join(' ')}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-xs text-gray-500">Experience</p>
+            <p className="text-sm font-medium">
+              {job.experience_level?.charAt(0).toUpperCase() + job.experience_level?.slice(1)}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-xs text-gray-500">Salary Range</p>
+            <p className="text-sm font-medium">
+              {job.salary_min ? `$${job.salary_min.toLocaleString()}` : 'N/A'} - 
+              {job.salary_max ? ` $${job.salary_max.toLocaleString()}` : 'N/A'}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-xs text-gray-500">Deadline</p>
+            <p className="text-sm font-medium">
+              {job.application_deadline ? new Date(job.application_deadline).toLocaleDateString() : 'N/A'}
+            </p>
+          </div>
+        </div>
+
+        {/* Job Description */}
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-red-700 mb-2 flex items-center">
+            <BarChart2 className="w-4 h-4 mr-2 text-red-700" />
+            JOB DESCRIPTION
+          </h4>
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <p className="text-sm text-gray-700 whitespace-pre-line">
+              {job.description || 'No description provided'}
+            </p>
+          </div>
+        </div>
+
+        {/* Requirements */}
+        {job.requirements && (
+          <div className="mt-4">
+            <h4 className="text-sm font-semibold text-red-700 mb-2 flex items-center">
+              <CheckCircle className="w-4 h-4 mr-2 text-red-700" />
+              REQUIREMENTS
+            </h4>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <p className="text-sm text-gray-700 whitespace-pre-line">
+                {job.requirements}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Skills */}
+        {job.job_skills?.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-sm font-semibold text-red-700 mb-2">REQUIRED SKILLS</h4>
+            <div className="flex flex-wrap gap-2">
+              {job.job_skills.map((jobSkill) => (
+                <span 
+                  key={jobSkill.skill.id} 
+                  className={`px-3 py-1 text-xs rounded-full font-medium ${
+                    jobSkill.is_required ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-700'
+                  }`}
+                >
+                  {jobSkill.skill.name}
+                  {jobSkill.is_required && (
+                    <span className="ml-1 text-red-500">*</span>
+                  )}
+                </span>
+              ))}
+            </div>
+            
+          </div>
+        )}
+
+        {/* Application Stats */}
+        <div className="mt-4">
+          <h4 className="text-sm font-semibold text-gray-700 mb-2">APPLICATIONS</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-red-50 p-3 rounded-lg">
+              <p className="text-xs text-red-500">Total</p>
+              <p className="text-sm font-medium text-red-600">{job.applications_count || 0}</p>
+            </div>
+           
+          </div>
+        </div>
+
+        {/* Company Status Warning */}
+        {job.company?.status === 'suspended' && (
+          <div className="mt-4 p-3 bg-red-50 rounded-lg flex items-start">
+            <XCircle className="w-5 h-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-xs text-red-600">
+              <span className="font-medium">Note:</span> This job is posted by a company that is currently suspended. 
+              Proceed with caution when interacting with this listing.
+            </p>
+          </div>
+        )}
+      </div>
+    ),
+    showCloseButton: true,
+    showConfirmButton: false,
+    width: '800px',
+    padding: '1.5rem',
+    customClass: {
+      popup: 'rounded-lg shadow-xl',
+      title: 'text-2xl font-bold text-gray-800 mb-4',
+      htmlContainer: 'text-left',
+      closeButton: 'text-gray-400 hover:text-gray-600'
+    }
+  });
+};
   const itemsPerPage = 10;
 
   const paginatedJobs = filteredJobs.slice(
@@ -447,7 +601,9 @@ function JobAdmin() {
                                   className="group relative flex items-center justify-center h-8 w-8 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition-all duration-200 shadow-sm"
                                   onClick={() => console.log('View job:', job.id)}
                                 >
-                                  <Eye className="w-4 h-4" />
+                                  <Eye className="w-4 h-4"
+                                  onClick={() => handleJobDetailsClick(job)}
+                                  />
                                 </button>
                                 <button 
                                   className="group relative flex items-center justify-center h-8 w-8 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all duration-200 shadow-sm"
