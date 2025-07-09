@@ -57,7 +57,7 @@ const ExploreItians = () => {
             image: profile.profile_picture || `https://ui-avatars.com/api/?name=${profile.first_name || 'User'}+${profile.last_name || ''}&background=901b20&color=fff&size=150`,
             profile,
             status: user.status,
-            mutualConnections: 5
+            mutualConnections: user.mutual_connections_count ?? 0,
           };
         });
 
