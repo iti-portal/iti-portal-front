@@ -64,6 +64,8 @@ const PublicProfilePage = () => {
   }
 
   // Use the same structure as your main profile page, but do not render any edit buttons
+  // DEBUG: Log profile picture src for troubleshooting
+  console.log('PublicProfilePage profile.profile_picture:', profile?.profile?.profile_picture);
   return (
     <>
       <Navbar />

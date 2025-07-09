@@ -369,6 +369,18 @@ const Navbar = () => {
                         <span className="material-icons text-lg mr-3">edit</span>
                         Edit Profile
                       </button>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProfileDropdownOpen(false);
+                          navigate('/account/settings');
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
+                      >
+                        <span className="material-icons text-lg mr-3">settings</span>
+                        Account Settings
+                      </button>                     
                       
                       <div className="border-t border-gray-200 mt-2 pt-2">
                         <button

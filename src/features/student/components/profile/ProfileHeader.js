@@ -1,6 +1,6 @@
 // src/features/student/components/profile/ProfileHeader.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaLinkedin, FaGithub, FaGlobe, FaWhatsapp, FaEnvelope, FaPhone, FaCamera, FaTimes } from 'react-icons/fa'; // Social media icons
@@ -11,56 +11,34 @@ import { useAuth } from '../../../../contexts/AuthContext';
 
 // Custom ProfileImage component with fallback URLs
 const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
-  const [currentSrc, setCurrentSrc] = useState(src);
-  const [fallbackIndex, setFallbackIndex] = useState(0);
-
-  // Generate fallback URLs based on the original path
-  const generateFallbackUrls = (originalSrc) => {
-    if (!originalSrc || originalSrc.startsWith('data:image/svg+xml')) {
-      return [];
+  const getFullImageUrl = (originalSrc) => {
+    if (!originalSrc) return PLACEHOLDERS.AVATAR_USER;
+    // If already absolute URL
+    if (/^https?:\/\//.test(originalSrc)) return originalSrc;
+    // If it's a data URL (SVG placeholder), don't use it
+    if (originalSrc.startsWith('data:image/svg+xml')) return PLACEHOLDERS.AVATAR_USER;
+    // If it starts with 'profile_images' or 'cover_photos', prepend backend base
+    if (/^(profile_images|cover_photos)/.test(originalSrc)) {
+      return `http://127.0.0.1:8000/storage/${originalSrc.replace(/^\/+/, '')}`;
     }
-
-    // Extract the relative path from the full URL
-    const url = new URL(originalSrc);
-    const path = url.pathname;
-    const baseUrl = 'http://127.0.0.1:8000';
-    
-    // Try different path patterns
-    if (path.includes('/storage/')) {
-      const relativePath = path.replace('/storage/', '');
-      return [
-        `${baseUrl}/storage/${relativePath}`,
-        `${baseUrl}/media/${relativePath}`,
-        `${baseUrl}/${relativePath}`
-      ];
-    } else if (path.includes('/media/')) {
-      const relativePath = path.replace('/media/', '');
-      return [
-        `${baseUrl}/media/${relativePath}`,
-        `${baseUrl}/storage/${relativePath}`,
-        `${baseUrl}/${relativePath}`
-      ];
-    } else {
-      const relativePath = path.substring(1); // Remove leading slash
-      return [
-        `${baseUrl}/storage/${relativePath}`,
-        `${baseUrl}/media/${relativePath}`,
-        `${baseUrl}/${relativePath}`
-      ];
+    // If it starts with a slash, remove it and prepend backend base
+    if (originalSrc.startsWith('/')) {
+      return `http://127.0.0.1:8000${originalSrc}`;
     }
+    // Otherwise, try as is
+    return `http://127.0.0.1:8000/storage/${originalSrc}`;
   };
 
-  const fallbackUrls = generateFallbackUrls(src);
+  const [currentSrc, setCurrentSrc] = useState(getFullImageUrl(src));
+
+  // Update src if prop changes
+  useEffect(() => {
+    setCurrentSrc(getFullImageUrl(src));
+  }, [src]);
 
   const handleImageError = (e) => {
-    if (fallbackIndex < fallbackUrls.length - 1) {
-      const nextFallback = fallbackUrls[fallbackIndex + 1];
-      setCurrentSrc(nextFallback);
-      setFallbackIndex(fallbackIndex + 1);
-    } else {
-      setCurrentSrc(PLACEHOLDERS.AVATAR_USER);
-      if (onError) onError(e);
-    }
+    setCurrentSrc(PLACEHOLDERS.AVATAR_USER);
+    if (onError) onError(e);
   };
 
   const handleImageLoad = (e) => {
@@ -69,20 +47,25 @@ const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
 
   return (
     <img
-      src={currentSrc || "/avatar.png"}
+      src={currentSrc}
       alt={alt}
       className={className}
       onLoad={handleImageLoad}
       onError={handleImageError}
+      style={{ background: '#901b20' }}
     />
   );
 };
 
-function ProfileHeader({ data, onUpdatePhoto }) {
+function ProfileHeader({ data, onUpdatePhoto, isPublic }) {
   const navigate = useNavigate(); 
   const { user } = useAuth();
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [photoType, setPhotoType] = useState(''); // 'profile' or 'cover'
+
+  // Only show edit button and photo update if not public and user is owner
+  const isOwner = user && data && (user.id === data.id || user._id === data.id);
+  const canEdit = !isPublic && isOwner;
 
   // Function to format date
   const formatDate = (dateString) => {
@@ -122,9 +105,6 @@ function ProfileHeader({ data, onUpdatePhoto }) {
     }
   };
 
-  // Only show edit button if logged-in user is the owner
-  const isOwner = user && data && (user.id === data.id || user._id === data.id);
-
   return (
     <>
       <motion.div 
@@ -135,44 +115,46 @@ function ProfileHeader({ data, onUpdatePhoto }) {
       >
         {/* Cover Photo */}
         <motion.div
-          className={`relative w-full h-48 cursor-pointer group ${
+          className={`relative w-full h-48 ${canEdit ? 'cursor-pointer group' : ''} ${
             data?.profile?.cover_photo 
               ? 'bg-cover bg-center' 
               : 'bg-gradient-to-r from-[#901b20] to-[#b8252b] flex items-center justify-center'
           }`}
-          style={data?.profile?.cover_photo ? { backgroundImage: `url(${data.profile.cover_photo})` } : {}}
-          onClick={() => handlePhotoClick('cover')}
-          whileHover={{ scale: 1.02 }}
+          style={data?.profile?.cover_photo ? { backgroundImage: `url(http://127.0.0.1:8000/storage/${data.profile.cover_photo.replace(/^\/+/, '')})` } : {}}
+          onClick={canEdit ? () => handlePhotoClick('cover') : undefined}
+          whileHover={canEdit ? { scale: 1.02 } : {}}
           transition={{ duration: 0.3 }}
         >
-          {!data?.profile?.cover_photo && (
+          {!data?.profile?.cover_photo && canEdit && (
             <div className="text-white text-center">
               <FaCamera className="text-4xl mb-2 mx-auto opacity-70" />
               <p className="text-lg font-medium opacity-90">Add Cover Photo</p>
             </div>
           )}
-          <motion.div
-            className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            whileHover={{ opacity: 1 }}
-          >
+          {canEdit && (
             <motion.div
-              className="flex items-center space-x-2 text-white"
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileHover={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              whileHover={{ opacity: 1 }}
             >
-              <FaCamera className="text-2xl" />
-              <span className="text-lg font-medium">Change Cover Photo</span>
+              <motion.div
+                className="flex items-center space-x-2 text-white"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileHover={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <FaCamera className="text-2xl" />
+                <span className="text-lg font-medium">Change Cover Photo</span>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          )}
         </motion.div>
 
         {/* Profile Picture & Basic Info */}
         <div className="p-6 relative">
           <motion.div
-            className="relative cursor-pointer group"
-            onClick={() => handlePhotoClick('profile')}
-            whileHover={{ scale: 1.05 }}
+            className={`relative ${canEdit ? 'cursor-pointer group' : ''}`}
+            onClick={canEdit ? () => handlePhotoClick('profile') : undefined}
+            whileHover={canEdit ? { scale: 1.05 } : {}}
             transition={{ duration: 0.2 }}
           >
             <ProfileImage
@@ -181,12 +163,14 @@ function ProfileHeader({ data, onUpdatePhoto }) {
               alt={`${data?.profile?.first_name || 'User'} ${data?.profile?.last_name || ''}'s Profile`}
               className="w-32 h-32 rounded-full border-4 border-white absolute -top-16 left-6 shadow-md object-cover"
             />
-            <motion.div
-              className="absolute -top-16 left-6 w-32 h-32 rounded-full bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              whileHover={{ opacity: 1 }}
-            >
-              <FaCamera className="text-white text-xl" />
-            </motion.div>
+            {canEdit && (
+              <motion.div
+                className="absolute -top-16 left-6 w-32 h-32 rounded-full bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                whileHover={{ opacity: 1 }}
+              >
+                <FaCamera className="text-white text-xl" />
+              </motion.div>
+            )}
           </motion.div>
 
           <div className="ml-40 pt-4"> {/* Space for the image */}
@@ -234,7 +218,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
           </div>
 
           {/* Action Buttons */}
-          {isOwner && (
+          {canEdit && (
             <motion.div 
               className="mt-4 flex space-x-3 justify-end"
               initial={{ opacity: 0, y: 20 }}
@@ -352,7 +336,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
 
       {/* Photo Upload Modal */}
       <AnimatePresence>
-        {showPhotoModal && (
+        {canEdit && showPhotoModal && (
           <motion.div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             initial={{ opacity: 0 }}
@@ -378,7 +362,6 @@ function ProfileHeader({ data, onUpdatePhoto }) {
                   <FaTimes className="text-xl" />
                 </button>
               </div>
-              
               <div className="space-y-4">
                 <label htmlFor="photoUpload" className="cursor-pointer">
                   <motion.div

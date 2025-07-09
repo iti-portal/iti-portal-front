@@ -30,7 +30,7 @@ import JobsList from '../features/company/jobs/ShowCompanyJobs';
 import JobDetailsView from '../features/company/jobs/ShowJobDetails';
 import StudentArticles from '../features/student/articles/StudentsArticles';
 import PublicProfilePage from '../features/student/pages/PublicProfilePage';
-
+import AccountSettings from '../features/auth/components/AccountSettings';
 import CompanyLayout from './../layouts/CompanyLayout';
 import CompanyProfile from '../features/company/profile/CompanyProfile';
 import PostJob from '../features/company/postJob/PostJob';
@@ -112,6 +112,14 @@ const AppRoutes = () => {
           </RoleBasedRoute>
         } 
       />
+      <Route
+      path="/account/settings"
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <AccountSettings />
+        </PrivateRoute>
+      }
+    />
       <Route 
         path="/admin/articles" 
         element={
