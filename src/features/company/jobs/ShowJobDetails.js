@@ -344,20 +344,20 @@ const JobDetailsView = () => {
         )}
       </div>)}
 
+ {job.status == 'active' || job.status=='paused' ?
       <div className="mt-8">
         
-        {job.status == 'active' ?
+       
+        
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center">
             <BadgeCheck className="w-6 h-6 mr-2 text-red-600" />
             AI Recommended Itians 
           </h2>
         </div>
-        : null}
-
-      
-        <DeveloperRecommendations jobId={id} jobData={job} />
-      </div>
+        <DeveloperRecommendations jobId={id} jobData={job} /> :
+     
+      </div> :null}
     </div>
   );
 };

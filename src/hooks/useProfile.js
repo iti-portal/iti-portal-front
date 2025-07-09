@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getUserProfile, updateProfilePicture, updateCoverPhoto } from '../services/profileService';
 import { getFeaturedProjects } from '../services/featuredProjectsService';
+import { useAuth } from '../contexts/AuthContext';
+import { constructProfilePictureUrl } from '../services/apiConfig';
 
 
 const transformProfileData = (data) => {
@@ -35,7 +37,7 @@ const transformProfileData = (data) => {
       ...cert,
       achievedAt: cert.achieved_at,
       certificateUrl: cert.certificate_url,
-      imagePath: cert.image_path ? `http://127.0.0.1:8000/storage/${cert.image_path}` : null
+      imagePath: cert.image_path ? constructProfilePictureUrl(cert.image_path) : null
     }));
   }
 
@@ -54,7 +56,7 @@ const transformProfileData = (data) => {
       // Transform project images
       images: project.project_images?.map(img => ({
         id: img.id,
-        imagePath: `http://127.0.0.1:8000/storage/${img.image_path}`,
+        imagePath: constructProfilePictureUrl(img.image_path),
         altText: img.alt_text || project.title,
         order: img.order
       })) || []
@@ -71,6 +73,7 @@ export const useProfile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { refreshUserProfile } = useAuth();
 
   /**
    * Fetch profile data from API
@@ -143,10 +146,25 @@ export const useProfile = () => {
       setLoading(true);
       setError(null);
       
+      console.log('🖼️ Starting profile picture upload...');
       const result = await updateProfilePicture(photoFile);
       
       if (result.success) {
+        console.log('✅ Profile picture upload successful, refreshing data...');
+        
+        // Refresh local profile data
         await fetchProfile();
+        console.log('📱 Local profile refreshed');
+        
+        // Refresh AuthContext user data to update navbar immediately
+        try {
+          await refreshUserProfile();
+          console.log('🔄 AuthContext refreshed - Navbar should update now');
+        } catch (authError) {
+          console.warn('Failed to refresh auth context:', authError);
+          // Don't fail the whole operation if auth refresh fails
+        }
+        
         return {
           success: true,
           message: result.message
@@ -156,6 +174,7 @@ export const useProfile = () => {
       }
     } catch (err) {
       const errorMessage = err.message || 'An error occurred while updating profile picture';
+      console.error('❌ Profile picture upload failed:', errorMessage);
       setError(errorMessage);
       return {
         success: false,
@@ -164,7 +183,7 @@ export const useProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchProfile]);
+  }, [fetchProfile, refreshUserProfile]);
 
   /**
    * Update cover photo
@@ -177,7 +196,17 @@ export const useProfile = () => {
       const result = await updateCoverPhoto(photoFile);
       
       if (result.success) {
+        // Refresh local profile data
         await fetchProfile();
+        
+        // Refresh AuthContext user data to update navbar immediately
+        try {
+          await refreshUserProfile();
+        } catch (authError) {
+          console.warn('Failed to refresh auth context:', authError);
+          // Don't fail the whole operation if auth refresh fails
+        }
+        
         return {
           success: true,
           message: result.message
@@ -195,7 +224,7 @@ export const useProfile = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchProfile]);
+  }, [fetchProfile, refreshUserProfile]);
 
   // Fetch profile data on mount
   useEffect(() => {
