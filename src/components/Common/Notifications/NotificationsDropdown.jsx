@@ -2,7 +2,6 @@ import { useState, useRef, useEffect } from 'react';
 import { doc, updateDoc} from 'firebase/firestore';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db, collection, onSnapshot } from '../../../firebase';
-import { div } from 'framer-motion/client';
 
 const NotificationDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);

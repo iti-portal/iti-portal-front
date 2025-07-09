@@ -3,6 +3,9 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
 import Logo from '../Common/Logo';
+import { getGeneralStatistics } from '../../services/statisticsService';
+import Alert from '../UI/Alert';
+import NotificationDropdown from '../Common/Notifications/NotificationsDropdown';
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -267,38 +270,58 @@ const Navbar = () => {
           )}
         </nav>
         <div className="flex items-center gap-2 xl:gap-4">
-          <input
-            type="text"
-            placeholder="Search ITI Portal..."
-            className="border border-[#901b20] rounded px-2 xl:px-3 py-1 text-xs xl:text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-32 xl:w-64"
-          />
-          <button className="bg-[#901b20] text-white px-2 xl:px-4 py-1 xl:py-2 rounded font-semibold hover:bg-[#a83236] transition text-xs xl:text-sm whitespace-nowrap">
-            Post Job
-          </button>
-          <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">notifications_none</span>
-          <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
-          <button
-            onClick={handleLogout}
-            disabled={logoutLoading}
-            className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg xl:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            title={logoutLoading ? 'Logging out...' : 'Logout'}
-          >
-            {logoutLoading ? 'hourglass_empty' : 'logout'}
-          </button>
-          <div className="relative" ref={desktopDropdownRef}>
-            <button
-              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="focus:outline-none"
-            >            <img
-              src={user?.profile?.profile_picture || "/avatar.png"}
-              alt="User"
-              className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
-            />
-            </button>
-            
-            {/* Profile Dropdown */}
-            {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+          {user ? (
+            <>
+              <input
+                type="text"
+                placeholder="Search ITI Portal..."
+                className="border border-[#901b20] rounded px-2 xl:px-3 py-1 text-xs xl:text-sm focus:outline-none focus:ring-2 focus:ring-[#901b20] w-32 xl:w-64"
+              />
+              <button className="bg-[#901b20] text-white px-2 xl:px-4 py-1 xl:py-2 rounded font-semibold hover:bg-[#a83236] transition text-xs xl:text-sm whitespace-nowrap">
+                Post Job
+              </button>
+              <NotificationDropdown />
+              <span className="material-icons text-gray-500 cursor-pointer text-lg xl:text-xl">settings</span>
+              <button
+                onClick={handleLogout}
+                disabled={logoutLoading}
+                className="material-icons text-gray-500 hover:text-[#901b20] cursor-pointer text-lg xl:text-xl disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title={logoutLoading ? 'Logging out...' : 'Logout'}
+              >
+                {logoutLoading ? 'hourglass_empty' : 'logout'}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link 
+                to="/login" 
+                className="text-gray-800 hover:text-[#901b20] hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg font-medium transition-all duration-300 border border-white/30 hover:border-[#901b20]/50 hover:shadow-md"
+              >
+                Login
+              </Link>
+              <Link 
+                to="/register" 
+                className="bg-gradient-to-r from-[#901b20] to-[#a83236] text-white px-4 py-2 rounded-lg font-semibold hover:from-[#a83236] hover:to-[#901b20] transition-all duration-300 shadow-lg hover:shadow-xl border border-transparent hover:border-white/20 backdrop-blur-sm"
+              >
+                Register
+              </Link>
+            </>
+          )}
+          {user && (
+            <div className="relative" ref={desktopDropdownRef}>
+              <button
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="focus:outline-none"
+              >            <img
+                src={user?.profile?.profile_picture || "/avatar.png"}
+                alt="User"
+                className="w-7 h-7 xl:w-9 xl:h-9 rounded-full border-2 border-[#901b20] object-cover cursor-pointer hover:border-[#a83236] transition-colors"
+              />
+              </button>
+              
+              {/* Profile Dropdown */}
+              {profileDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                 <div className="px-4 py-2 border-b border-gray-200">
                   <div className="font-semibold text-gray-800 text-sm">
                     {user?.profile?.first_name && user?.profile?.last_name 
@@ -397,7 +420,7 @@ const Navbar = () => {
           placeholder="Search..."
           className="border border-[#901b20] rounded px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-[#901b20] w-20"
         />
-        <span className="material-icons text-gray-500 cursor-pointer text-lg">notifications_none</span>
+        <NotificationDropdown />
         <button
           onClick={handleLogout}
           disabled={logoutLoading}
@@ -714,10 +737,7 @@ const Navbar = () => {
                   </div>
                 </div>
                 <div className="flex items-center justify-around pt-2 border-t border-gray-200">
-                  <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
-                    <span className="material-icons text-gray-500">notifications_none</span>
-                    <span className="text-xs text-gray-600">Notifications</span>
-                  </button>
+                  <NotificationDropdown />
                   <button className="flex flex-col items-center gap-1 p-2 rounded hover:bg-gray-200">
                     <span className="material-icons text-gray-500">settings</span>
                     <span className="text-xs text-gray-600">Settings</span>
