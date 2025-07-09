@@ -29,13 +29,12 @@ const AdminSidebar = ({ open, setOpen }) => {
   return (
     <aside
       className={`
-        h-screen bg-white border-r flex flex-col py-6 z-40
-        transition-all duration-300
-        w-16 md:w-56
-        fixed md:static
+        min-h-screen bg-white/95 backdrop-blur-sm border-r border-slate-200/50 flex flex-col py-4 z-40
+        transition-all duration-300 shadow-lg
+        w-64
       `}
     >
-      <nav className="flex-1">
+      <nav className="flex-1 px-1">
         <ul className="space-y-1">
           {menu.map(item => {
             const isActive = location.pathname === item.path;
@@ -44,18 +43,17 @@ const AdminSidebar = ({ open, setOpen }) => {
                 <Link
                   to={item.path}
                   className={`
-                    flex items-center transition
-                    px-2 md:px-5 py-2.5
+                    flex items-center transition-all duration-200
+                    px-4 py-3 mx-1 rounded-lg
                     ${isActive
-                      ? 'bg-[#901b20] text-white font-semibold'
-                      : 'text-gray-700 hover:bg-gray-100'}
-                    justify-center md:justify-start
+                      ? 'bg-gradient-to-r from-red-900 to-red-700 text-white font-semibold shadow-md'
+                      : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'}
                   `}
                 >
-                  <span className="material-icons-outlined text-lg md:mr-3">
+                  <span className="material-icons-outlined text-lg mr-3">
                     {item.icon}
                   </span>
-                  <span className="text-base hidden md:inline">{item.label}</span>
+                  <span className="text-sm font-medium">{item.label}</span>
                 </Link>
               </li>
             );
@@ -63,20 +61,23 @@ const AdminSidebar = ({ open, setOpen }) => {
         </ul>
       </nav>
       
-      <div className="w-full mt-4 px-2 md:px-4">
-        <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-3 mb-2">
+      <div className="w-full mt-4 px-4">
+        <div className="flex items-center gap-3 mb-4 p-2 bg-slate-50 rounded-lg">
           <img
             src="/avatar.png"
             alt="Admin"
-            className="w-8 h-8 rounded-full border-2 border-[#901b20] object-cover"
+            className="w-10 h-10 rounded-full border-2 border-red-500 object-cover"
           />
-          <span className="font-semibold text-gray-800 hidden md:inline">Admin</span>
+          <div>
+            <span className="font-semibold text-slate-800 block text-sm">Admin</span>
+            <span className="text-xs text-slate-500">Administrator</span>
+          </div>
         </div>
         <button
-          className="w-full flex items-center justify-center px-2 md:px-4 py-2 bg-[#901b20] text-white rounded-lg font-semibold hover:bg-[#a83236] transition"
+          className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg"
         >
-          <span className="material-icons-outlined md:mr-2">logout</span>
-          <span className="hidden md:inline">Log out</span>
+          <span className="material-icons-outlined mr-2 text-lg">logout</span>
+          <span className="text-sm">Log out</span>
         </button>
       </div>
     </aside>

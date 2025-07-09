@@ -232,7 +232,7 @@ const MyAchievements = () => {
       <div className="h-6"></div>
 
       {/* Header Section */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 shadow-sm">
+      <div className="bg-gradient-to-br from-red-70 via-orange-70 to-gray-100 backdrop-blur-sm border-b border-slate-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6">
           {/* Title and Add Button */}
           <div className="flex items-center justify-between py-8">
@@ -516,7 +516,7 @@ const MyAchievements = () => {
                     {!searchQuery && !activeTypeFilter && (
                       <button
                         onClick={() => navigate('/achievements/create')}
-                        className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
+                        className="bg-gradient-to-r from-red-700 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
                       >
                         ✨ Add Your First Achievement
                       </button>

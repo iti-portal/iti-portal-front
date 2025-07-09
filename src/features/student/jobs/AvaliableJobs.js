@@ -271,127 +271,134 @@ export default function AvailableJobs() {
   const jobTitles = [...new Set(jobs.map(job => job.title))];
 
   return (
-    <><Navbar /><div className="min-h-screen bg-gray-50 py-20">
-      <div className="w-full px-4 mx-auto max-w-screen-2xl">
-        <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-xs mb-4">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-bold text-gray-900">Find Jobs</h1>
-            <div className="flex gap-2">
-              {showRecommended ? (
-                <button
-                  onClick={handleShowAllJobs}
-                  className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-all flex items-center gap-1"
+    <><Navbar /><div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 py-20">
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Header Section */}
+        <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 shadow-sm rounded-xl mb-6">
+          <div className="px-6 py-8">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h1 className="text-4xl font-bold text-slate-800">💼 Available Jobs</h1>
+                <p className="text-slate-600 mt-2 text-lg">Discover opportunities that match your skills</p>
+              </div>
+              <div className="flex gap-3">
+                {showRecommended ? (
+                  <button
+                    onClick={handleShowAllJobs}
+                    className="px-6 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl transition-all flex items-center gap-2 font-medium shadow-sm hover:shadow-md"
+                  >
+                    Show All Jobs
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleGetRecommendations}
+                    disabled={recommendationLoading}
+                    className="px-6 py-3 bg-slate-700 hover:bg-slate-800 text-white rounded-xl transition-all flex items-center gap-2 font-medium shadow-md hover:shadow-lg disabled:opacity-50"
+                  >
+                    {recommendationLoading ? (
+                      <>
+                        <span className="animate-spin">↻</span> Getting Recommendations...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-5 h-5" /> Get Recommended Jobs
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Filters Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  onChange={keywordHandler}
+                  placeholder="Search by company name..."
+                  className="w-full p-3 pl-12 text-sm text-gray-700 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent placeholder-slate-400 transition-all duration-200 bg-white shadow-sm hover:shadow-md" />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={selectedJobTitle}
+                  onChange={handleJobTitleChange}
+                  className="w-full px-4 py-3 pl-12 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                 >
-                  Show All Jobs
-                </button>
-              ) : (
-                <button
-                  onClick={handleGetRecommendations}
-                  disabled={recommendationLoading}
-                  className="px-3 py-1.5 text-sm bg-red-700 text-white rounded-md transition-all flex items-center gap-1"
+                  <option value="">All Job Titles</option>
+                  {jobTitles.map((title, index) => (
+                    <option key={index} value={title}>
+                      {title}
+                    </option>
+                  ))}
+                </select>
+                <Code className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+              </div>
+
+              <div className="relative">
+                <select
+                  value={selectedJobType}
+                  onChange={handleJobTypeChange}
+                  className="w-full px-4 py-3 pl-12 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all duration-200 bg-white shadow-sm hover:shadow-md"
                 >
-                  {recommendationLoading ? (
-                    <>
-                      <span className="animate-spin">↻</span> Getting Recommendations...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" /> Get Recommended Jobs
-                    </>
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
+                  <option value="">All Job Types</option>
+                  {jobTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {getJobType(type)}
+                    </option>
+                  ))}
+                </select>
+                <Briefcase className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div className="relative">
-              <input
-                type="text"
-                onChange={keywordHandler}
-                placeholder="Search by company name..."
-                className="w-full p-2 pl-9 text-sm text-gray-700 border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent placeholder-gray-400 transition-all duration-150" />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            </div>
+              <div className="relative">
+                <select
+                  value={selectedExperience}
+                  onChange={handleExperienceChange}
+                  className="w-full px-4 py-3 pl-12 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                >
+                  <option value="">All Experience Levels</option>
+                  {experienceLevels.map((level) => (
+                    <option key={level.value} value={level.value}>
+                      {level.label}
+                    </option>
+                  ))}
+                </select>
+                <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+              </div>
 
-            <div className="relative">
-              <select
-                value={selectedJobTitle}
-                onChange={handleJobTitleChange}
-                className="w-full px-3 py-2 pl-9 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-red-500 focus:border-transparent outline-none transition-all duration-150 bg-white"
-              >
-                <option value="">All Job Titles</option>
-                {jobTitles.map((title, index) => (
-                  <option key={index} value={title}>
-                    {title}
-                  </option>
-                ))}
-              </select>
-              <Code className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            </div>
+              <div className="relative">
+                <select
+                  value={selectedWorkLocation}
+                  onChange={handleWorkLocationChange}
+                  className="w-full px-4 py-3 pl-12 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                >
+                  <option value="">All Work Locations</option>
+                  {workLocations.map((location) => (
+                    <option key={location.value} value={location.value}>
+                      {location.label}
+                    </option>
+                  ))}
+                </select>
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+              </div>
 
-            <div className="relative">
-              <select
-                value={selectedJobType}
-                onChange={handleJobTypeChange}
-                className="w-full px-3 py-2 pl-9 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-red-500 focus:border-transparent outline-none transition-all duration-150 bg-white"
-              >
-                <option value="">All Job Types</option>
-                {jobTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {getJobType(type)}
-                  </option>
-                ))}
-              </select>
-              <Briefcase className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            </div>
-
-            <div className="relative">
-              <select
-                value={selectedExperience}
-                onChange={handleExperienceChange}
-                className="w-full px-3 py-2 pl-9 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-red-500 focus:border-transparent outline-none transition-all duration-150 bg-white"
-              >
-                <option value="">All Experience Levels</option>
-                {experienceLevels.map((level) => (
-                  <option key={level.value} value={level.value}>
-                    {level.label}
-                  </option>
-                ))}
-              </select>
-              <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            </div>
-
-            <div className="relative">
-              <select
-                value={selectedWorkLocation}
-                onChange={handleWorkLocationChange}
-                className="w-full px-3 py-2 pl-9 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-red-500 focus:border-transparent outline-none transition-all duration-150 bg-white"
-              >
-                <option value="">All Work Locations</option>
-                {workLocations.map((location) => (
-                  <option key={location.value} value={location.value}>
-                    {location.label}
-                  </option>
-                ))}
-              </select>
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-            </div>
-
-            <div className="relative">
-              <select
-                value={selectedGov}
-                onChange={handleGovChange}
-                className="w-full px-3 py-2 pl-9 text-sm border border-gray-200 rounded-md focus:ring-1 focus:ring-red-500 focus:border-transparent outline-none transition-all duration-150 bg-white"
-              >
-                <option value="">All Locations</option>
-                {govs.map((gov) => (
-                  <option key={gov.id} value={gov.governorate_name_en}>
-                    {gov.governorate_name_en}
-                  </option>
-                ))}
-              </select>
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+              <div className="relative">
+                <select
+                  value={selectedGov}
+                  onChange={handleGovChange}
+                  className="w-full px-4 py-3 pl-12 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-400 focus:border-transparent outline-none transition-all duration-200 bg-white shadow-sm hover:shadow-md"
+                >
+                  <option value="">All Locations</option>
+                  {govs.map((gov) => (
+                    <option key={gov.id} value={gov.governorate_name_en}>
+                      {gov.governorate_name_en}
+                    </option>
+                  ))}
+                </select>
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>
