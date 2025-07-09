@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { createConnection } from '../../services/usersApi';
 
-const UserCard = ({ user, onConnectionSuccess }) => {  // Add onConnectionSuccess prop
+const UserCard = ({ user, onConnectionSuccess, currentUser }) => {  // Add currentUser prop
   const navigate = useNavigate();
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);  // New state to track connection status
@@ -60,6 +60,15 @@ const UserCard = ({ user, onConnectionSuccess }) => {  // Add onConnectionSucces
     return null;
   }
 
+  // Check if current logged-in user is a company
+  const isCurrentUserCompany = currentUser?.user_type === 'company' || 
+                              currentUser?.type === 'company' || 
+                              currentUser?.role === 'company' || 
+                              currentUser?.account_type === 'company' ||
+                              currentUser?.userType === 'company' ||
+                              currentUser?.is_company === true ||
+                              currentUser?.isCompany === true;
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
       {/* Cover image */}
@@ -111,18 +120,23 @@ const UserCard = ({ user, onConnectionSuccess }) => {  // Add onConnectionSucces
 
         {/* Action buttons */}
         <div className="flex space-x-2">
-          <button 
-            onClick={handleConnect}
-            disabled={isConnecting}
-            className={`flex-1 bg-[#901b20] text-white py-1.5 px-3 rounded-md text-sm font-medium hover:bg-[#7a1619] transition-colors duration-200 shadow-sm hover:shadow-md ${
-              isConnecting ? 'opacity-70 cursor-not-allowed' : ''
-            }`}
-          >
-            {isConnecting ? 'Sending...' : 'Connect'}
-          </button>
+          {/* Only show connect button if current logged-in user is not a company */}
+          {!isCurrentUserCompany && (
+            <button 
+              onClick={handleConnect}
+              disabled={isConnecting}
+              className={`flex-1 bg-[#901b20] text-white py-1.5 px-3 rounded-md text-sm font-medium hover:bg-[#7a1619] transition-colors duration-200 shadow-sm hover:shadow-md ${
+                isConnecting ? 'opacity-70 cursor-not-allowed' : ''
+              }`}
+            >
+              {isConnecting ? 'Sending...' : 'Connect'}
+            </button>
+          )}
           <button 
             onClick={handleProfileClick}
-            className="flex-1 border border-gray-300 text-gray-700 py-1.5 px-3 rounded-md text-sm font-medium hover:border-[#901b20] hover:text-[#901b20] transition-colors duration-200"
+            className={`border border-gray-300 text-gray-700 py-1.5 px-3 rounded-md text-sm font-medium hover:border-[#901b20] hover:text-[#901b20] transition-colors duration-200 ${
+              isCurrentUserCompany ? 'flex-1' : 'flex-1'
+            }`}
           >
             Profile
           </button>

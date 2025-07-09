@@ -5,6 +5,7 @@ import { fetchUsers } from '../../services/usersApi';
 import Navbar from '../../components/Layout/Navbar';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ExploreItians = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +23,7 @@ const ExploreItians = () => {
     intakes: []
   });
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const { user: currentUser } = useAuth(); //get currentUser from context
 
   const handleConnectionSuccess = (userId) => {
     setConnectedUsers(prev => [...prev, userId]);
@@ -238,6 +240,7 @@ const ExploreItians = () => {
                       key={user.id} 
                       user={user} 
                       onConnectionSuccess={handleConnectionSuccess}
+                      currentUser={currentUser}
                     />
                   ))}
                 </div>
