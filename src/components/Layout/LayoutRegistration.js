@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../Common/Logo';
 
 const Layout = ({ children }) => (
-  <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative">    {/* Navbar-style logo in the top-left */}
+  <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 relative bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947]">    {/* Navbar-style logo in the top-left */}
     <div className="absolute top-6 left-8 z-20">
       <Logo size="xl" center={false} marginBottom={false} />
     </div>

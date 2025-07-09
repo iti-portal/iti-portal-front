@@ -78,22 +78,22 @@ const LoginForm = () => {
           </AuthButton>
         </div>
 
-        <div className="text-center mt-3">
+        <div className="text-center mt-4">
           <a
             href="/forgot-password"
-            className="text-xs text-[#901b20] hover:underline"
+            className="text-sm text-[#901b20] hover:text-[#7a1419] transition-colors duration-200"
           >
             Forgot password?
           </a>
         </div>
       </form>
 
-      <div className="text-center mt-4">
-        <p className="text-xs text-gray-600">
+      <div className="text-center mt-6">
+        <p className="text-sm text-gray-600">
           Don't have an account?{' '}
           <a
             href="/register"
-            className="font-medium text-[#901b20] hover:underline"
+            className="font-semibold text-[#901b20] hover:text-[#7a1419] transition-colors duration-200"
           >
             Sign up
           </a>

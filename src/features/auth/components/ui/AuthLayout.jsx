@@ -19,7 +19,7 @@ const AuthLayout = ({
 }) => {
   return (
     <motion.div 
-      className="flex flex-col md:flex-row items-stretch bg-white rounded-3xl shadow-2xl overflow-hidden mx-auto w-full max-w-4xl min-h-[500px] border border-[#e0e7ff]"
+      className="flex flex-col md:flex-row items-stretch bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden mx-auto w-full max-w-5xl min-h-[600px] border border-white/20"
       variants={itemVariants}
     >
       {/* Left Side: Image with Overlay */}
@@ -35,11 +35,11 @@ const AuthLayout = ({
             style={{ zIndex: 0 }}
           />
         )}
-        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full bg-black bg-opacity-40 p-10">
-          <h2 className="text-3xl font-extrabold text-white text-center drop-shadow-lg mb-2">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-[#203947]/80 via-[#901b20]/80 to-[#203947]/80 p-10">
+          <h2 className="text-4xl font-bold text-white text-center drop-shadow-lg mb-4">
             {leftTitle}
           </h2>
-          <p className="text-gray-100 text-center text-lg drop-shadow mb-2">
+          <p className="text-white/90 text-center text-lg drop-shadow mb-4 leading-relaxed">
             {leftDescription}
           </p>
           {leftContent}

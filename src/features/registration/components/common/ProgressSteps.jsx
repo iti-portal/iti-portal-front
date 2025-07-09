@@ -49,9 +49,9 @@ const ProgressSteps = ({
     
     switch (status) {
       case 'completed':
-        return `${baseClasses} bg-yellow-400 text-[#203947] border-yellow-400 shadow-lg`;
+        return `${baseClasses} bg-red-400 text-[#203947] border-red-400 shadow-lg`;
       case 'current':
-        return `${baseClasses} bg-yellow-400 text-[#203947] border-yellow-400 ring-4 ring-yellow-400/30 shadow-lg`;
+        return `${baseClasses} bg-red-400 text-[#203947] border-red-400 ring-4 ring-red-400/30 shadow-lg`;
       case 'upcoming':
         return `${baseClasses} bg-white/20 text-white/70 border-white/30`;
       default:
@@ -64,9 +64,9 @@ const ProgressSteps = ({
     
     switch (status) {
       case 'completed':
-        return `${baseClasses} text-yellow-400`;
+        return `${baseClasses} text-red-400`;
       case 'current':
-        return `${baseClasses} text-yellow-400 font-semibold`;
+        return `${baseClasses} text-red-400 font-semibold`;
       case 'upcoming':
         return `${baseClasses} text-white/60`;
       default:

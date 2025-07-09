@@ -130,7 +130,7 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] py-8 px-4 sm:px-6 lg:px-8 rounded-lg">
+    <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8 rounded-lg">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <RegistrationHeader />

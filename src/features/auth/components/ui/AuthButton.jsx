@@ -20,17 +20,17 @@ const AuthButton = ({
   className = '',
   fullWidth = true
 }) => {
-  const baseClasses = 'py-2.5 rounded-md font-medium text-sm shadow-sm transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100';
+  const baseClasses = 'py-3 rounded-lg font-semibold text-sm shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100';
   
   const variantClasses = {
-    primary: 'text-white',
+    primary: 'text-white bg-gradient-to-r from-[#901b20] to-[#203947] hover:from-[#7a1419] hover:to-[#1a2f3a] hover:shadow-xl',
     secondary: 'text-[#901b20] border border-[#901b20] bg-white hover:bg-gray-50',
     link: 'text-[#901b20] hover:underline bg-transparent shadow-none hover:scale-100'
   };
 
   const widthClass = fullWidth ? 'w-full' : 'px-4';
 
-  const buttonStyle = variant === 'primary' ? { backgroundColor: '#901b20' } : {};
+  const buttonStyle = variant === 'primary' ? {} : {};
 
   return (
     <motion.button
