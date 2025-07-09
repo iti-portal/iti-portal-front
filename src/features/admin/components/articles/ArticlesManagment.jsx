@@ -14,18 +14,14 @@ import {
   Send,
   Archive,
   ArchiveX,
-  CheckCircle,
-  FileText,
-  BarChart3,
-  List,
-  ChevronLeft,
-  ChevronRight,
+  ThumbsUp,
 } from 'lucide-react';
 
 import ViewArticle from './ViewArticle';
 import EditArticleForm from './EditArticleForm';
 import NewArticleForm from './NewArticleForm';
 import 'react-toastify/dist/ReactToastify.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ArticlesManagement = () => {
   const [articles, setArticles] = useState([]);
@@ -35,6 +31,7 @@ const ArticlesManagement = () => {
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     const loadArticles = async () => {
@@ -151,44 +148,67 @@ const ArticlesManagement = () => {
   };
 
   const getStatusBadge = (status) => {
-    const base = 'px-2 py-1 rounded text-xs font-medium';
+    const base = 'px-2 py-1 rounded-full text-xs font-medium';
     switch (status.toLowerCase()) {
       case 'published':
-        return `${base} bg-green-100 text-green-800`;
+        return `${base} bg-green-100 text-green-700`;
       case 'draft':
-        return `${base} bg-yellow-100 text-yellow-800`;
+        return `${base} bg-yellow-100 text-yellow-700`;
       case 'archived':
-        return `${base} bg-gray-100 text-gray-800`;
+        return `${base} bg-gray-100 text-gray-700`;
       default:
-        return `${base} bg-gray-100 text-gray-800`;
+        return `${base} bg-gray-100 text-gray-700`;
     }
+  };
+
+  const filtered = filterStatus === 'all'
+    ? articles
+    : articles.filter((a) => a.status.toLowerCase() === filterStatus.toLowerCase());
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginated = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const renderPaginationButtons = () =>
+    Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+      const start = Math.max(0, Math.min(currentPage - 3, totalPages - 5));
+      const pageIndex = start + i;
+      if (pageIndex >= 0 && pageIndex < totalPages) {
+        return (
+          <button
+            key={pageIndex}
+            className={`px-3 py-1 rounded ${
+              currentPage === pageIndex + 1
+                ? 'bg-[#901b20] text-white'
+                : 'border border-gray-300 bg-white hover:bg-gray-100'
+            }`}
+            onClick={() => setCurrentPage(pageIndex + 1)}
+          >
+            {pageIndex + 1}
+          </button>
+        );
+      }
+      return null;
+    }).filter(Boolean);
+
+  const getInitials = (email, name) => {
+    if (name) {
+      return name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase();
+    }
+    if (email) {
+      return email[0].toUpperCase();
+    }
+    return '?';
   };
 
   const publishedCount = articles.filter((a) => a.status === 'published').length;
   const draftCount = articles.filter((a) => a.status === 'draft').length;
   const archivedCount = articles.filter((a) => a.status === 'archived').length;
 
-  const filtered = filterStatus === 'all'
-    ? articles
-    : articles.filter((a) => a.status.toLowerCase() === filterStatus.toLowerCase());
-
-  const totalPages = Math.ceil(filtered.length / 10);
-  const paginated = filtered.slice((currentPage - 1) * 10, currentPage * 10);
-
-  const renderPaginationButtons = () =>
-    Array.from({ length: totalPages }, (_, i) => (
-      <button
-        key={i + 1}
-        className={`px-3 py-1 rounded ${
-          currentPage === i + 1 ? 'bg-[#901b20] text-white' : 'text-gray-600 hover:bg-gray-100'
-        }`}
-        onClick={() => setCurrentPage(i + 1)}
-      >
-        {i + 1}
-      </button>
-    ));
-
-    if (loading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -220,187 +240,193 @@ const ArticlesManagement = () => {
     );
 
   return (
-    <div className="p-6 bg-gray-50">
-      <ToastContainer />
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Articles Management</h1>
-        <button
-          className="px-4 py-2 rounded-md text-white"
-          style={{ backgroundColor: '#901b20' }}
-          onClick={() => setViewMode('new')}
-        >
-          + New Article
-        </button>
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
-        <div className="w-full lg:w-64 bg-white rounded-lg shadow-sm p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 size={20} className="text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Article Insights</h2>
-          </div>
-          <div className="space-y-3">
-            <InsightItem
-              label="Published"
-              icon={<CheckCircle size={16} style={{ color: '#901b20' }} />}
-              count={publishedCount}
-              active={filterStatus === 'Published'}
-              onClick={() => handleFilterChange('Published')}
-            />
-            <InsightItem
-              label="Drafts"
-              icon={<FileText size={16} className="text-yellow-600" />}
-              count={draftCount}
-              active={filterStatus === 'Draft'}
-              onClick={() => handleFilterChange('Draft')}
-            />
-            <InsightItem
-              label="Archived"
-              icon={<Archive size={16} className="text-gray-500" />}
-              count={archivedCount}
-              active={filterStatus === 'Archived'}
-              onClick={() => handleFilterChange('Archived')}
-            />
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <InsightItem
-                label="Total Articles"
-                icon={<List size={16} className="text-blue-600" />}
-                count={articles.length}
-                active={filterStatus === 'all'}
-                onClick={() => handleFilterChange('all')}
-              />
+    <div className="flex flex-col min-h-screen bg-gray-50">
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-full mx-auto bg-white rounded-lg shadow border p-6">
+          <div className="w-full space-y-4 md:space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800">Articles Management</h2>
+              <button className="bg-[#901b20] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#a83236] transition w-full md:w-auto" onClick={() => setViewMode('new')}>
+                + New Article
+              </button>
             </div>
-          </div>
-        </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-          <table className="w-full table-auto border">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-center">Title</th>
-                <th className="p-2 text-center">Author</th>
-                <th className="p-2 text-center">Status</th>
-                <th className="p-2 text-center">Date</th>
-                <th className="p-2 text-center">Likes</th>
-                <th className="p-2 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {paginated.map((a) => (
-                <tr key={a.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-2">
+            {/* Article Insights Bar */}
+            <div className="flex flex-wrap gap-4 mb-2">
+              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-4 flex flex-col items-center border border-gray-200">
+                <span className="text-xs text-gray-500 font-medium mb-1">Published</span>
+                <span className="text-lg font-bold text-green-700">{publishedCount}</span>
+              </div>
+              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-4 flex flex-col items-center border border-gray-200">
+                <span className="text-xs text-gray-500 font-medium mb-1">Drafts</span>
+                <span className="text-lg font-bold text-yellow-700">{draftCount}</span>
+              </div>
+              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-4 flex flex-col items-center border border-gray-200">
+                <span className="text-xs text-gray-500 font-medium mb-1">Archived</span>
+                <span className="text-lg font-bold text-gray-700">{archivedCount}</span>
+              </div>
+              <div className="flex-1 min-w-[150px] bg-gray-50 rounded-lg p-4 flex flex-col items-center border border-gray-200">
+                <span className="text-xs text-gray-500 font-medium mb-1">Total Articles</span>
+                <span className="text-lg font-bold text-blue-700">{articles.length}</span>
+              </div>
+            </div>
+
+            {/* Table Container */}
+            <div className="bg-white rounded-xl border border-gray-100 overflow-x-auto">
+              <div className="min-w-[1000px] w-full">
+                <table className="w-full">
+                  <thead className="sticky top-0 z-10 bg-gray-50">
+                    <tr className="text-gray-700">
+                      <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">#</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium border-b border-gray-200">Title</th>
+                      <th className="py-3 px-4 text-left text-sm font-medium border-b border-gray-200">Author</th>
+                      <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Status</th>
+                      <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Date</th>
+                      <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Likes</th>
+                      <th className="py-3 px-4 text-center text-sm font-medium border-b border-gray-200">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paginated.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="py-6 text-center text-gray-400 text-sm">
+                          No articles found.
+                        </td>
+                      </tr>
+                    ) : (
+                      paginated.map((a, idx) => {
+                        const authorName = a.author?.name || a.author?.email || 'Unknown';
+                        const authorEmail = a.author?.email || '';
+                        const initials = getInitials(authorEmail, a.author?.name);
+                        return (
+                          <tr
+                            key={a.id}
+                            className="border-t hover:bg-gray-50 transition-colors"
+                          >
+                            <td className="py-3 px-4 text-sm text-center text-gray-600 font-medium">
+                              {(currentPage - 1) * itemsPerPage + idx + 1}
+                            </td>
+                            <td className="py-3 px-4 text-left max-w-xs truncate" title={a.title}>
+                              <button
+                                onClick={() => handleView(a)}
+                                className="text-blue-700 font-medium hover:underline hover:text-blue-900 transition-colors text-left truncate"
+                              >
+                                {a.title}
+                              </button>
+                            </td>
+                            <td className="py-3 px-4 text-left max-w-xs truncate">
+                              <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#901b20] to-[#fbbf24] flex items-center justify-center text-white font-bold text-sm shadow-sm">
+                                  {initials}
+                                </div>
+                                <span className="truncate" title={authorName}>{authorName}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span className={getStatusBadge(a.status)}>{a.status}</span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              {new Date(a.created_at).toLocaleDateString('en-GB', {
+                                day: '2-digit', month: 'short', year: 'numeric'
+                              })}
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <div className="flex items-center justify-center gap-1 text-gray-700">
+                                <ThumbsUp size={16} className="text-[#901b20]" />
+                                <span className="font-semibold">{a.like_count}</span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <div className="flex gap-1 flex-nowrap overflow-x-auto whitespace-nowrap justify-center">
+                                <button
+                                  onClick={() => handleEdit(a)}
+                                  className="flex items-center gap-1 px-2 py-1 text-xs text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
+                                >
+                                  <Edit size={12} />
+                                  <span className="hidden sm:inline">Edit</span>
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(a)}
+                                  className="flex items-center gap-1 px-2 py-1 text-xs text-red-700 hover:text-red-900 hover:bg-red-50 rounded transition-colors"
+                                >
+                                  <Trash2 size={12} />
+                                  <span className="hidden sm:inline">Delete</span>
+                                </button>
+                                {a.status === 'draft' && (
+                                  <button
+                                    onClick={() => handlePublish(a)}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs text-green-700 hover:text-green-900 hover:bg-green-50 rounded transition-colors"
+                                  >
+                                    <Send size={12} />
+                                    <span className="hidden sm:inline">Publish</span>
+                                  </button>
+                                )}
+                                {a.status === 'published' && (
+                                  <button
+                                    onClick={() => handleArchive(a)}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded transition-colors"
+                                  >
+                                    <Archive size={12} />
+                                    <span className="hidden sm:inline">Archive</span>
+                                  </button>
+                                )}
+                                {a.status === 'archived' && (
+                                  <button
+                                    onClick={() => handleUnarchive(a)}
+                                    className="flex items-center gap-1 px-2 py-1 text-xs text-blue-700 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
+                                  >
+                                    <ArchiveX size={12} />
+                                    <span className="hidden sm:inline">Unarchive</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center p-4 border-t text-sm text-gray-600 gap-4">
+                  <div>
+                    <span className="hidden sm:inline">
+                      Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
+                      {Math.min(currentPage * itemsPerPage, filtered.length)} of {filtered.length} results
+                    </span>
+                    <span className="sm:hidden">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
                     <button
-                      onClick={() => handleView(a)}
-                      className="text-blue-600 hover:underline hover:text-blue-800 transition-colors text-left"
+                      className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => setCurrentPage(currentPage - 1)}
+                      disabled={currentPage === 1}
                     >
-                      {a.title}
+                      Previous
                     </button>
-                  </td>
-                  <td className="p-2">{a.author?.email || 'Unknown'}</td>
-                  <td className="p-2">
-                    <span className={getStatusBadge(a.status)}>{a.status}</span>
-                  </td>
-                  <td className="p-2">{new Date(a.created_at).toLocaleDateString()}</td>
-                  <td className="p-2">{a.like_count}</td>
-                  <td className="p-2">
-                    <div className="flex gap-1 flex-nowrap overflow-x-auto whitespace-nowrap">
-                      <button
-                        onClick={() => handleEdit(a)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                      >
-                        <Edit size={12} />
-                        <span className="hidden sm:inline">Edit</span>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(a)}
-                        className="flex items-center gap-1 px-2 py-1 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors"
-                      >
-                        <Trash2 size={12} />
-                        <span className="hidden sm:inline">Delete</span>
-                      </button>
-                      {a.status === 'draft' && (
-                        <button
-                          onClick={() => handlePublish(a)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs text-green-600 hover:text-green-800 hover:bg-green-50 rounded transition-colors"
-                        >
-                          <Send size={12} />
-                          <span className="hidden sm:inline">Publish</span>
-                        </button>
-                      )}
-                      {a.status === 'published' && (
-                        <button
-                          onClick={() => handleArchive(a)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors"
-                        >
-                          <Archive size={12} />
-                          <span className="hidden sm:inline">Archive</span>
-                        </button>
-                      )}
-                      {a.status === 'archived' && (
-                        <button
-                          onClick={() => handleUnarchive(a)}
-                          className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
-                        >
-                          <ArchiveX size={12} />
-                          <span className="hidden sm:inline">Unarchive</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {/* Pagination */}
-          <div className="px-3 py-4 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-500">
-              Showing {(currentPage - 1) * 10 + 1}–
-              {Math.min(currentPage * 10, filtered.length)} of {filtered.length} articles
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((prev) => prev - 1)}
-              >
-                <ChevronLeft size={16} />
-                Previous
-              </button>
-              <div className="flex gap-1">{renderPaginationButtons()}</div>
-              <button
-                className="flex items-center gap-1 px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((prev) => prev + 1)}
-              >
-                Next
-                <ChevronRight size={16} />
-              </button>
+                    {renderPaginationButtons()}
+                    <button
+                      className="px-3 py-1 rounded border border-gray-300 bg-white hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={() => setCurrentPage(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      </main>
+      <ToastContainer />
     </div>
   );
 };
-
-// Sidebar Insight Item Component
-const InsightItem = ({ label, icon, count, active, onClick }) => (
-  <div
-    className={`flex items-center justify-between p-3 rounded-md hover:bg-gray-50 cursor-pointer ${
-      active ? 'bg-gray-100' : ''
-    }`}
-    onClick={onClick}
-  >
-    <div className="flex items-center gap-3">
-      {icon}
-      <span className="text-gray-700">{label}</span>
-    </div>
-    <span className="font-semibold text-gray-900">{count}</span>
-  </div>
-);
 
 export default ArticlesManagement;

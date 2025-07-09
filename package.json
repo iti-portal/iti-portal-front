@@ -17,8 +17,10 @@
     "react-infinite-scroll-component": "^6.1.0",
     "react-router-dom": "^7.6.2",
     "react-scripts": "^5.0.1",
+    "react-slick": "^0.30.3",
     "react-toastify": "^11.0.5",
     "recharts": "^2.15.3",
+    "slick-carousel": "^1.8.1",
     "sonner": "^2.0.5",
     "web-vitals": "^5.0.2",
     "yup": "^1.6.1"
@@ -46,7 +48,7 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-},
+  },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",

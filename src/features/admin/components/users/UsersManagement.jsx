@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Search, ChevronDown, Trash2, UserX, UserCheck } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { motion } from 'framer-motion';
 
 import {
   fetchUsers as fetchUsersApi,
@@ -361,16 +362,21 @@ const getStudentStatusColor = (status) => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+      className="min-h-screen bg-gray-50 p-6"
+    >
       <ToastContainer position="top-right"/>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">User Management</h1>
         </div>
 
         {/* Filters and Search */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 overflow-x-auto">
+        <div className="bg-white rounded-xl shadow border border-gray-200 p-4 mb-6 overflow-x-auto">
           <div className="flex gap-4 items-center min-w-max">
             {/* Search */}
             <div className="relative min-w-[250px]">
@@ -447,52 +453,40 @@ const getStudentStatusColor = (status) => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-xl shadow border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-100 border-b border-gray-200 shadow-sm sticky top-0 z-10">
                 <tr>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Name</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Email</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Username</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Program</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Track</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Status</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Student Status</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Created</th>
-                  <th className="text-center py-3 px-4 font-medium text-gray-900 text-sm">Actions</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Name</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Email</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Username</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Program</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Track</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Status</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Student Status</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Created</th>
+                  <th className="text-center py-3 px-4 font-semibold text-slate-700 tracking-wide text-base">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-100">
                 {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-3 px-4 text-sm font-medium text-gray-900">
-                      <span className="whitespace-nowrap inline-block">
-                        {user.profile ? `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() : 'N/A'}
-                      </span>
+                  <tr key={user.id} className="hover:bg-blue-50/60 transition-colors group">
+                    <td className="py-2 px-3 text-gray-900 font-medium whitespace-nowrap group-hover:text-blue-700">{user.profile ? `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim() : 'N/A'}</td>
+                    <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{user.email}</td>
+                    <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{user.profile?.username || 'N/A'}</td>
+                    <td className="py-2 px-3">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getProgramColor(user.profile?.program)}`}>{user.profile?.program?.toUpperCase() || 'N/A'}</span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{user.email}</td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{user.profile?.username || 'N/A'}</td>
-                    <td className="py-3 px-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getProgramColor(user.profile?.program)}`}>
-                        {user.profile?.program?.toUpperCase() || 'N/A'}
-                      </span>
+                    <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{user.profile?.track || 'N/A'}</td>
+                    <td className="py-2 px-3">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>{user.status}</span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{user.profile?.track || 'N/A'}</td>
-                    <td className="py-3 px-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
-                        {user.status}
-                      </span>
+                    <td className="py-2 px-3">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStudentStatusColor(user.profile?.student_status)}`}>{user.profile?.student_status || 'N/A'}</span>
                     </td>
-                    <td className="py-3 px-4">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStudentStatusColor(user.profile?.student_status)}`}>
-                        {user.profile?.student_status || 'N/A'}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-sm text-gray-600">{formatDate(user.created_at)}</td>
-                    <td className="py-3 px-4">
-                      {renderActionButtons(user)}
-                    </td>
+                    <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{formatDate(user.created_at)}</td>
+                    <td className="py-2 px-3">{renderActionButtons(user)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -500,54 +494,46 @@ const getStudentStatusColor = (status) => {
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <div className="text-sm text-gray-700">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
+            <div className="text-xs text-gray-600">
               Showing {filteredUsers.length === 0 ? 0 : ((currentPage - 1) * 10) + 1} to {Math.min(currentPage * 10, filteredUsers.length)} of {totalUsers} results
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <button 
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1 || totalPages === 0}
-                className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-xs rounded-lg text-gray-500 hover:text-red-900 hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
-              
               {totalPages > 0 && (
                 <>
                   {currentPage > 3 && totalPages > 5 && (
                     <>
                       <button 
                         onClick={() => setCurrentPage(1)}
-                        className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                        className="px-2 py-1 text-xs rounded-lg text-gray-500 hover:text-red-900 hover:bg-red-50 transition"
                       >
                         1
                       </button>
-                      {currentPage > 4 && <span className="px-2 text-sm text-gray-500">...</span>}
+                      {currentPage > 4 && <span className="px-1 text-xs text-gray-400">...</span>}
                     </>
                   )}
-                  
                   {getPageNumbers().map(page => (
                     <button 
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`px-3 py-1 text-sm rounded transition-colors ${
-                        currentPage === page 
-                          ? 'text-white' 
-                          : 'text-gray-500 hover:text-gray-700'
-                      }`}
-                      style={currentPage === page ? {backgroundColor: '#901b20'} : {}}
+                      className={`px-2 py-1 text-xs rounded-lg font-semibold transition-colors ${currentPage === page ? 'bg-red-900 text-white shadow' : 'text-gray-500 hover:text-blue-700 hover:bg-blue-50'}`}
                     >
                       {page}
                     </button>
                   ))}
-                  
                   {currentPage < totalPages - 2 && totalPages > 5 && (
                     <>
-                      {currentPage < totalPages - 3 && <span className="px-2 text-sm text-gray-500">...</span>}
+                      {currentPage < totalPages - 3 && <span className="px-1 text-xs text-gray-400">...</span>}
                       <button 
                         onClick={() => setCurrentPage(totalPages)}
-                        className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                        className="px-2 py-1 text-xs rounded-lg text-gray-500 hover:text-blue-700 hover:bg-blue-50 transition"
                       >
                         {totalPages}
                       </button>
@@ -555,11 +541,10 @@ const getStudentStatusColor = (status) => {
                   )}
                 </>
               )}
-              
               <button 
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages || totalPages === 0}
-                className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-2 py-1 text-xs rounded-lg text-gray-500 hover:text-blue-700 hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>
@@ -567,7 +552,7 @@ const getStudentStatusColor = (status) => {
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -14,71 +14,61 @@ const NotFound = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947]">
-      <div className="max-w-md w-full text-center bg-white">
-        {/* ITI Logo or Icon */}
-        <div className="mb-8">
-          <div className="w-24 h-24 mx-auto bg-iti-primary rounded-full flex items-center justify-center shadow-lg">
-            <FaExclamationTriangle className="text-white text-3xl" />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] px-4">
+      <div className="bg-white rounded-xl shadow-xl p-6 sm:p-8 max-w-sm w-full text-center">
+        {/* Icon */}
+        <div className="mb-6">
+          <div className="w-16 h-16 mx-auto bg-[#901b20] rounded-full flex items-center justify-center shadow-md">
+            <FaExclamationTriangle className="text-white text-2xl" />
           </div>
         </div>
 
-        {/* 404 Text */}
-        <div className="mb-6">
-          <h1 className="text-6xl font-bold text-iti-primary mb-2">404</h1>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Page Not Found</h2>
-          <p className="text-gray-600 leading-relaxed">
-            Oops! The page you're looking for doesn't exist. It might have been moved, 
-            deleted, or you entered the wrong URL.
-          </p>
-        </div>
+        {/* Text */}
+        <h1 className="text-4xl font-bold text-[#901b20] mb-2">404</h1>
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">Page Not Found</h2>
+        <p className="text-gray-600 text-sm mb-6">
+          Oops! The page you're looking for doesn't exist.
+        </p>
 
-        {/* Action Buttons */}
-        <div className="space-y-4">
+        {/* Buttons */}
+        <div className="space-y-3 mb-6">
           <button
             onClick={handleGoHome}
-            className="w-full bg-iti-primary hover:bg-iti-primary-dark text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
+            className="w-full bg-[#901b20] hover:bg-[#7a1419] text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center shadow"
           >
             <FaHome className="mr-2" />
             Go to Home
           </button>
-          
           <button
             onClick={handleGoBack}
-            className="w-full bg-white hover:bg-gray-50 text-iti-primary border-2 border-iti-primary font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center shadow-md hover:shadow-lg"
+            className="w-full border-2 border-[#901b20] text-[#901b20] hover:bg-gray-50 font-medium py-2 px-4 rounded-lg flex items-center justify-center shadow-sm"
           >
             <FaArrowLeft className="mr-2" />
             Go Back
           </button>
         </div>
 
-        {/* Additional Help */}
-        <div className="mt-8 p-4 bg-white rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">Need Help?</h3>
-          <p className="text-sm text-gray-600 mb-3">
-            If you believe this is an error, please contact our support team.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-2 text-sm">
-            <a 
-              href="mailto:support@iti.gov.eg" 
-              className="text-iti-primary hover:text-iti-primary-dark transition-colors duration-200"
-            >
-              support@iti.gov.eg
-            </a>
-            <span className="hidden sm:inline text-gray-400">|</span>
-            <a 
-              href="tel:+201234567890" 
-              className="text-iti-primary hover:text-iti-primary-dark transition-colors duration-200"
-            >
-              +20 123 456 7890
-            </a>
-          </div>
+        {/* Help */}
+        <div className="text-sm text-gray-500 mb-4">
+          <p>If you need help:</p>
+          <a
+            href="mailto:support@iti.gov.eg"
+            className="block text-[#901b20] hover:underline"
+          >
+            support@iti.gov.eg
+          </a>
+          <a
+            href="tel:+201234567890"
+            className="block text-[#901b20] hover:underline"
+          >
+            +20 123 456 7890
+          </a>
         </div>
 
-        {/* ITI Branding */}
-        <div className="mt-6 text-xs text-gray-500">
-          <p>Information Technology Institute (ITI)</p>
-          <p>Excellence in Technology Education</p>
+        {/* Footer */}
+        <div className="text-xs text-gray-400">
+          <p>Information Technology Institute</p>
+          <p>Excellence in Tech Education</p>
         </div>
       </div>
     </div>

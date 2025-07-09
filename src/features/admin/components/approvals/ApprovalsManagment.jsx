@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { fetchPendingApprovals, approveUser, rejectUser } from '../../../../services/approvalApi';
 
@@ -125,34 +126,32 @@ const Approvals = () => {
     const submitted = new Date(approval.created_at).toLocaleDateString();
 
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0 overflow-hidden">
-            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
-              {name?.charAt(0).toUpperCase()}
-            </div>
+      <motion.div
+        whileHover={{ scale: 1.025, boxShadow: '0 4px 16px 0 rgba(144,27,32,0.08)' }}
+        transition={{ type: 'tween', duration: 0.18 }}
+        className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-150"
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-11 h-11 rounded-full bg-[#f3f4f6] flex-shrink-0 flex items-center justify-center text-[#901b20] font-bold text-lg">
+            {name?.charAt(0).toUpperCase()}
           </div>
-
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-gray-900 text-lg">{name}</h3>
-              <span className={`px-2 py-1 text-xs font-medium rounded ${
+              <h3 className="font-semibold text-gray-900 text-base truncate">{name}</h3>
+              <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                 isCompany ? 'text-[#901b20] bg-[#901b20]/10' : 'text-yellow-700 bg-yellow-100'
               }`}>
                 {type}
               </span>
             </div>
-
-            <p className="text-sm text-gray-500 mb-3">Submitted: {submitted}</p>
-
-            <div className="space-y-1 text-sm text-gray-600">
+            <p className="text-xs text-gray-500 mb-1">Submitted: {submitted}</p>
+            <div className="space-y-0.5 text-xs text-gray-600">
               <p>Email: {approval.email}</p>
-              <p>ID: {approval.id}</p>
               {isCompany ? (
                 <>
-                  <p>Location: {approval.company_profile?.location}</p>
-                  <p>Industry: {approval.company_profile?.industry}</p>
-                  <p>Company Size: {approval.company_profile?.company_size}</p>
+                  {approval.company_profile?.location && <p>Location: {approval.company_profile.location}</p>}
+                  {approval.company_profile?.industry && <p>Industry: {approval.company_profile.industry}</p>}
+                  {approval.company_profile?.company_size && <p>Size: {approval.company_profile.company_size}</p>}
                 </>
               ) : (
                 <>
@@ -164,22 +163,21 @@ const Approvals = () => {
             </div>
           </div>
         </div>
-
-        <div className="flex items-center justify-center gap-3 mt-6">
+        <div className="flex items-center justify-center gap-2 mt-5">
           <button
             onClick={() => handleReject(approval.id)}
-            className="px-4 py-2 text-sm font-medium text-[#901b20] bg-white border border-[#901b20] rounded hover:bg-[#901b20]/10 transition-colors"
+            className="px-4 py-1.5 text-sm font-medium text-[#901b20] bg-white border border-[#901b20] rounded hover:bg-[#901b20]/10 transition-colors"
           >
             Reject
           </button>
           <button
             onClick={() => handleApprove(approval.id)}
-            className="px-4 py-2 text-sm font-medium text-white bg-[#901b20] rounded hover:bg-[#901b20]/90 transition-colors"
+            className="px-4 py-1.5 text-sm font-medium text-white bg-[#901b20] rounded hover:bg-[#901b20]/90 transition-colors"
           >
             Approve
           </button>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
@@ -207,7 +205,7 @@ const Approvals = () => {
                 onClick={() => setActiveTab(tab.name)}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
                   activeTab === tab.name
-                    ? 'bg-[#901b20] text-white'
+                    ? 'bg-[#901b20] text-white shadow-md'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
@@ -217,18 +215,33 @@ const Approvals = () => {
           </div>
         </div>
 
-        {filteredApprovals.length === 0 ? (
-          <div className="text-center text-gray-500">No approvals found.</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredApprovals.map((approval) => (
-              <ApprovalCard
-                key={approval.id}
-                approval={approval}
-              />
-            ))}
-          </div>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {filteredApprovals.length === 0 ? (
+            <motion.div
+              key="no-approvals"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="text-center text-gray-500"
+            >
+              No approvals found.
+            </motion.div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+            >
+              {filteredApprovals.map((approval) => (
+                <ApprovalCard key={approval.id} approval={approval} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />

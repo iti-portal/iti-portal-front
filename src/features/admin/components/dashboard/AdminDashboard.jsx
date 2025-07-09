@@ -202,103 +202,117 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Modern, ultra-simple Bar Chart */}
+              {/* Modern Analytics Bar/Line Chart */}
               <motion.div
-                className="bg-white rounded-2xl border border-slate-100 p-6 flex flex-col justify-center shadow-md min-h-[220px]"
+                className="bg-[#23255a] rounded-2xl border border-[#2e3163] p-6 flex flex-col justify-center shadow-md min-h-[260px]"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
-                <h3 className="text-base font-bold text-slate-900 mb-6 tracking-tight">Application Status Distribution</h3>
-                <ResponsiveContainer width="100%" height={120}>
-                  <BarChart data={applicationStatusData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                    {/* No grid, no Y axis, no axis lines, no ticks */}
-                    <XAxis dataKey="status" stroke="#cbd5e1" fontSize={13} tickLine={false} axisLine={false} tick={{ dy: 8, fontWeight: 500, fill: '#64748b' }} />
+                <h3 className="text-base font-bold text-white mb-6 tracking-tight">Application Status Distribution</h3>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={applicationStatusData} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                    <CartesianGrid stroke="#3b3e7a" strokeDasharray="3 3" />
+                    <XAxis dataKey="status" stroke="#b6b8e3" fontSize={13} tickLine={false} axisLine={false} tick={{ dy: 8, fontWeight: 600, fill: '#b6b8e3' }} />
+                    <YAxis stroke="#b6b8e3" fontSize={13} axisLine={false} tickLine={false} tick={{ fontWeight: 600, fill: '#b6b8e3' }} />
                     <Tooltip 
                       contentStyle={{
-                        backgroundColor: '#fff',
-                        border: '1px solid #e5e7eb',
+                        backgroundColor: '#23255a',
+                        border: '1px solid #3b3e7a',
                         borderRadius: '10px',
-                        fontSize: '12px',
-                        boxShadow: '0 4px 24px 0 rgba(0,0,0,0.04)'
+                        fontSize: '13px',
+                        color: '#fff',
+                        boxShadow: '0 4px 24px 0 rgba(0,0,0,0.12)'
                       }}
-                      cursor={{ fill: '#ede9fe', opacity: 0.2 }}
+                      labelStyle={{ color: '#fff' }}
+                      itemStyle={{ color: '#38bdf8' }}
+                      cursor={{ fill: '#38bdf8', opacity: 0.08 }}
                     />
-                    <Bar dataKey="count" 
-                      radius={[12, 12, 12, 12]} 
-                      barSize={28}
-                      fill="url(#modernBarGradient)"
-                      >
-                      {applicationStatusData.map((entry, idx) => (
-                        <motion.rect
-                          key={entry.status}
-                          x={0}
-                          y={0}
-                          width={0}
-                          height={0}
-                          initial={{ scaleY: 0 }}
-                          animate={{ scaleY: 1 }}
-                          transition={{ delay: 0.2 + idx * 0.08, duration: 0.6, type: 'spring', bounce: 0.3 }}
-                        />
-                      ))}
-                    </Bar>
+                    <Bar dataKey="count" radius={[10, 10, 10, 10]} barSize={28} fill="url(#barGradient)" />
                     <defs>
-                      <linearGradient id="modernBarGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.95} />
-                        <stop offset="100%" stopColor="#7c3aed" stopOpacity={0.95} />
+                      <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.95} />
+                        <stop offset="100%" stopColor="#6366f1" stopOpacity={0.95} />
+                      </linearGradient>
+                      <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#fbbf24" />
+                        <stop offset="100%" stopColor="#f87171" />
                       </linearGradient>
                     </defs>
                   </BarChart>
                 </ResponsiveContainer>
               </motion.div>
 
-              {/* Modern Pie Chart */}
+              {/* Modern Analytics Donut Chart */}
               <motion.div
-                className=" rounded-2xl shadow-lg border border-slate-100 p-4 transition-all duration-200 hover:shadow-xl"
+                className="bg-[#23255a] rounded-2xl border border-[#2e3163] p-6 flex flex-col justify-center shadow-md min-h-[260px]"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
               >
-                <h3 className="text-sm font-semibold text-red mb-3">Job Status Overview</h3>
-                <ResponsiveContainer width="100%" height={180}>
+                <h3 className="text-base font-bold text-white mb-6 tracking-tight">Job Status Overview</h3>
+                <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
                     <Pie
                       data={jobStatusData}
                       cx="50%"
                       cy="50%"
                       outerRadius={60}
-                      innerRadius={32}
+                      innerRadius={38}
                       dataKey="count"
-                      label={({ status, percent }) => `${status} ${(percent * 100).toFixed(0)}%`}
-                      labelLine={false}
+                      startAngle={90}
+                      endAngle={-270}
                       paddingAngle={2}
+                      label={false}
                     >
                       {jobStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={`url(#pieGradient${index})`} />
+                        <Cell key={`cell-${index}`} fill={`url(#donutGradient${index})`} />
                       ))}
                     </Pie>
                     <defs>
                       {jobStatusData.map((entry, idx) => (
-                        <linearGradient key={idx} id={`pieGradient${idx}`} x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor="#fff" stopOpacity={0.9} />
+                        <linearGradient key={idx} id={`donutGradient${idx}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={
+                            entry.status === 'Active' ? '#38bdf8' :
+                            entry.status === 'Closed' ? '#a78bfa' : '#fbbf24'
+                          } stopOpacity={0.9} />
                           <stop offset="100%" stopColor={
-                            entry.status === 'Active' ? '#34d399' : 
-                            entry.status === 'Closed' ? '#f87171' : '#fbbf24'
+                            entry.status === 'Active' ? '#6366f1' :
+                            entry.status === 'Closed' ? '#f472b6' : '#fde68a'
                           } stopOpacity={0.9} />
                         </linearGradient>
                       ))}
                     </defs>
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: '#fff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '12px',
-                        fontSize: '13px',
-                        boxShadow: '0 4px 24px 0 rgba(0,0,0,0.04)'
-                      }}
-                    />
                   </PieChart>
+                  {/* Center label */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+                    <div className="text-2xl font-bold text-white">
+                      {(() => {
+                        const total = jobStatusData.reduce((sum, j) => sum + j.count, 0);
+                        const max = Math.max(...jobStatusData.map(j => j.count));
+                        const idx = jobStatusData.findIndex(j => j.count === max);
+                        const percent = ((max / total) * 100).toFixed(0);
+                        return `${percent}%`;
+                      })()}
+                    </div>
+                    <div className="text-sm text-blue-200 font-semibold">
+                      {(() => {
+                        const max = Math.max(...jobStatusData.map(j => j.count));
+                        const idx = jobStatusData.findIndex(j => j.count === max);
+                        return jobStatusData[idx]?.status || '';
+                      })()}
+                    </div>
+                  </div>
                 </ResponsiveContainer>
+                {/* Legend */}
+                <div className="flex flex-wrap gap-4 justify-center mt-6">
+                  {jobStatusData.map((entry, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full inline-block" style={{ background: `linear-gradient(90deg, ${entry.status === 'Active' ? '#38bdf8' : entry.status === 'Closed' ? '#a78bfa' : '#fbbf24'}, ${entry.status === 'Active' ? '#6366f1' : entry.status === 'Closed' ? '#f472b6' : '#fde68a'})` }}></span>
+                      <span className="text-white text-xs font-medium">{entry.status}: {((entry.count / jobStatusData.reduce((sum, j) => sum + j.count, 0)) * 100).toFixed(0)}%</span>
+                    </div>
+                  ))}
+                </div>
               </motion.div>
             </div>
 
@@ -326,7 +340,14 @@ const AdminDashboard = () => {
 
         {/* Users Tab */}
         {activeTab === 'users' && (
-          <div className="space-y-4 mt-4">
+          <motion.div
+            key="users"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="space-y-4 mt-4"
+          >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard
                 title="Total Users"
@@ -359,61 +380,115 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200/50 p-4">
-                <h3 className="text-sm font-semibold text-slate-800 mb-3">User Status Distribution</h3>
-                <ResponsiveContainer width="100%" height={200}>
+              {/* Modern Analytics User Status Pie Chart */}
+              <div className="bg-[#23255a] rounded-2xl border border-[#2e3163] p-6 flex flex-col justify-center shadow-md min-h-[260px] relative">
+                <h3 className="text-base font-bold text-white mb-6 tracking-tight">User Status Distribution</h3>
+                <ResponsiveContainer width="100%" height={160}>
                   <PieChart>
                     <Pie
                       data={userStatusData}
                       cx="50%"
                       cy="50%"
-                      outerRadius={70}
+                      outerRadius={60}
+                      innerRadius={38}
                       dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      labelStyle={{ fontSize: '10px', fill: '#475569' }}
+                      startAngle={90}
+                      endAngle={-270}
+                      paddingAngle={2}
+                      label={false}
                     >
                       {userStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                        <Cell key={`cell-${index}`} fill={`url(#userPieGradient${index})`} />
                       ))}
                     </Pie>
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        fontSize: '12px'
-                      }}
-                    />
+                    <defs>
+                      {userStatusData.map((entry, idx) => (
+                        <linearGradient key={idx} id={`userPieGradient${idx}`} x1="0" y1="0" x2="1" y2="1">
+                          <stop offset="0%" stopColor={
+                            entry.name === 'Approved' ? '#38bdf8' :
+                            entry.name === 'Pending' ? '#fbbf24' :
+                            entry.name === 'Rejected' ? '#ef4444' : '#a78bfa'
+                          } stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={
+                            entry.name === 'Approved' ? '#6366f1' :
+                            entry.name === 'Pending' ? '#fde68a' :
+                            entry.name === 'Rejected' ? '#f472b6' : '#818cf8'
+                          } stopOpacity={0.9} />
+                        </linearGradient>
+                      ))}
+                    </defs>
                   </PieChart>
+                  {/* Center label */}
+                  <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+                    <div className="text-2xl font-bold text-white">
+                      {(() => {
+                        const total = userStatusData.reduce((sum, j) => sum + j.value, 0);
+                        const max = Math.max(...userStatusData.map(j => j.value));
+                        const idx = userStatusData.findIndex(j => j.value === max);
+                        const percent = ((max / total) * 100).toFixed(0);
+                        return `${percent}%`;
+                      })()}
+                    </div>
+                    <div className="text-sm text-blue-200 font-semibold">
+                      {(() => {
+                        const max = Math.max(...userStatusData.map(j => j.value));
+                        const idx = userStatusData.findIndex(j => j.value === max);
+                        return userStatusData[idx]?.name || '';
+                      })()}
+                    </div>
+                  </div>
                 </ResponsiveContainer>
+                {/* Legend */}
+                <div className="flex flex-wrap gap-4 justify-center mt-6">
+                  {userStatusData.map((entry, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="w-3 h-3 rounded-full inline-block" style={{ background: `linear-gradient(90deg, ${entry.name === 'Approved' ? '#38bdf8' : entry.name === 'Pending' ? '#fbbf24' : entry.name === 'Rejected' ? '#ef4444' : '#a78bfa'}, ${entry.name === 'Approved' ? '#6366f1' : entry.name === 'Pending' ? '#fde68a' : entry.name === 'Rejected' ? '#f472b6' : '#818cf8'})` }}></span>
+                      <span className="text-white text-xs font-medium">{entry.name}: {((entry.value / userStatusData.reduce((sum, j) => sum + j.value, 0)) * 100).toFixed(0)}%</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-slate-200/50 p-4">
-                <h3 className="text-sm font-semibold text-slate-800 mb-3">User Roles</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <BarChart data={data.users.users_by_role} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="role" stroke="#64748b" fontSize={11} />
-                    <YAxis stroke="#64748b" fontSize={11} />
+              {/* Modern Analytics User Roles Bar Chart */}
+              <div className="bg-[#23255a] rounded-2xl border border-[#2e3163] p-6 flex flex-col justify-center shadow-md min-h-[260px]">
+                <h3 className="text-base font-bold text-white mb-6 tracking-tight">User Roles</h3>
+                <ResponsiveContainer width="100%" height={160}>
+                  <BarChart data={data.users.users_by_role} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                    <XAxis dataKey="role" stroke="#cbd5e1" fontSize={13} tickLine={false} axisLine={false} tick={{ dy: 8, fontWeight: 500, fill: '#64748b' }} />
                     <Tooltip 
                       contentStyle={{
-                        backgroundColor: 'white',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        fontSize: '12px'
+                        backgroundColor: '#fff',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '10px',
+                        fontSize: '12px',
+                        boxShadow: '0 4px 24px 0 rgba(0,0,0,0.04)'
                       }}
+                      cursor={{ fill: '#fee2e2', opacity: 0.2 }}
                     />
-                    <Bar dataKey="count" fill="#dc2626" radius={[3, 3, 0, 0]} />
+                    <Bar dataKey="count" radius={[10, 10, 10, 10]} barSize={28} fill="url(#userBarGradient)" />
+                    <defs>
+                      <linearGradient id="userBarGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.95} />
+                        <stop offset="100%" stopColor="#6366f1" stopOpacity={0.95} />
+                      </linearGradient>
+                    </defs>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Jobs Tab */}
         {activeTab === 'jobs' && (
-          <div className="space-y-4 mt-4">
+          <motion.div
+            key="jobs"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="space-y-4 mt-4"
+          >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard
                 title="Total Jobs"
@@ -456,12 +531,19 @@ const AdminDashboard = () => {
                 ))}
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Content Tab */}
         {activeTab === 'content' && (
-          <div className="space-y-4 mt-4">
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 30 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+            className="space-y-4 mt-4"
+          >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard
                 title="Total Articles"
@@ -530,7 +612,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </motion.div>
