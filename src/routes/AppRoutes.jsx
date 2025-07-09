@@ -29,6 +29,7 @@ import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
 import JobsList from '../features/company/jobs/ShowCompanyJobs';
 import JobDetailsView from '../features/company/jobs/ShowJobDetails';
 import StudentArticles from '../features/student/articles/StudentsArticles';
+import PublicProfilePage from '../features/student/pages/PublicProfilePage';
 
 import CompanyLayout from './../layouts/CompanyLayout';
 import CompanyProfile from '../features/company/profile/CompanyProfile';
@@ -338,6 +339,10 @@ const AppRoutes = () => {
         </PrivateRoute>
       } 
     />
+    <Route
+        path="/profile/:id"
+        element={<PublicProfilePage />}
+      />
     
     {/* Not Found route */}
     <Route path="*" element={<NotFound />} />

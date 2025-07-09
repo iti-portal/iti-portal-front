@@ -271,14 +271,14 @@ export default function AvailableJobs() {
   const jobTitles = [...new Set(jobs.map(job => job.title))];
 
   return (
-    <><Navbar /><div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 py-20">
+    <><Navbar /><div className="min-h-screen  py-20">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
         <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 shadow-sm rounded-xl mb-6">
           <div className="px-6 py-8">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h1 className="text-4xl font-bold text-slate-800">💼 Available Jobs</h1>
+                <h1 className="text-4xl font-bold text-slate-800"> Available Jobs</h1>
                 <p className="text-slate-600 mt-2 text-lg">Discover opportunities that match your skills</p>
               </div>
               <div className="flex gap-3">
