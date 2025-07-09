@@ -12,4 +12,4 @@
  */
 
 // Re-export all functions from the modular structure
-export * from './achievements/index.js';
+export * from './achievements/index';

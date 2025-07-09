@@ -1,124 +1,169 @@
 import React, { useEffect, useState } from 'react';
-import { TrendingUp, MapPin, Users, Calendar, Building2 } from 'lucide-react';
-import { fetchCompanyProfile } from '../../../services/company-profileApi';
+import { TrendingUp, MapPin, Users, Calendar, Building2, Globe, ArrowUp, ArrowDown } from 'lucide-react';
+import { fetchCompanyProfile, fetchCompanyStatistics } from '../../../services/company-profileApi';
 import Navbar from '../../../components/Layout/Navbar';
 
 function CompanyProfile() {
   const [company, setCompany] = useState(null);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const applicants = [
-    { name: 'Sarah Chen', applied: 'Applied 2024-07-29', avatar: 'SC', status: 'new' },
-    { name: 'David Lee', applied: 'Applied 2024-07-30', avatar: 'DL', status: 'reviewed' },
-    { name: 'Alex Johnson', applied: 'Applied 2024-07-31', avatar: 'AJ', status: 'interviewed' },
-    { name: 'Jessica Davis', applied: 'Applied 2024-08-02', avatar: 'JD', status: 'hired' },
-    { name: 'John Smith', applied: 'Applied 2024-07-29', avatar: 'JS', status: 'new' },
-    { name: 'María Rodriguez', applied: 'Applied 2024-07-30', avatar: 'MR', status: 'reviewed' },
-    { name: 'Priya Sharma', applied: 'Applied 2024-07-31', avatar: 'PS', status: 'interviewed' },
-    { name: 'Emily White', applied: 'Applied 2024-08-02', avatar: 'EW', status: 'new' },
-    { name: 'Daniel Wilson', applied: 'Applied 2024-07-19', avatar: 'DW', status: 'rejected' },
-    { name: 'Sophia Miller', applied: 'Applied 2024-07-18', avatar: 'SM', status: 'rejected' }
-  ];
-
-  const getStatusCounts = () => {
-    const counts = { new: 0, reviewed: 0, interviewed: 0, hired: 0, rejected: 0 };
-    applicants.forEach(app => counts[app.status]++);
-    return counts;
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  const statusCounts = getStatusCounts();
-
   useEffect(() => {
-    fetchCompanyProfile()
-      .then((response) => setCompany(response.data.data))
-      .catch((error) => console.error('Failed to fetch company profile:', error));
+    const fetchData = async () => {
+      try {
+        const [profileResponse, statsResponse] = await Promise.all([
+          fetchCompanyProfile(),
+          fetchCompanyStatistics()
+        ]);
+        setCompany(profileResponse.data.data);
+        setStats(statsResponse.data.data);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  if (!company) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-red-700 rounded-full border-b-transparent mx-auto mb-4"></div>
-          <p className="text-gray-500">Loading profile...</p>
+          <div className="animate-spin h-12 w-12 border-4 border-blue-600 rounded-full border-b-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading profile...</p>
         </div>
       </div>
     );
   }
 
-  const renderApplicants = (status, label) => (
-    <div className="w-full sm:w-64 shrink-0">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-gray-800">{label}</h3>
-        <span className="bg-red-700 text-white text-xs px-2 py-1 rounded-full">
-          {statusCounts[status]}
-        </span>
-      </div>
-      <div className="space-y-3">
-        {applicants.filter(a => a.status === status).map((app, idx) => (
-          <div key={idx} className="p-3 border rounded-md bg-white shadow-sm flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold text-xs">
-              {app.avatar}
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">{app.name}</p>
-              <p className="text-xs text-gray-500">{app.applied}</p>
-            </div>
+  const renderApplicants = (status, label, color) => {
+    if (!stats?.applications_by_status) return null;
+    
+    const applications = stats.applications_by_status[status] || [];
+    
+    return (
+      <div className="w-full sm:w-72 shrink-0">
+        <div className="flex items-center justify-between mb-4 p-2 rounded-lg" style={{ backgroundColor: `${color}20` }}>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
+            <h3 className="font-semibold text-gray-800 text-lg">{label}</h3>
           </div>
-        ))}
+          <span className="bg-white text-sm px-3 py-1 rounded-full font-medium" style={{ color: color }}>
+            {stats.applications_by_status_count[status] || 0}
+          </span>
+        </div>
+        <div className="space-y-3">
+          {applications.map((app, idx) => (
+            <div key={idx} className="p-4 border border-gray-200 rounded-xl bg-white shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-center space-x-3">
+                {app.profile_picture ? (
+                  <img 
+                    src={app.profile_picture} 
+                    alt={app.applicant_name} 
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold text-sm">
+                    {app.applicant_name.split(' ').map(n => n[0]).join('')}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 text-base truncate">{app.applicant_name}</p>
+                  <p className="text-xs text-gray-500 mt-1">{formatDate(app.applied_at)}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <main className="pt-20 pb-10 px-4 sm:px-8"> {/* Added padding-top to account for navbar */}
-        <div className="max-w-7xl mx-auto space-y-10">
+      <main className="pt-20 pb-10 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-8">
 
           {/* Company Info Section */}
-          <div className="bg-white p-8 rounded-xl shadow">
-            <div className="flex items-start space-x-6">
-              <div className="w-24 h-24 rounded-full bg-blue-600 flex items-center justify-center overflow-hidden">
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <div className="flex items-start space-x-8">
+              <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center overflow-hidden shadow-lg">
                 {company.logo ? (
                   <img src={company.logo} alt="Logo" className="object-cover w-full h-full" />
                 ) : (
-                  <Building2 className="text-white w-10 h-10" />
+                  <Building2 className="text-white w-14 h-14" />
                 )}
               </div>
 
               <div className="flex-1">
-                <h1 className="text-3xl font-bold text-gray-900">{company.company_name}</h1>
-                <p className="text-gray-600 mt-2 text-lg">{company.description || 'No description available.'}</p>
+                <h1 className="text-4xl font-bold text-gray-900 mb-4">{company.company_name}</h1>
+                <p className="text-gray-600 text-lg leading-relaxed mb-8">{company.description || 'No description available.'}</p>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 text-sm text-gray-600 mt-6">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4" />
-                    <span>{company.industry || 'N/A'}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <Building2 className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-medium">Industry</p>
+                      <p className="text-lg font-semibold text-gray-900">{company.industry || 'N/A'}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span>{company.established_at?.slice(0, 10) || 'N/A'}</span>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <Calendar className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-medium">Founded</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {company.established_at ? formatDate(company.established_at) : 'N/A'}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 col-span-2 md:col-span-1">
-                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path d="M4 4h16v16H4z" stroke="none" />
-                      <path d="M4 4h16v16H4z" />
-                      <path d="M4 4l16 16" />
-                    </svg>
-                    {company.website ? (
-                      <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                        Website
-                      </a>
-                    ) : (
-                      <span>Website: N/A</span>
-                    )}
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <Globe className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-medium">Website</p>
+                      {company.website ? (
+                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                          Visit Website
+                        </a>
+                      ) : (
+                        <p className="text-lg font-semibold text-gray-900">N/A</p>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span>{company.company_size || 'N/A'}</span>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-medium">Company Size</p>
+                      <p className="text-lg font-semibold text-gray-900">{company.company_size || 'N/A'}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{company.location || 'N/A'}</span>
+                  
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center">
+                      <MapPin className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 font-medium">Location</p>
+                      <p className="text-lg font-semibold text-gray-900">{company.location || 'N/A'}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -126,40 +171,91 @@ function CompanyProfile() {
           </div>
 
           {/* Metrics Overview */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900">Hiring Metrics</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { title: 'Total Applications', value: 450, change: '+15%' },
-                { title: 'Done Interviews', value: 85, change: '+8%' },
-                { title: 'Hires This Month', value: 12, change: '+200%' },
-                { title: 'Rejected', value: 88, change: '+3%' }
-              ].map((metric, i) => (
-                <div key={i} className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
-                    <span>{metric.title}</span>
-                    <span className="flex items-center text-[#901b20]">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      {metric.change}
-                    </span>
+          {stats && (
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">Hiring Statistics</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { 
+                    title: 'Total Jobs Posted', 
+                    value: stats.total_jobs_posted, 
+                    change: stats.monthly_comparisons.previous_jobs > 0 ? 
+                      ((stats.monthly_comparisons.current_jobs - stats.monthly_comparisons.previous_jobs) / stats.monthly_comparisons.previous_jobs * 100) : 100,
+                    icon: <TrendingUp className="w-5 h-5" />,
+                    bgColor: 'bg-blue-100',
+                    textColor: 'text-blue-600',
+                    iconColor: 'text-blue-500'
+                  },
+                  { 
+                    title: 'Active Jobs', 
+                    value: stats.active_jobs, 
+                    change: 0, // No comparison data for active jobs
+                    icon: <Users className="w-5 h-5" />,
+                    bgColor: 'bg-purple-100',
+                    textColor: 'text-purple-600',
+                    iconColor: 'text-purple-500'
+                  },
+                  { 
+                    title: 'Applications Received', 
+                    value: stats.monthly_comparisons.current_applications, 
+                    change: stats.monthly_comparisons.previous_applications > 0 ? 
+                      ((stats.monthly_comparisons.current_applications - stats.monthly_comparisons.previous_applications) / stats.monthly_comparisons.previous_applications * 100) : 100,
+                    icon: <ArrowUp className="w-5 h-5" />,
+                    bgColor: 'bg-green-100',
+                    textColor: 'text-green-600',
+                    iconColor: 'text-green-500'
+                  },
+                  { 
+                    title: 'Hired Candidates', 
+                    value: stats.hired_applications, 
+                    change: stats.monthly_comparisons.previous_hired > 0 ? 
+                      ((stats.monthly_comparisons.current_hired - stats.monthly_comparisons.previous_hired) / stats.monthly_comparisons.previous_hired * 100) : 100,
+                    icon: <ArrowUp className="w-5 h-5" />,
+                    bgColor: 'bg-green-100',
+                    textColor: 'text-green-600',
+                    iconColor: 'text-green-500'
+                  }
+                ].map((metric, i) => (
+                  <div key={i} className="p-6 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-shadow">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className={`w-10 h-10 rounded-lg ${metric.bgColor} flex items-center justify-center ${metric.iconColor}`}>
+                        {metric.icon}
+                      </div>
+                      <div className={`flex items-center text-sm font-medium ${metric.change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {metric.change >= 0 ? (
+                          <ArrowUp className="w-4 h-4 mr-1" />
+                        ) : (
+                          <ArrowDown className="w-4 h-4 mr-1" />
+                        )}
+                        {Math.abs(metric.change).toFixed(0)}%
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900 mb-1">{metric.value}</p>
+                    <p className="text-sm text-gray-500">{metric.title}</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Applicants */}
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold mb-6 text-gray-900">Applicant Management</h2>
-            <div className="flex space-x-6 overflow-x-auto pb-2">
-              {renderApplicants('new', 'New')}
-              {renderApplicants('reviewed', 'Reviewed')}
-              {renderApplicants('interviewed', 'Interviewed')}
-              {renderApplicants('hired', 'Hired')}
-              {renderApplicants('rejected', 'Rejected')}
+          {stats && (
+            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-900">Applicant Pipeline</h2>
+                <div className="text-sm text-gray-500">
+                  {Object.values(stats.applications_by_status_count).reduce((a, b) => a + b, 0)} total applicants
+                </div>
+              </div>
+              <div className="flex space-x-6 overflow-x-auto pb-4 px-1">
+                {renderApplicants('applied', 'Applied', '#3B82F6')}
+                {renderApplicants('reviewed', 'Reviewed', '#8B5CF6')}
+                {renderApplicants('interviewed', 'Interviewed', '#F59E0B')}
+                {renderApplicants('hired', 'Hired', '#10B981')}
+                {renderApplicants('rejected', 'Rejected', '#EF4444')}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
     </div>
