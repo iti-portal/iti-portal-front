@@ -200,7 +200,7 @@ const MyAchievements = () => {
   }
 
   return (
-    <><Navbar /><div className="min-h-screen bg-gray-50 pt-10 pb-10">
+    <><Navbar />    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 pt-10 pb-10">
       <Alert
         show={notification.show}
         type={notification.type}
@@ -229,21 +229,23 @@ const MyAchievements = () => {
         </div>
       </Modal>
       {/* Spacer between navbar and header */}
-      <div className="h-16"></div>
+      <div className="h-6"></div>
 
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6">
           {/* Title and Add Button */}
-          <div className="flex items-center justify-between py-6">
+          <div className="flex items-center justify-between py-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">My Achievements</h1>
-              <p className="text-gray-600 mt-1">Manage and showcase your personal accomplishments</p>
+              <h1 className="text-4xl font-bold text-slate-800">
+                🎯 My Achievements
+              </h1>
+              <p className="text-slate-600 mt-2 text-lg">Manage and showcase your personal accomplishments</p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-4">
               <button
                 onClick={() => navigate('/achievements/create')}
-                className="bg-red-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors font-medium"
+                className="bg-gradient-to-r from-red-900 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-8 py-3 rounded-xl flex items-center space-x-2 transition-all duration-200 font-semibold hover:scale-105 shadow-lg"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -254,56 +256,91 @@ const MyAchievements = () => {
           </div>
 
           {/* Statistics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 pb-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 pb-8">
             <motion.div
-              className="bg-gray-50 rounded-lg p-4 text-center"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ y: -4 }}
             >
-              <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-              <div className="text-sm text-gray-600">Total</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-slate-700">{stats.total}</div>
+                  <div className="text-slate-500 text-sm font-medium">Total</div>
+                </div>
+                <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">🎯</span>
+                </div>
+              </div>
             </motion.div>
             <motion.div
-              className="bg-blue-50 rounded-lg p-4 text-center"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.2 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ y: -4 }}
             >
-              <div className="text-2xl font-bold text-blue-600">{stats.projects}</div>
-              <div className="text-sm text-blue-600">Projects</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-blue-600">{stats.projects}</div>
+                  <div className="text-slate-500 text-sm font-medium">Projects</div>
+                </div>
+                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">🚀</span>
+                </div>
+              </div>
             </motion.div>
             <motion.div
-              className="bg-purple-50 rounded-lg p-4 text-center"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.3 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ y: -4 }}
             >
-              <div className="text-2xl font-bold text-purple-600">{stats.certificates}</div>
-              <div className="text-sm text-purple-600">Certificates</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-indigo-600">{stats.certificates}</div>
+                  <div className="text-slate-500 text-sm font-medium">Certificates</div>
+                </div>
+                <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl text-indigo-600">🎓</span>
+                </div>
+              </div>
             </motion.div>
             <motion.div
-              className="bg-yellow-50 rounded-lg p-4 text-center"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.4 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ y: -4 }}
             >
-              <div className="text-2xl font-bold text-yellow-600">{stats.awards}</div>
-              <div className="text-sm text-yellow-600">Awards</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-emerald-600">{stats.awards}</div>
+                  <div className="text-slate-500 text-sm font-medium">Awards</div>
+                </div>
+                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl text-emerald-600">🏆</span>
+                </div>
+              </div>
             </motion.div>
             <motion.div
-              className="bg-green-50 rounded-lg p-4 text-center"
+              className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: 0.5 }}
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ y: -4 }}
             >
-              <div className="text-2xl font-bold text-green-600">{stats.jobs}</div>
-              <div className="text-sm text-green-600">Jobs</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-emerald-600">{stats.jobs}</div>
+                  <div className="text-slate-500 text-sm font-medium">Jobs</div>
+                </div>
+                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl text-emerald-600">💼</span>
+                </div>
+              </div>
             </motion.div>
           </div>
 
@@ -312,7 +349,7 @@ const MyAchievements = () => {
             {/* Search */}
             <div className="flex-1 max-w-md">
               <div className="relative">
-                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -320,7 +357,7 @@ const MyAchievements = () => {
                   placeholder="Search my achievements..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-red-500 focus:border-transparent" />
+                  className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200/60 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-200 text-gray-700 placeholder-slate-400" />
               </div>
             </div>
 
@@ -329,49 +366,49 @@ const MyAchievements = () => {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'project' ? null : 'project')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'project'
-                      ? 'bg-blue-100 border-blue-300 text-blue-700'
-                      : 'bg-white hover:bg-gray-50'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'project'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                      : 'bg-white text-blue-600 border-slate-200 hover:bg-blue-50'}`}
                   title="Projects"
                 >
-                  🚀
+                  🚀 Projects
                 </button>
                 <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'job' ? null : 'job')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'job'
-                      ? 'bg-green-100 border-green-300 text-green-700'
-                      : 'bg-white hover:bg-gray-50'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'job'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                      : 'bg-white text-emerald-600 border-slate-200 hover:bg-emerald-50'}`}
                   title="Jobs"
                 >
-                  💼
+                  💼 Jobs
                 </button>
                 <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' || activeTypeFilter === 'certificate' ? null : 'certification')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'certification' || activeTypeFilter === 'certificate'
-                      ? 'bg-purple-100 border-purple-300 text-purple-700'
-                      : 'bg-white hover:bg-gray-50'}`}
-                  title="Certificate"
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'certification' || activeTypeFilter === 'certificate'
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-md'
+                      : 'bg-white text-indigo-600 border-slate-200 hover:bg-indigo-50'}`}
+                  title="Certificates"
                 >
-                  🎓
+                  🎓 Certificates
                 </button>
                 <button
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'award' ? null : 'award')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${activeTypeFilter === 'award'
-                      ? 'bg-yellow-100 border-yellow-300 text-yellow-700'
-                      : 'bg-white hover:bg-gray-50'}`}
-                  title="Award"
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-105 shadow-sm hover:shadow-md border ${activeTypeFilter === 'award'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                      : 'bg-white text-emerald-600 border-slate-200 hover:bg-emerald-50'}`}
+                  title="Awards"
                 >
-                  🏆
+                  🏆 Awards
                 </button>
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center space-x-1 bg-white rounded-xl p-1 shadow-sm border border-slate-200">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded transition-colors ${viewMode === 'grid'
-                      ? 'text-red-600 bg-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${viewMode === 'grid'
+                      ? 'bg-slate-700 text-white shadow-md'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
                   title="Grid View"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,9 +417,9 @@ const MyAchievements = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded transition-colors ${viewMode === 'list'
-                      ? 'text-red-600 bg-white shadow-sm'
-                      : 'text-gray-400 hover:text-gray-600'}`}
+                  className={`p-3 rounded-xl transition-all duration-200 hover:scale-105 ${viewMode === 'list'
+                      ? 'bg-slate-700 text-white shadow-md'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'}`}
                   title="List View"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,23 +433,23 @@ const MyAchievements = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Loading State for Initial Load */}
         {loading && !achievements.length ? (
           <div className={viewMode === 'grid'
             ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             : "space-y-4"}>
             {[...Array(6)].map((_, i) => (
-              <div key={i} className={`bg-white rounded-lg border border-gray-200 animate-pulse ${viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'}`}>
+              <div key={i} className={`bg-white rounded-xl border border-slate-200 animate-pulse shadow-sm ${viewMode === 'grid' ? 'p-6 h-96 flex flex-col' : 'p-4'}`}>
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className="w-16 h-6 bg-gray-200 rounded-full"></div>
-                  <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
+                  <div className="w-16 h-6 bg-slate-200 rounded-full"></div>
+                  <div className="w-2 h-2 bg-slate-200 rounded-full"></div>
                 </div>
                 <div className="flex flex-col flex-1 space-y-3">
-                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-12 bg-gray-200 rounded flex-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/4 mt-auto"></div>
+                  <div className="h-6 bg-slate-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                  <div className="h-12 bg-slate-200 rounded flex-1"></div>
+                  <div className="h-4 bg-slate-200 rounded w-1/4 mt-auto"></div>
                 </div>
               </div>
             ))}
@@ -463,17 +500,15 @@ const MyAchievements = () => {
                   ))
                 ) : (
                   <div className={viewMode === 'grid'
-                    ? "col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-gray-200 p-8 text-center"
-                    : "bg-white rounded-xl border border-gray-200 p-8 text-center"}>
-                    <div className="text-gray-400 mb-4">
-                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
-                      </svg>
+                    ? "col-span-1 md:col-span-2 lg:col-span-3 bg-white rounded-xl border border-slate-200 p-8 text-center shadow-sm hover:shadow-md transition-all duration-300"
+                    : "bg-white rounded-xl border border-slate-200 p-8 text-center shadow-sm hover:shadow-md transition-all duration-300"}>
+                    <div className="text-6xl mb-6">
+                      {searchQuery || activeTypeFilter ? '🔍' : '🎯'}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-slate-800 mb-3">
                       {searchQuery || activeTypeFilter ? 'No matching achievements found' : 'No achievements yet'}
                     </h3>
-                    <p className="text-gray-600 mb-4">
+                    <p className="text-slate-600 mb-6 text-lg">
                       {searchQuery || activeTypeFilter
                         ? 'Try adjusting your search or filters'
                         : 'Start by adding your first achievement to showcase your accomplishments'}
@@ -481,9 +516,9 @@ const MyAchievements = () => {
                     {!searchQuery && !activeTypeFilter && (
                       <button
                         onClick={() => navigate('/achievements/create')}
-                        className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+                        className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white px-8 py-4 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
                       >
-                        Add Your First Achievement
+                        ✨ Add Your First Achievement
                       </button>
                     )}
                   </div>
@@ -494,11 +529,11 @@ const MyAchievements = () => {
             {/* Loading More Indicator */}
             {loadingMore && (
               <div className="flex justify-center py-8">
-                <div className="flex items-center space-x-2 text-gray-500">
-                  <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center space-x-3 bg-white px-6 py-3 rounded-xl shadow-sm border border-slate-200">
+                  <svg className="w-6 h-6 animate-spin text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  <span>Loading more achievements...</span>
+                  <span className="text-slate-700 font-medium">Loading more achievements...</span>
                 </div>
               </div>
             )}

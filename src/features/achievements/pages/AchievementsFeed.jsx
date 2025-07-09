@@ -181,24 +181,28 @@ const AchievementsFeed = () => {
     const isRateLimit = error.includes('Rate limit') || error.includes('Too Many Attempts');
     
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-red-50">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-pink-100">
         <div className="max-w-2xl mx-auto px-4 py-8">
-          <div className="bg-gradient-to-br from-white to-red-50 rounded-xl shadow-md border border-red-200 p-8 text-center">
-            <div className={`mb-4 ${isRateLimit ? 'text-amber-500' : 'text-red-500'}`}>
+          <div className="bg-gradient-to-br from-white to-red-50/80 backdrop-blur-sm rounded-2xl shadow-xl border border-red-200/60 p-8 text-center">
+            <div className={`mb-6 ${isRateLimit ? 'text-amber-500' : 'text-red-500'}`}>
               {isRateLimit ? (
-                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
               ) : (
-                <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <div className="w-16 h-16 mx-auto bg-gradient-to-br from-red-100 to-pink-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
               )}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            <h3 className="text-xl font-bold text-gray-900 mb-3">
               {isRateLimit ? 'Please wait a moment' : 'Something went wrong'}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-6 leading-relaxed">
               {isRateLimit 
                 ? 'We\'re making too many requests. The system will automatically retry in a few seconds.'
                 : error
@@ -207,7 +211,7 @@ const AchievementsFeed = () => {
             {!isRateLimit && (
               <button
                 onClick={handleRefresh}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                className="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg"
               >
                 Try Again
               </button>
@@ -219,23 +223,25 @@ const AchievementsFeed = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-10 pb-10">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 pt-10 pb-10">
       {/* Spacer between navbar and header */}
-      <div className="h-16"></div>
+      <div className="h-6"></div>
       
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="flex items-center justify-between py-6">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between py-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Achievements</h1>
-              <p className="text-gray-600 mt-1">Showcase your accomplishments and milestones</p>
+              <h1 className="text-4xl font-bold text-slate-800">
+                Achievements
+              </h1>
+              <p className="text-slate-600 mt-2 text-lg">Showcase your accomplishments and milestones</p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-4">
               <button
                 onClick={handleRefresh}
                 disabled={refreshing}
-                className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                className="p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-all duration-200 disabled:opacity-50 hover:scale-105 shadow-sm border border-slate-200"
                 title="Refresh"
               >
                 <svg 
@@ -249,7 +255,7 @@ const AchievementsFeed = () => {
               </button>
               <button
                 onClick={() => navigate('/achievements/create')}
-                className="bg-red-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors font-medium"
+                className="bg-gradient-to-r from-red-900 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-8 py-3 rounded-xl flex items-center space-x-2 transition-all duration-200 font-semibold hover:scale-105 shadow-lg"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -260,113 +266,141 @@ const AchievementsFeed = () => {
           </div>
 
           {/* Statistics Cards */}
-          <div className="grid grid-cols-4 gap-4 pb-6">
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-              <div className="text-2xl font-bold text-blue-600">{filteredAchievements.length}</div>
-              <div className="text-sm text-blue-700">Total Achievements</div>
-            </div>
-            <div className="bg-green-50 rounded-lg p-4 border border-green-100">
-              <div className="text-2xl font-bold text-green-600">
-                {filteredAchievements.filter(a => a.type === 'project').length}
+          <div className="grid grid-cols-4 gap-6 pb-8">
+            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-slate-700">{filteredAchievements.length}</div>
+                  <div className="text-slate-500 text-sm font-medium">Total Achievements</div>
+                </div>
+                <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">🎯</span>
+                </div>
               </div>
-              <div className="text-sm text-green-700">Projects</div>
             </div>
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
-              <div className="text-2xl font-bold text-purple-600">
-                {filteredAchievements.filter(a => a.type === 'certification').length}
+            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-blue-600">
+                    {filteredAchievements.filter(a => a.type === 'project').length}
+                  </div>
+                  <div className="text-slate-500 text-sm font-medium">Projects</div>
+                </div>
+                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl">🚀</span>
+                </div>
               </div>
-              <div className="text-sm text-purple-700">Certificates</div>
             </div>
-            <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-100">
-              <div className="text-2xl font-bold text-yellow-600">
-                {filteredAchievements.filter(a => a.type === 'award').length}
+            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-indigo-600">
+                    {filteredAchievements.filter(a => a.type === 'certification').length}
+                  </div>
+                  <div className="text-slate-500 text-sm font-medium">Certificates</div>
+                </div>
+                <div className="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl text-indigo-600">🎓</span>
+                </div>
               </div>
-              <div className="text-sm text-yellow-700">Awards</div>
+            </div>
+            <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-105 border border-slate-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-emerald-600">
+                    {filteredAchievements.filter(a => a.type === 'award').length}
+                  </div>
+                  <div className="text-slate-500 text-sm font-medium">Awards</div>
+                </div>
+                <div className="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center">
+                  <span className="text-2xl text-emerald-600">🏆</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Search Bar */}
-          <div className="pb-6">
+          <div className="pb-8">
             <div className="flex items-center space-x-4">
               <div className="flex-1 relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
                 <input
                   type="text"
-                  placeholder="Search achievements..."
+                  placeholder="Search achievements, people, or skills..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-red-500 focus:border-red-500"
+                  className="block w-full pl-12 pr-4 py-3 border border-gray-300/60 rounded-xl leading-5 bg-white/80 backdrop-blur-sm placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-[#901b20]/50 focus:border-[#901b20]/50 shadow-md transition-all duration-200"
                 />
               </div>
               <button 
                 onClick={() => setActiveTypeFilter(null)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`px-6 py-3 rounded-xl font-semibold transition-all duration-200 shadow-sm hover:scale-105 ${
                   !activeTypeFilter 
-                    ? 'bg-red-600 hover:bg-red-700 text-white' 
-                    : 'bg-white hover:bg-gray-50 text-gray-700 border border-gray-200'
+                    ? 'bg-slate-700 hover:bg-slate-800 text-white shadow-md' 
+                    : 'bg-white/80 hover:bg-white text-gray-700 border border-gray-200/60 hover:border-gray-300/60'
                 }`}
               >
-                All
+                All Types
               </button>
               {/* Type Filter Icons */}
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'project' ? null : 'project')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
+                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
                     activeTypeFilter === 'project'
-                      ? 'bg-blue-100 border-blue-300 text-blue-700'
-                      : 'bg-white hover:bg-gray-50'
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-md'
+                      : 'bg-white/80 hover:bg-blue-50 hover:border-blue-300/60'
                   }`}
-                  title="Project"
+                  title="Projects"
                 >
-                  🚀
+                  <span className="text-lg">🚀</span>
                 </button>
                 <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'job' ? null : 'job')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
+                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
                     activeTypeFilter === 'job'
-                      ? 'bg-green-100 border-green-300 text-green-700'
-                      : 'bg-white hover:bg-gray-50'
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
+                      : 'bg-white/80 hover:bg-emerald-50 hover:border-emerald-300/60'
                   }`}
-                  title="Job"
+                  title="Jobs"
                 >
-                  💼
+                  <span className="text-lg">💼</span>
                 </button>
                 <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'certification' ? null : 'certification')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
+                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
                     activeTypeFilter === 'certification'
-                      ? 'bg-purple-100 border-purple-300 text-purple-700'
-                      : 'bg-white hover:bg-gray-50'
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-md'
+                      : 'bg-white/80 hover:bg-indigo-50 hover:border-indigo-300/60'
                   }`}
-                  title="Certificate"
+                  title="Certifications"
                 >
-                  🎓
+                  <span className="text-lg">🎓</span>
                 </button>
                 <button 
                   onClick={() => setActiveTypeFilter(activeTypeFilter === 'award' ? null : 'award')}
-                  className={`p-2 border border-gray-200 rounded-lg transition-colors ${
+                  className={`p-3 border border-gray-200/60 rounded-xl transition-all duration-200 shadow-sm hover:scale-105 ${
                     activeTypeFilter === 'award'
-                      ? 'bg-yellow-100 border-yellow-300 text-yellow-700'
-                      : 'bg-white hover:bg-gray-50'
+                      ? 'bg-emerald-600 border-emerald-600 text-white shadow-md'
+                      : 'bg-white/80 hover:bg-emerald-50 hover:border-emerald-300/60'
                   }`}
-                  title="Award"
+                  title="Awards"
                 >
-                  🏆
+                  <span className="text-lg">🏆</span>
                 </button>
               </div>
               
               {/* View Toggle */}
-              <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-sm border border-gray-200/60">
                 <button 
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded transition-colors ${
+                  className={`p-3 rounded-lg transition-all duration-200 ${
                     viewMode === 'grid'
-                      ? 'text-red-600 bg-white shadow-sm'
+                      ? 'text-slate-700 bg-slate-100 shadow-sm'
                       : 'text-gray-400 hover:text-gray-600'
                   }`}
                   title="Grid View"
@@ -377,9 +411,9 @@ const AchievementsFeed = () => {
                 </button>
                 <button 
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded transition-colors ${
+                  className={`p-3 rounded-lg transition-all duration-200 ${
                     viewMode === 'list'
-                      ? 'text-red-600 bg-white shadow-sm'
+                      ? 'text-slate-700 bg-slate-100 shadow-sm'
                       : 'text-gray-400 hover:text-gray-600'
                   }`}
                   title="List View"
@@ -393,39 +427,56 @@ const AchievementsFeed = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex items-center space-x-6 border-b border-gray-200">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={tab.action}
-                disabled={switching}
-                className={`pb-4 font-medium text-sm transition-colors border-b-2 disabled:opacity-50 ${
-                  currentSource === tab.id
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-red-600'
-                }`}
-              >
-                {switching && currentSource !== tab.id ? (
-                  <div className="flex items-center">
-                    <svg className="w-4 h-4 animate-spin mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    {tab.label}
-                  </div>
-                ) : (
-                  tab.label
-                )}
-              </button>
-            ))}
+          <div className="flex items-center justify-between bg-white/60 backdrop-blur-sm rounded-xl p-2 shadow-sm border border-gray-200/50">
+            <div className="flex items-center space-x-2">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={tab.action}
+                  disabled={switching}
+                  className={`px-6 py-3 font-semibold text-sm transition-all duration-200 rounded-lg disabled:opacity-50 hover:scale-105 ${
+                    currentSource === tab.id
+                      ? 'bg-slate-700 text-white shadow-md'
+                      : 'text-gray-600 hover:text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  {switching && currentSource !== tab.id ? (
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 animate-spin mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      {tab.label}
+                    </div>
+                  ) : (
+                    tab.label
+                  )}
+                </button>
+              ))}
+            </div>
             
             {/* View Toggle */}
-            <div className="ml-auto flex items-center space-x-2">
-              <button className="p-2 text-gray-400 hover:text-gray-600 rounded">
+            <div className="flex items-center space-x-2">
+              <div className="text-sm text-gray-500 font-medium">View:</div>
+              <button 
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  viewMode === 'grid' 
+                    ? 'text-slate-700 bg-slate-100' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+                onClick={() => setViewMode('grid')}
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
               </button>
-              <button className="p-2 text-red-600 bg-red-50 rounded">
+              <button 
+                className={`p-2 rounded-lg transition-all duration-200 ${
+                  viewMode === 'list' 
+                    ? 'text-slate-700 bg-slate-100' 
+                    : 'text-gray-400 hover:text-gray-600'
+                }`}
+                onClick={() => setViewMode('list')}
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                 </svg>
@@ -436,7 +487,7 @@ const AchievementsFeed = () => {
       </div>
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         {/* Loading State for Initial Load */}
         {loading && !achievements.length ? (
           <div className={viewMode === 'grid' 
@@ -531,7 +582,7 @@ const AchievementsFeed = () => {
                           setSearchQuery('');
                           setActiveTypeFilter(null);
                         }}
-                        className="mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        className="mt-4 bg-slate-600 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
                       >
                         Clear Filters
                       </button>

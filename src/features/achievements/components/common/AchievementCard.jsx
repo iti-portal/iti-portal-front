@@ -49,66 +49,66 @@ const AchievementCard = ({
       job: { 
         icon: '💼', 
         label: 'Job', 
-        bgColor: 'bg-green-100', 
-        textColor: 'text-green-800',
-        indicatorColor: 'bg-green-500',
-        borderColor: 'border-green-200'
+        bgColor: 'bg-emerald-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-emerald-500',
+        borderColor: 'border-emerald-300/50'
       },
       project: { 
         icon: '🚀', 
         label: 'Project', 
-        bgColor: 'bg-blue-100', 
-        textColor: 'text-blue-800',
+        bgColor: 'bg-blue-600', 
+        textColor: 'text-white',
         indicatorColor: 'bg-blue-500',
-        borderColor: 'border-blue-200'
+        borderColor: 'border-blue-300/50'
       },
       certificate: { 
         icon: '🎓', 
         label: 'Certificate', 
-        bgColor: 'bg-purple-100', 
-        textColor: 'text-purple-800',
-        indicatorColor: 'bg-purple-500',
-        borderColor: 'border-purple-200'
+        bgColor: 'bg-indigo-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-indigo-500',
+        borderColor: 'border-indigo-300/50'
       },
       certification: { 
         icon: '🎓', 
         label: 'Certificate', 
-        bgColor: 'bg-purple-100', 
-        textColor: 'text-purple-800',
-        indicatorColor: 'bg-purple-500',
-        borderColor: 'border-purple-200'
+        bgColor: 'bg-indigo-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-indigo-500',
+        borderColor: 'border-indigo-300/50'
       },
       award: { 
         icon: '🏆', 
         label: 'Award', 
-        bgColor: 'bg-yellow-100', 
-        textColor: 'text-yellow-800',
-        indicatorColor: 'bg-yellow-500',
-        borderColor: 'border-yellow-200'
+        bgColor: 'bg-emerald-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-emerald-500',
+        borderColor: 'border-emerald-300/50'
       },
       education: { 
         icon: '🎓', 
         label: 'Education', 
-        bgColor: 'bg-indigo-100', 
-        textColor: 'text-indigo-800',
-        indicatorColor: 'bg-indigo-500',
-        borderColor: 'border-indigo-200'
+        bgColor: 'bg-blue-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-blue-500',
+        borderColor: 'border-blue-300/50'
       },
       achievement: { 
         icon: '⭐', 
         label: 'Achievement', 
-        bgColor: 'bg-amber-100', 
-        textColor: 'text-amber-800',
-        indicatorColor: 'bg-amber-500',
-        borderColor: 'border-amber-200'
+        bgColor: 'bg-slate-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-slate-500',
+        borderColor: 'border-slate-300/50'
       },
       default: { 
         icon: '📄', 
         label: 'Other', 
-        bgColor: 'bg-gray-100', 
-        textColor: 'text-gray-800',
-        indicatorColor: 'bg-gray-500',
-        borderColor: 'border-gray-200'
+        bgColor: 'bg-slate-600', 
+        textColor: 'text-white',
+        indicatorColor: 'bg-slate-500',
+        borderColor: 'border-slate-300/50'
       }
     };
     return types[type] || types.default;
@@ -266,20 +266,24 @@ const AchievementCard = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
         whileHover={{ 
-          scale: 1.03, 
-          y: -8,
-          boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+          scale: 1.02, 
+          y: -6,
+          boxShadow: "0 16px 32px -8px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(0, 0, 0, 0.08)",
           transition: { duration: 0.3, ease: "easeOut" }
         }}
         whileTap={{ 
           scale: 0.98,
-          transition: { duration: 0.1 }
+          transition: { duration: 0.15 }
         }}
         onClick={handleView}
         className={`
-          bg-white rounded-lg border border-gray-200 hover:border-gray-300
-          transition-all duration-300 cursor-pointer group overflow-hidden
-          ${viewMode === 'list' ? 'flex items-center space-x-4 p-4' : `${compact ? 'p-4 h-80' : 'p-6 h-96'} flex flex-col`} ${className}
+          bg-gradient-to-br from-white via-white to-blue-50/30 
+          border border-blue-200/40 hover:border-blue-300/60
+          rounded-2xl shadow-lg hover:shadow-2xl
+          backdrop-blur-sm transition-all duration-300 
+          cursor-pointer group overflow-hidden
+          hover:bg-gradient-to-br hover:from-white hover:via-blue-50/20 hover:to-indigo-50/40
+          ${viewMode === 'list' ? 'flex items-center space-x-4 p-5' : `${compact ? 'p-5 h-80' : 'p-6 h-96'} flex flex-col`} ${className}
         `}
       >
       {viewMode === 'list' ? (
@@ -294,7 +298,7 @@ const AchievementCard = ({
                     src={getImageUrl(achievement.user_profile?.profile_picture || achievement.user?.profile_picture)}
                     alt={(achievement.user_profile?.first_name || achievement.user?.first_name || '') + ' ' + 
                          (achievement.user_profile?.last_name || achievement.user?.last_name || '')}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                    className="w-12 h-12 rounded-full object-cover border-3 border-white shadow-xl ring-2 ring-blue-200/60"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextElementSibling.style.display = 'flex';
@@ -308,7 +312,7 @@ const AchievementCard = ({
                 </>
               ) : (
                 <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-semibold bg-gray-500"
+                  className="w-12 h-12 rounded-full flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl ring-2 ring-blue-200/60"
                 >
                   {(achievement.user_profile?.first_name || achievement.user?.first_name || '?').charAt(0).toUpperCase()}
                 </div>
@@ -322,14 +326,14 @@ const AchievementCard = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-1">
                   {/* Type Badge */}
-                  <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${displayProps.bgColor} ${displayProps.textColor}`}>
-                    <span className="text-xs">{displayProps.icon}</span>
+                  <div className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shadow-sm border ${displayProps.bgColor} ${displayProps.textColor} ${displayProps.borderColor}`}>
+                    <span className="text-sm">{displayProps.icon}</span>
                     <span>{displayProps.label}</span>
                   </div>
-                  <div className={`w-1.5 h-1.5 rounded-full ${displayProps.indicatorColor}`}></div>
+                  <div className={`w-1.5 h-1.5 rounded-full ${displayProps.indicatorColor} shadow-sm`}></div>
                 </div>
 
-                <h3 className="text-base font-semibold text-gray-900 truncate mb-1">
+                <h3 className="text-base font-semibold text-gray-900 truncate mb-1 group-hover:text-[#901b20] transition-colors duration-200">
                   {achievement.title}
                 </h3>
 
@@ -351,7 +355,7 @@ const AchievementCard = ({
                 <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity ml-4">
                   <button
                     onClick={handleEdit}
-                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                    className="p-2.5 text-gray-400 hover:text-[#901b20] hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 rounded-xl transition-all duration-200 hover:scale-110 shadow-md border border-gray-200/50 hover:border-red-300/60"
                     title="Edit"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +364,7 @@ const AchievementCard = ({
                   </button>
                   <button
                     onClick={handleDelete}
-                    className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                    className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-xl transition-all duration-200 hover:scale-110 shadow-md border border-gray-200/50 hover:border-red-300/60"
                     title="Delete"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -443,14 +447,14 @@ const AchievementCard = ({
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
               {/* Type Badge */}
-              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium ${displayProps.bgColor} ${displayProps.textColor}`}>
-                <span className="text-xs">{displayProps.icon}</span>
+              <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-semibold shadow-sm border ${displayProps.bgColor} ${displayProps.textColor} ${displayProps.borderColor}`}>
+                <span className="text-sm">{displayProps.icon}</span>
                 <span>{displayProps.label}</span>
               </div>
               
               {/* Status Indicator */}
               <div className="flex items-center space-x-1">
-                <div className={`w-2 h-2 rounded-full ${displayProps.indicatorColor}`}></div>
+                <div className={`w-2 h-2 rounded-full ${displayProps.indicatorColor} shadow-sm`}></div>
               </div>
             </div>
 
@@ -459,7 +463,7 @@ const AchievementCard = ({
               <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
                   onClick={handleEdit}
-                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2.5 text-gray-400 hover:text-[#901b20] hover:bg-gradient-to-r hover:from-red-50 hover:to-orange-50 rounded-xl transition-all duration-200 hover:scale-110 shadow-md border border-gray-200/50 hover:border-red-300/60"
                   title="Edit"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -468,7 +472,7 @@ const AchievementCard = ({
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2.5 text-gray-400 hover:text-red-600 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 rounded-xl transition-all duration-200 hover:scale-110 shadow-md border border-gray-200/50 hover:border-red-300/60"
                   title="Delete"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -492,7 +496,7 @@ const AchievementCard = ({
                         src={getImageUrl(achievement.user_profile?.profile_picture || achievement.user?.profile_picture)}
                         alt={(achievement.user_profile?.first_name || achievement.user?.first_name || '') + ' ' + 
                              (achievement.user_profile?.last_name || achievement.user?.last_name || '')}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                        className="w-10 h-10 rounded-full object-cover border-3 border-white shadow-xl ring-2 ring-blue-200/60"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.nextElementSibling.style.display = 'flex';
@@ -506,7 +510,7 @@ const AchievementCard = ({
                     </>
                   ) : (
                     <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-semibold bg-gray-500"
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br from-blue-500 to-purple-600 shadow-xl ring-2 ring-blue-200/60"
                     >
                       {(achievement.user_profile?.first_name || achievement.user?.first_name || '?').charAt(0).toUpperCase()}
                     </div>
@@ -518,7 +522,7 @@ const AchievementCard = ({
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {achievement.user_profile?.first_name || achievement.user?.first_name || ''} {achievement.user_profile?.last_name || achievement.user?.last_name || ''}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-500 font-medium">
                     {formatTimeAgo(achievement.created_at)}
                   </p>
                 </div>
@@ -526,13 +530,13 @@ const AchievementCard = ({
             )}
 
             {/* Title */}
-            <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+            <h3 className="text-lg font-semibold text-gray-900 leading-tight group-hover:text-[#901b20] transition-colors duration-200">
               {achievement.title}
             </h3>
 
             {/* Description */}
             {achievement.description && (
-              <p className="text-gray-700 text-sm leading-relaxed line-clamp-3 flex-1">
+              <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 flex-1">
                 {achievement.description}
               </p>
             )}
@@ -606,22 +610,23 @@ const AchievementCard = ({
           {/* Hidden Action Buttons for hover interactions */}
           {(onLike || onComment) && (
             <motion.div 
-              className="opacity-0 group-hover:opacity-100 transition-opacity pt-3 mt-3 border-t border-gray-100"
-              initial={{ y: 10 }}
-              animate={{ y: 0 }}
-              transition={{ delay: 0.1 }}
+              className="opacity-0 group-hover:opacity-100 transition-all duration-300 pt-5 mt-5 border-t border-gradient-to-r from-blue-100/80 to-purple-100/80"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 0 }}
+              whileHover={{ opacity: 1 }}
+              transition={{ delay: 0.15 }}
             >
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   {onLike && (
                     <motion.button
                       onClick={handleLike}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`flex items-center space-x-1 text-xs transition-colors px-2 py-1 rounded ${
+                      className={`flex items-center space-x-2 text-sm transition-all duration-200 px-4 py-2.5 rounded-xl font-semibold shadow-lg hover:shadow-xl ${
                         isLiked 
-                          ? 'text-red-600 bg-red-50' 
-                          : 'text-gray-500 hover:text-red-600 hover:bg-red-50'
+                          ? 'text-white bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 border border-red-300/50' 
+                          : 'text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-600 bg-white border border-gray-200/60 hover:border-red-300/60'
                       }`}
                     >
                       <motion.svg 
@@ -648,7 +653,7 @@ const AchievementCard = ({
                       onClick={handleComment}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center space-x-1 text-xs text-gray-500 hover:text-blue-600 hover:bg-blue-50 transition-colors px-2 py-1 rounded"
+                      className="flex items-center space-x-2 text-sm text-gray-600 hover:text-white hover:bg-gradient-to-r hover:from-blue-500 hover:to-cyan-600 transition-all duration-200 px-4 py-2.5 rounded-xl font-semibold bg-white border border-gray-200/60 hover:border-blue-300/60 shadow-lg hover:shadow-xl"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />

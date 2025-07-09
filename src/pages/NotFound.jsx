@@ -14,8 +14,8 @@ const NotFound = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
-      <div className="max-w-md w-full text-center">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947]">
+      <div className="max-w-md w-full text-center bg-white">
         {/* ITI Logo or Icon */}
         <div className="mb-8">
           <div className="w-24 h-24 mx-auto bg-iti-primary rounded-full flex items-center justify-center shadow-lg">
