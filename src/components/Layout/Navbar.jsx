@@ -340,6 +340,19 @@ const Navbar = () => {
                         <span className="material-icons text-lg mr-3">emoji_events</span>
                         My Achievements
                       </button>
+
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProfileDropdownOpen(false);
+                          navigate('/my-network');
+                        }}
+                        className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left transition-colors"
+                      >
+                        <span className="material-icons text-lg mr-3">group</span>
+                        My Network
+                      </button>
                       
                       <button 
                         onClick={(e) => {
@@ -537,6 +550,19 @@ const Navbar = () => {
                     <span className="material-icons text-lg mr-3">emoji_events</span>
                     My Achievements
                   </button>
+
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setProfileDropdownOpen(false);
+                      navigate('/my-network');
+                    }}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  >
+                    <span className="material-icons text-lg mr-3">group</span>
+                    My Network
+                  </button>
                   
                   <button 
                     onClick={(e) => {
@@ -714,6 +740,19 @@ const Navbar = () => {
                   >
                     <span className="material-icons text-lg mr-3">emoji_events</span>
                     My Achievements
+                  </button>
+
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setProfileDropdownOpen(false);
+                      navigate('/my-netrork');
+                    }}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 text-left"
+                  >
+                    <span className="material-icons text-lg mr-3">group</span>
+                    My Network
                   </button>
                   
                   <button 

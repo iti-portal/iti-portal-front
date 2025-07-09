@@ -29,6 +29,7 @@ import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
 import JobsList from '../features/company/jobs/ShowCompanyJobs';
 import JobDetailsView from '../features/company/jobs/ShowJobDetails';
 import StudentArticles from '../features/student/articles/StudentsArticles';
+import MyNetwork from '../features/student/network/MyNetwork';
 
 import CompanyLayout from './../layouts/CompanyLayout';
 import CompanyProfile from '../features/company/profile/CompanyProfile';
@@ -238,6 +239,14 @@ const AppRoutes = () => {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <EditProfilePage /> 
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/my-network" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <MyNetwork /> 
           </PrivateRoute>
         }
       />
