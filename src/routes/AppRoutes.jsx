@@ -22,7 +22,7 @@ import { CreateAchievement, ViewAchievements, MyAchievements } from '../features
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
 import CompanyAdmin from '../features/admin/components/company/CompanyAdmin';  
-import CompanyAdminDetails from '../features/admin/components/company/CompanyAdminDetails';
+
 import JobsAdmin from '../features/admin/components/jobs/jobsAdmin';
 import JobManagementPage from '../features/admin/pages/JobsManagement';
 import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
@@ -45,6 +45,8 @@ import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
 import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
+import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
+import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -164,14 +166,7 @@ const AppRoutes = () => {
       />
 
       
-           <Route
-        path="/admin/companies/:id"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-            <CompanyAdminDetails/>
-          </RoleBasedRoute>
-        }
-      />
+
 
 
         <Route
@@ -265,6 +260,24 @@ const AppRoutes = () => {
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <StudentArticles/> 
+          </PrivateRoute>
+        }
+      />
+
+         <Route
+        path="/student/articles/:id" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ShowDetailArticleData/> 
+          </PrivateRoute>
+        }
+      />
+
+       <Route
+        path="/student/comapnies" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ShowCompanyUser/> 
           </PrivateRoute>
         }
       />

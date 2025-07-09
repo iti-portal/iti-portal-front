@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { GetAllArticles } from './GetAllArticles';
 import { GetTrendingArticles } from './GetPopularArticles';
 import { ThumbsUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Layout/Navbar';
 
 function StudentArticles() {
+    const navigate = useNavigate();
   const [latest, setLatest] = useState(null);
   const [allArticles, setAllArticles] = useState([]);
   const [trend, setTrend] = useState([]);
@@ -263,20 +265,21 @@ function StudentArticles() {
               </p>
             </div>
             <div className="flex justify-between items-center">
-              <a
-                href={latest.external_link || '#'}
-                target='_blank'
-                rel='noopener noreferrer'
-                className='inline-block w-48 bg-red-800 hover:bg-red-700 text-white font-medium py-2 px-6 rounded-md transition-colors text-center'
-              >
-                Read More
-              </a>
-              <div className="flex items-center space-x-1">
-                <button
-                  onClick={() => latest.is_liked_by_user ? handleUnlike(latest.id) : handleLike(latest.id)}
+              
+           
+
+              <div className="flex justify-between items-center w-full">
+                      <button
+                key={`closed-details-button-${latest.id}`}
+                onClick={() => navigate(`/student/articles/${latest.id}`)} 
+                className='w-1/3 bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
+              >Read More</button>
+                <button 
+                  onClick={() => latest.is_liked_by_user ? handleUnlike(latest.id) : handleLike(latest.id)} 
                   disabled={likingArticleId === latest.id}
                   className="flex items-center space-x-1 p-2 rounded hover:bg-gray-100 transition-colors duration-200 ease-in-out"
                 >
+                  
                   <span>{latest.like_count}</span>
                   {likingArticleId === latest.id ? (
                     <span className="ml-1">...</span>
@@ -330,14 +333,14 @@ function StudentArticles() {
                 {article.content.substring(0, 150) + '...' || 'No content available'}
               </p>
               <div className='flex justify-between items-center mt-auto space-x-2'>
-                <a
-                  href={article.external_link || '#'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-auto w-1/2 text-white bg-red-700 hover:bg-red-800 font-medium border border-red-800 px-4 py-2 rounded text-sm transition-colors duration-200 ease-in-out text-center"
-                >
-                  Read More
-                </a>
+                
+                   <button
+                key={`closed-details-button-${article.id}`}
+                onClick={() => navigate(`/student/articles/${article.id}`)} 
+                className='w-1/3 bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
+              >
+                Read More
+              </button>
                 <div className="flex space-x-1">
                   <button
                     onClick={() => article.is_liked_by_user ? handleUnlike(article.id) : handleLike(article.id)}
@@ -381,6 +384,7 @@ function StudentArticles() {
             ))}
             <button onClick={nextPage} disabled={currentPage === totalPages}
               className={`${currentPage === totalPages ? 'text-gray-500 cursor-not-allowed' : 'text-black'}`}>
+                
               &gt;
             </button>
 
@@ -425,14 +429,11 @@ function StudentArticles() {
                       {article.content.substring(0, 150) + '...' || 'No content available'}
                     </p>
                     <div className="flex justify-between items-center mt-auto">
-                      <a
-                        href={article.external_link || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-block text-white bg-red-700 font-medium border border-red-800 hover:bg-red-800 hover:text-white px-4 py-2 rounded text-sm transition-colors text-center"
-                      >
-                        Read More
-                      </a>
+                            <button
+                              key={`closed-details-button-${article.id}`}
+                              onClick={() => navigate(`/student/articles/${article.id}`)} 
+                              className='w-1/3 bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
+                            >Read More</button>
                       <div className="flex items-center space-x-1">
                         <button
                           onClick={() => article.is_liked_by_user ? handleUnlike(article.id) : handleLike(article.id)}

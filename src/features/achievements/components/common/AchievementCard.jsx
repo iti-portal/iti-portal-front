@@ -5,6 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../../../contexts/AuthContext';
 import AchievementDetailsModal from '../../components/modals/AchievementDetailsModal';
 
 // Get the base URL for images (remove /api part for storage URLs)
@@ -22,12 +23,14 @@ const AchievementCard = ({
   onView,
   onLike,
   onComment,
+  onAchievementUpdate, // Add this new prop for parent updates
   showActions = false,
   showUser = true,
   compact = false,
   viewMode = 'grid', // 'grid' or 'list'
   className = '' 
 }) => {
+  const { user } = useAuth(); // Get current user
   const [isLiked, setIsLiked] = useState(achievement.is_liked || false);
   const [likeCount, setLikeCount] = useState(achievement.like_count || 0);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -134,45 +137,95 @@ const AchievementCard = ({
       const newIsLiked = !isLiked;
       const newLikeCount = newIsLiked ? likeCount + 1 : likeCount - 1;
       
-
-      
       // Update local state optimistically
       setIsLiked(newIsLiked);
       setLikeCount(newLikeCount);
       
-      // Update current achievement state for modal optimistically
-      setCurrentAchievement(prev => ({
-        ...prev,
+      // Update current achievement state optimistically, including likes array
+      const optimisticAchievement = {
+        ...currentAchievement,
         is_liked: newIsLiked,
         like_count: newLikeCount
-      }));
+      };
+      
+      // Update the likes array optimistically if we have user data
+      if (user) {
+        if (newIsLiked) {
+          // Add current user to likes array
+          console.log('🔍 AchievementCard: Creating optimistic user like with user data:', {
+            userId: user?.id,
+            firstName: user?.first_name,
+            lastName: user?.last_name,
+            profilePicture: user?.profile?.profile_picture,
+            nestedProfile: user?.profile,
+            fullUser: user
+          });
+          
+          // Ensure we have minimum required data for the user
+          let userLike=null
+          if (!user?.id) {
+            console.warn('⚠️ AchievementCard: Cannot create optimistic like: user ID is missing');
+            optimisticAchievement.likes = currentAchievement.likes || [];
+          } else {
+            console.warn('⚠️ AchievementCard: Cannot create optimistic like: user ID is missing');
+            userLike = {
+              user_profile: {
+                user_id: user.id,
+                first_name: user.first_name || user.name?.split(' ')[0] || 'Unknown',
+                last_name: user.last_name || user.name?.split(' ')[1] || '',
+                profile_picture: user.profile?.profile_picture || null
+              }
+            };
+            
+            console.log('🔍 AchievementCard: Created optimistic user like object:', userLike);
+            optimisticAchievement.likes = [...(currentAchievement.likes || []), userLike];
+          }
+        } else {
+          // Remove current user from likes array
+          optimisticAchievement.likes = (currentAchievement.likes || []).filter(
+            like => {
+              const likeUserId = like.user_profile?.user_id;
+              return likeUserId !== user.id;
+            }
+          );
+        }
+      }
+      
+      setCurrentAchievement(optimisticAchievement);
       
       if (onLike) {
         const response = await onLike(achievement.id, newIsLiked);
         
-        
-        // If the API response includes updated achievement data with likes, use it
-        if (response && response.likes) {
-          
-          setCurrentAchievement(prev => ({
-            ...prev,
-            likes: response.likes,
-            like_count: response.like_count || newLikeCount,
+        // If the API response includes updated achievement data, use it
+        if (response) {
+          const updatedAchievement = {
+            ...optimisticAchievement,
+            like_count: response.like_count !== undefined ? response.like_count : newLikeCount,
             is_liked: response.is_liked !== undefined ? response.is_liked : newIsLiked
-          }));
+          };
+          
+          // Update likes array if provided in response
+          if (response.likes) {
+            updatedAchievement.likes = response.likes;
+          }
+          
+          setCurrentAchievement(updatedAchievement);
+          setLikeCount(updatedAchievement.like_count);
+          setIsLiked(updatedAchievement.is_liked);
         }
       }
 
     } catch (error) {
       console.error('❌ Card handleLike - Error:', error);
-      // Revert on error
-      setIsLiked(!isLiked);
-      setLikeCount(isLiked ? likeCount + 1 : likeCount - 1);
-      setCurrentAchievement(prev => ({
-        ...prev,
-        is_liked: !prev.is_liked,
-        like_count: prev.is_liked ? prev.like_count + 1 : prev.like_count - 1
-      }));
+      // Revert on error - go back to original state
+      setIsLiked(achievement.is_liked || false);
+      setLikeCount(achievement.like_count || 0);
+      setCurrentAchievement({
+        ...achievement,
+        is_liked: achievement.is_liked || false,
+        like_count: achievement.like_count || 0,
+        likes: achievement.likes // Revert to original likes array
+      });
     }
   };
 
@@ -184,13 +237,14 @@ const AchievementCard = ({
 
   // Handle achievement updates from modal
   const handleAchievementUpdate = (updatedAchievement) => {
-
-    
     setIsLiked(updatedAchievement.is_liked);
     setLikeCount(updatedAchievement.like_count);
     setCurrentAchievement(updatedAchievement);
     
-
+    // Notify parent component of the update
+    if (onAchievementUpdate) {
+      onAchievementUpdate(updatedAchievement);
+    }
   };
 
   const formatTimeAgo = (dateString) => {
