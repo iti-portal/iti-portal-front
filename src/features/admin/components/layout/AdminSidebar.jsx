@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 /**
  * Admin menu items configuration
@@ -25,6 +26,39 @@ const menu = [
  */
 const AdminSidebar = ({ open, setOpen }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  /**
+   * Handles user logout.
+   */
+  const handleLogout = async () => {
+    // Construct the full API URL from the environment variable
+    const logoutUrl = `${process.env.REACT_APP_API_URL}/auth/logout`;
+
+    try {
+      // Get the authentication token from storage (assuming it's in localStorage)
+      const token = localStorage.getItem('token');
+
+      // Make a POST request to the logout endpoint
+      // We send the token in the headers so the backend can invalidate it
+      await axios.post(logoutUrl, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+    } catch (error) {
+      // Log the error but proceed with client-side logout anyway
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Always perform client-side cleanup and redirection
+      // Remove the token from local storage
+      localStorage.removeItem('token');
+      // Redirect to the login page (assuming '/login' is your login route)
+      navigate('/login');
+    }
+  };
+
 
   return (
     <aside
@@ -74,6 +108,7 @@ const AdminSidebar = ({ open, setOpen }) => {
           </div>
         </div>
         <button
+          onClick={handleLogout} // Added onClick handler to trigger logout
           className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg"
         >
           <span className="material-icons-outlined mr-2 text-lg">logout</span>
