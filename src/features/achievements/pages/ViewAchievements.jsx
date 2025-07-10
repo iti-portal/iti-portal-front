@@ -1,8 +1,3 @@
-/**
- * ViewAchievements Page
- * Professional achievements listing for community members with Twitter-like feed
- */
-
 import React from 'react';
 import Navbar from '../../../components/Layout/Navbar';
 import AchievementsFeed from './AchievementsFeed';
@@ -10,24 +5,24 @@ import { motion } from 'framer-motion';
 
 const ViewAchievements = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#fbeee6] flex flex-col">
-      <Navbar />
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="flex-1 flex flex-col"
-      >
-        <section className="relative flex flex-col items-center justify-center py-16 px-4 bg-gradient-to-br from-[#fff7f0] via-[#fbeee6] to-[#f7faff]">
-          <h1 className="text-4xl font-bold bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] bg-clip-text text-transparent py-6">Achievements</h1>
-          <p className="text-lg md:text-xl text-gray-500 text-center max-w-2xl mb-10">Discover and celebrate the professional milestones of our community members.</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
+        <Navbar />
+        {/* Decorative background elements from ExploreItians design */}
+        <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
+
+        {/* Redesigned Hero Section */}
+        <section className="text-center pt-24 pb-28 px-4">
+             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+                Community <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#203947]">Achievements</span>
+            </h1>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">Discover and celebrate the professional milestones of our community.</p>
         </section>
-        <main className="flex-1 w-full max-w-6xl mx-auto px-2 md:px-0 pb-16">
-          <div className="rounded-xl bg-white/90 shadow-md border border-gray-100 p-0 md:p-0 mt-[-60px] relative z-10">
-            <AchievementsFeed />
-          </div>
+
+        {/* Main content area, overlapping the hero */}
+        <main className="w-full max-w-7xl mx-auto px-4 pb-16 mt-[-80px] relative z-10">
+          <AchievementsFeed />
         </main>
-      </motion.div>
     </div>
   );
 };

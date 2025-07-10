@@ -1,9 +1,14 @@
+// src/pages/Explore/ExploreItians.js
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import UserCard from './UserCard ';
 import { fetchUsers } from '../../services/usersApi';
 import Navbar from '../../components/Layout/Navbar';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ExploreItians = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -14,6 +19,15 @@ const ExploreItians = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [filterOptions, setFilterOptions] = useState({
+    tracks: [], programs: [], branches: [], intakes: []
+  });
+  const [connectedUsers, setConnectedUsers] = useState([]);
+  const { user: currentUser } = useAuth();
+
+  const handleConnectionSuccess = (userId) => {
+    setConnectedUsers(prev => [...prev, userId]);
+  };
 
   useEffect(() => {
     const getUsers = async () => {
@@ -22,34 +36,40 @@ const ExploreItians = () => {
         setError('');
         
         const response = await fetchUsers();
-        
-        console.log('API Response:', response);
-
-        // Extract users array from the nested structure
         const usersArray = response?.data?.users?.data || [];
         
         if (!Array.isArray(usersArray)) {
           throw new Error('Users data is not in expected array format');
         }
 
-        // Transform the data to match component's expected structure
-        const transformedUsers = usersArray.map(user => {
-          const profile = user.profile || {};
-          return {
-            id: user.id,
-            first_name: profile.first_name || 'Unknown',
-            last_name: profile.last_name || '',
-            username: profile.username || '',
-            intake: profile.intake || '',
-            track: profile.track || 'Unknown',
-            program: profile.program || 'Unknown',
-            branch: profile.branch || 'Unknown',
-            image: profile.profile_picture || `https://ui-avatars.com/api/?name=${profile.first_name || 'User'}+${profile.last_name || ''}&background=901b20&color=fff&size=150`,
-            profile 
-          };
-        });
+        const transformedUsers = usersArray.map(user => ({
+          id: user.id,
+          first_name: user.profile?.first_name || 'Unknown',
+          last_name: user.profile?.last_name || '',
+          username: user.profile?.username || '',
+          intake: user.profile?.intake || '',
+          track: user.profile?.track || 'Unknown',
+          program: user.profile?.program || 'Unknown',
+          branch: user.profile?.branch || 'Unknown',
+          image: user.profile?.profile_picture || `https://ui-avatars.com/api/?name=${user.profile?.first_name || 'U'}+${user.profile?.last_name || ''}&background=901b20&color=fff&size=150`,
+          status: user.status,
+          mutualConnections: user.mutual_connections_count ?? 0,
+        }));
 
         setUsers(transformedUsers);
+
+        // Extract filter options from the fetched data
+        const tracks = [...new Set(usersArray.map(u => u.profile?.track).filter(Boolean))];
+        const programs = [...new Set(usersArray.map(u => u.profile?.program).filter(Boolean))];
+        const branches = [...new Set(usersArray.map(u => u.profile?.branch).filter(Boolean))];
+        const intakes = [...new Set(usersArray.map(u => u.profile?.intake).filter(Boolean))];
+
+        setFilterOptions({
+          tracks,
+          programs,
+          branches,
+          intakes: intakes.sort((a, b) => parseInt(b) - parseInt(a))
+        });
       } catch (err) {
         console.error('Error fetching users:', err);
         setError(err.response?.data?.message || err.message || 'Failed to fetch users');
@@ -61,12 +81,13 @@ const ExploreItians = () => {
     getUsers();
   }, []);
 
-  const tracks = ['Open Source', 'PD', 'AI', 'Java', 'Web and UI', 'Testing', 'Mobile Development'];
-  const programs = ['PTP', 'ITP'];
-  const branches = ['Smart', 'Mansoura', 'Alexandria', 'Asyut', 'Aswan', 'Tanta', 'Zagazig', 'Menofia'];
-
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
+      // FIX: Filter out the currently logged-in user
+      if (currentUser && user.id === currentUser.id) {
+        return false;
+      }
+      
       const fullName = `${user.first_name} ${user.last_name}`.toLowerCase();
       const matchesSearch = searchTerm === '' ||
         fullName.includes(searchTerm.toLowerCase()) ||
@@ -79,167 +100,161 @@ const ExploreItians = () => {
 
       return matchesSearch && matchesIntake && matchesTrack && matchesProgram && matchesBranch;
     });
-  }, [searchTerm, selectedIntake, selectedTrack, selectedProgram, selectedBranch, users]);
+  }, [searchTerm, selectedIntake, selectedTrack, selectedProgram, selectedBranch, users, currentUser]);
+
+  const usersToDisplay = useMemo(() => {
+    return filteredUsers.filter(user => !connectedUsers.includes(user.id));
+  }, [filteredUsers, connectedUsers]);
 
   const clearFilters = () => {
+    setSearchTerm('');
     setSelectedIntake('');
     setSelectedTrack('');
     setSelectedProgram('');
     setSelectedBranch('');
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-[#fbeee6] flex flex-col">
-      <Navbar />
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className="flex-1 flex flex-col"
-      >
-        {/* Hero Section */}
-        <section className="relative flex flex-col items-center justify-center py-16 px-4 bg-gradient-to-br from-[#fff7f0] via-[#fbeee6] to-[#f7faff]">
-          <h1 className="text-4xl font-bold bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947] bg-clip-text text-transparent py-6">Explore Itians</h1>
-          <p className="text-lg md:text-xl text-gray-500 text-center max-w-2xl mb-10">Connect with students and alumni</p>
-        </section>
-        <main className="flex-1 w-full max-w-7xl mx-auto px-2 md:px-0 pb-16">
-          {/* Modern container with negative margin to overlap hero */}
-          <div className="rounded-xl bg-white/90 shadow-md border border-gray-100 p-0 md:p-0 mt-[-60px] relative z-10">
-            <div className="p-6 md:p-8">
-              {/* Filters */}
-              <div className="mb-8">
-                <div className="grid grid-cols-1 lg:grid-cols-6 gap-4 items-end">
-                  <div className="lg:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <input
-                        type="text"
-                        placeholder="Search by name or username..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
-                      />
+  // NEW: Skeleton loader for a better loading experience
+  const renderLoadingSkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-pulse">
+        {[...Array(8)].map((_, i) => (
+            <div key={i} className="bg-white/50 rounded-lg shadow-sm p-4 border border-white/30">
+                <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 bg-gray-300 rounded-full"></div>
+                    <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                        <div className="h-3 bg-gray-300 rounded w-1/2"></div>
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Intake</label>
-                    <select
-                      value={selectedIntake}
-                      onChange={(e) => setSelectedIntake(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
-                    >
-                      <option value="">All Intakes</option>
-                      {Array.from({ length: 45 }, (_, i) => i + 1).map(num => (
-                        <option key={num} value={num.toString()}>Intake {num}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Track</label>
-                    <select
-                      value={selectedTrack}
-                      onChange={(e) => setSelectedTrack(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
-                    >
-                      <option value="">All Tracks</option>
-                      {tracks.map(track => (
-                        <option key={track} value={track}>{track}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Program</label>
-                    <select
-                      value={selectedProgram}
-                      onChange={(e) => setSelectedProgram(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
-                    >
-                      <option value="">All Programs</option>
-                      {programs.map(program => (
-                        <option key={program} value={program}>{program}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Branch</label>
-                    <select
-                      value={selectedBranch}
-                      onChange={(e) => setSelectedBranch(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-3 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none"
-                    >
-                      <option value="">All Branches</option>
-                      {branches.map(branch => (
-                        <option key={branch} value={branch}>{branch}</option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
-                <div className="mt-4">
-                  <button
-                    onClick={clearFilters}
-                    className="text-sm text-[#901b20] hover:text-[#7a1619] font-medium"
-                  >
-                    Clear All Filters
-                  </button>
+                <div className="h-3 bg-gray-300 rounded mt-4 w-full"></div>
+                <div className="h-3 bg-gray-300 rounded mt-2 w-5/6"></div>
+                <div className="mt-4 h-8 bg-gray-300 rounded-lg w-full"></div>
+            </div>
+        ))}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
+      <ToastContainer />
+      <Navbar />
+      
+      {/* Decorative background elements */}
+      <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
+      <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
+
+      <main className="pt-24 pb-10 px-4 sm:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          {/* REDESIGNED: Header */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#901b20]/10 to-[#203947]/10 rounded-full mb-4">
+              <User className="text-[#901b20] mr-2" />
+              <span className="text-[#901b20] font-semibold text-sm">COMMUNITY</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-2">
+              Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#203947]">ITIans</span>
+            </h1>
+            <p className="text-gray-600 text-lg">Connect with students and alumni across all tracks and intakes.</p>
+          </div>
+
+          {/* REDESIGNED: Filter section */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6 mb-8 border border-white/30">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+              <div className="lg:col-span-2">
+                <label htmlFor="search-input" className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    id="search-input"
+                    type="text"
+                    placeholder="Search by name or username..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 bg-white/50 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none transition"
+                  />
                 </div>
               </div>
-              {/* Users List */}
-              {loading ? (
-                <div className="text-center py-12">
-                  <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#901b20] mb-4"></div>
-                  <p className="text-gray-500">Loading users...</p>
-                </div>
-              ) : error ? (
-                <div className="text-center py-12 text-red-500">
-                  <p>Error: {error}</p>
-                  <button 
-                    onClick={() => window.location.reload()}
-                    className="mt-4 text-sm bg-[#901b20] text-white px-4 py-2 rounded hover:bg-[#7a1619]"
-                  >
-                    Retry
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-6">
-                    <p className="text-gray-600">
-                      Showing {filteredUsers.length} of {users.length} members
-                    </p>
-                  </div>
-                  {filteredUsers.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      <AnimatePresence>
-                        {filteredUsers.map(user => (
-                          <motion.div
-                            key={user.id}
-                            initial={{ opacity: 0, y: 30 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: 30 }}
-                            transition={{ duration: 0.4, type: 'spring', stiffness: 80 }}
-                          >
-                            <UserCard user={user} />
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No members found</h3>
-                      <p className="text-gray-600">Try adjusting your search or filter criteria</p>
-                    </div>
-                  )}
-                </>
-              )}
+              
+              {/* Other filters with minor style updates */}
+              <div>
+                <label htmlFor="intake-select" className="block text-sm font-medium text-gray-700 mb-2">Intake</label>
+                <select id="intake-select" value={selectedIntake} onChange={(e) => setSelectedIntake(e.target.value)} className="w-full border border-gray-200 bg-white/50 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none transition">
+                  <option value="">All</option>
+                  {filterOptions.intakes.map(intake => <option key={intake} value={intake}>{intake}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="track-select" className="block text-sm font-medium text-gray-700 mb-2">Track</label>
+                <select id="track-select" value={selectedTrack} onChange={(e) => setSelectedTrack(e.target.value)} className="w-full border border-gray-200 bg-white/50 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none transition">
+                  <option value="">All</option>
+                  {filterOptions.tracks.map(track => <option key={track} value={track}>{track}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="program-select" className="block text-sm font-medium text-gray-700 mb-2">Program</label>
+                <select id="program-select" value={selectedProgram} onChange={(e) => setSelectedProgram(e.target.value)} className="w-full border border-gray-200 bg-white/50 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none transition">
+                  <option value="">All</option>
+                  {filterOptions.programs.map(program => <option key={program} value={program}>{program.toUpperCase()}</option>)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="branch-select" className="block text-sm font-medium text-gray-700 mb-2">Branch</label>
+                <select id="branch-select" value={selectedBranch} onChange={(e) => setSelectedBranch(e.target.value)} className="w-full border border-gray-200 bg-white/50 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-[#901b20] focus:border-transparent outline-none transition">
+                  <option value="">All</option>
+                  {filterOptions.branches.map(branch => <option key={branch} value={branch}>{branch}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="mt-4 flex justify-between items-center">
+              <button onClick={clearFilters} className="text-sm text-[#901b20] hover:underline font-medium">Clear All Filters</button>
+              <p className="text-sm text-gray-500">Found {filteredUsers.length} member(s)</p>
             </div>
           </div>
-        </main>
-      </motion.div>
+          
+          {/* REFACTORED: Simplified and robust rendering logic */}
+          {loading ? (
+            renderLoadingSkeleton()
+          ) : error ? (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <User className="text-white text-3xl" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-800 mb-4">Oops! Something went wrong</h3>
+              <p className="text-gray-600 mb-8 text-lg">{error}</p>
+              <button onClick={() => window.location.reload()} className="inline-flex items-center px-8 py-3 bg-gradient-to-r from-[#901b20] to-[#203947] text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                Try Again
+              </button>
+            </div>
+          ) : usersToDisplay.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <AnimatePresence>
+                {usersToDisplay.map(user => (
+                  <motion.div
+                    key={user.id}
+                    layout // Animates layout changes (e.g., when filtering)
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <UserCard 
+                      user={user} 
+                      onConnectionSuccess={handleConnectionSuccess}
+                      currentUser={currentUser}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div className="text-center py-16">
+              <User className="w-20 h-20 text-gray-300 mx-auto mb-6" />
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">No Members Found</h3>
+              <p className="text-gray-600 text-lg">Try adjusting your search or filter criteria.</p>
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
