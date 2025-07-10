@@ -46,6 +46,7 @@ import CompanyJobApplicationsPage from '../features/company/applicants/pages/Com
 import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
 import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
 import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
+import AdminApplications from '../features/admin/components/applications/Applications';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -194,8 +195,11 @@ const AppRoutes = () => {
           </PrivateRoute>
         }
       >
+     
+         <Route index element={<PostJob />} />
         <Route path="post-job" element={<PostJob />} />
-        <Route path="manage-jobs" element={<ManageJobs />} />
+        <Route path="manage-jobs" element={<JobsList />} />
+        <Route path="manage-jobs/:id" element={<JobDetailsView />} />
         <Route path="applicants" element={<ManageApplicants />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="messages" element={<Messages />} />
@@ -265,22 +269,22 @@ const AppRoutes = () => {
         }
       />
 
-      <Route
+      {/* <Route
         path="/company/jobs" 
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <JobsList/> 
           </PrivateRoute>
         }
-      />
-      <Route
+      /> */}
+      {/* <Route
         path="/company/jobs/:id" 
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <JobDetailsView/> 
           </PrivateRoute>
         }
-      />
+      /> */}
       
       {/* Achievements Routes */}
       <Route
@@ -339,7 +343,7 @@ const AppRoutes = () => {
       path="/admin/applications" 
       element={
         <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-          <AdminApplicationsPage />
+          <AdminApplications/>
         </RoleBasedRoute>
       } 
     />

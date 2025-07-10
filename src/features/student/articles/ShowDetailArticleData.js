@@ -120,171 +120,160 @@ function ShowDetailArticleData() {
     }
   };
 
-  if (loading) {
-    return (
-   
-      <div className="flex flex-col items-center justify-center h-64">
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-        >
-          <Loader2 className="w-12 h-12 text-red-500 mb-4" />
-        </motion.div>
-        <p className="text-gray-600 text-lg">Loading article details...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 border-l-4 border-red-500 p-4 mx-4 my-6">
-        <div className="flex items-center gap-2">
-          <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          >
-            <AlertCircle className="h-5 w-5 text-red-500" />
-          </motion.div>
-          <div>
-            <h3 className="text-sm font-medium text-red-800">Error loading article</h3>
-            <p className="text-sm text-red-700">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!article) {
-    return <div className="p-4">Article not found</div>;
-  }
-
   return (
     <>
-    <Navbar/>
-    <div className="mt-14  p-6 max-w-5xl mx-auto">
-   
-
-      {likeError && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg"
-        >
-          {likeError}
-        </motion.div>
-      )}
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex flex-col border border-gray-200 rounded-lg shadow-md overflow-hidden mb-12"
-      >
-        <motion.div 
-          initial={{ y: -50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="w-full h-64"
-        >
-          <img
-            src={article.featured_image || 'https://st4.depositphotos.com/1185628/24546/v/450/depositphotos_245467064-stock-illustration-newspaper-icon-vector-template.jpg'}
-            alt={article.title}
-            className="w-full h-full object-cotain"
-            onError={(e) => {
-              e.target.src = 'https://st4.depositphotos.com/1185628/24546/v/450/depositphotos_245467064-stock-illustration-newspaper-icon-vector-template.jpg';
-            }}
-          />
-        </motion.div>
-
-        <motion.div 
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="p-6"
-        >
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
-            <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
-              Article Details
-            </span>
-            <span className="text-gray-500 text-sm">
-              {article.published_at ? new Date(article.published_at).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric"
-              }) : 'No date available'}
-            </span>
-          </div>
-
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-            {article.title}
-          </h2>
-
-     
-          <ul className="list-disc pl-5 space-y-2 text-gray-700 mb-8">
-            {article.content
-              .split('\n')
-              .filter(paragraph => paragraph.trim() !== '')
-              .map((paragraph, index) => (
-                <motion.li
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 * index }}
-                
-                >
-                  {paragraph}
-                </motion.li>
-            ))}
-          </ul>
-
-          <div className="flex justify-between items-center">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(`https://www.bing.com/search?pglt=171&q=wikipedia&cvid=f5a1efdab6b74f98a66f974a4348d177&gs_lcrp=EgRlZGdlKgYIABBFGDkyBggAEEUYOTIGCAEQABhAMgYIAhAuGEAyBggDEAAYQDIGCAQQLhhAMgYIBRAAGEAyBggGEAAYQDIGCAcQABhAMgYICBAAGEDSAQgyODA0ajBqMagCALACAA&FORM=ANNTA1&PC=U531`)}
-              className="w-1/3 bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
+      <Navbar />
+      
+      <div className="mt-14 p-6 max-w-5xl mx-auto">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-64">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
             >
-              More info
-            </motion.button>
-
-            <motion.button
-              onClick={() =>
-                article.is_liked_by_user
-                  ? handleUnlike(article.id)
-                  : handleLike(article.id)
-              }
-              disabled={likingArticleId === article.id}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="flex items-center space-x-1 p-2 rounded hover:bg-gray-100 transition-colors duration-200 ease-in-out"
-              aria-label={article.is_liked_by_user ? "Unlike article" : "Like article"}
-            >
-              <span>{article.like_count}</span>
-              {likingArticleId === article.id ? (
-                <motion.span 
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="ml-1"
-                >
-                  ...
-                </motion.span>
-              ) : (
-                <motion.div
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.8 }}
-                >
-                  <ThumbsUp
-                    className={`w-6 h-6 ${article.is_liked_by_user ? 'text-red-600' : 'text-gray-600'} hover:text-red-600 transition-colors duration-200 ease-in-out`}
-                  />
-                </motion.div>
-              )}
-            </motion.button>
+              <Loader2 className="w-12 h-12 text-red-500 mb-4" />
+            </motion.div>
+            <p className="text-gray-600 text-lg">Loading article details...</p>
           </div>
-        </motion.div>
-      </motion.div>
-    </div>
-  </>
+        ) : error ? (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mx-4 my-6">
+            <div className="flex items-center gap-2">
+              <motion.div
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              >
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              </motion.div>
+              <div>
+                <h3 className="text-sm font-medium text-red-800">Error loading article</h3>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        ) : article ? (
+          <>
+            {likeError && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg"
+              >
+                {likeError}
+              </motion.div>
+            )}
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col border border-gray-200 rounded-lg shadow-md overflow-hidden mb-12"
+            >
+              <motion.div 
+                initial={{ y: -50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="w-full h-64"
+              >
+                <img
+                  src={article.featured_image || 'https://st4.depositphotos.com/1185628/24546/v/450/depositphotos_245467064-stock-illustration-newspaper-icon-vector-template.jpg'}
+                  alt={article.title}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.src = 'https://st4.depositphotos.com/1185628/24546/v/450/depositphotos_245467064-stock-illustration-newspaper-icon-vector-template.jpg';
+                  }}
+                />
+              </motion.div>
+
+              <motion.div 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="p-6"
+              >
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+                  <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-medium">
+                    Article Details
+                  </span>
+                  <span className="text-gray-500 text-sm">
+                    {article.published_at ? new Date(article.published_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    }) : 'No date available'}
+                  </span>
+                </div>
+
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+                  {article.title}
+                </h2>
+
+                <ul className="list-disc pl-5 space-y-2 text-gray-700 mb-8">
+                  {article.content
+                    .split('\n')
+                    .filter(paragraph => paragraph.trim() !== '')
+                    .map((paragraph, index) => (
+                      <motion.li
+                        key={index}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05 * index }}
+                      >
+                        {paragraph}
+                      </motion.li>
+                  ))}
+                </ul>
+
+                <div className="flex justify-between items-center">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate("/more-Article")}
+                    className="w-1/3 text-white bg-red-700 hover:bg-red-800 text-صاهفث-800 font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
+                  >
+                    <ArrowLeft className="mr-2 text-white" /> Read More
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() =>
+                      article.is_liked_by_user
+                        ? handleUnlike(article.id)
+                        : handleLike(article.id)
+                    }
+                    disabled={likingArticleId === article.id}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="flex items-center space-x-1 p-2 rounded hover:bg-gray-100 transition-colors duration-200 ease-in-out"
+                    aria-label={article.is_liked_by_user ? "Unlike article" : "Like article"}
+                  >
+                    <span>{article.like_count}</span>
+                    {likingArticleId === article.id ? (
+                      <motion.span 
+                        animate={{ opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                        className="ml-1"
+                      >
+                        ...
+                      </motion.span>
+                    ) : (
+                      <motion.div
+                        whileHover={{ scale: 1.2 }}
+                        whileTap={{ scale: 0.8 }}
+                      >
+                        <ThumbsUp
+                          className={`w-6 h-6 ${article.is_liked_by_user ? 'text-red-600' : 'text-gray-600'} hover:text-red-600 transition-colors duration-200 ease-in-out`}
+                        />
+                      </motion.div>
+                    )}
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
+        ) : (
+          <div className="p-4 text-center">Article not found</div>
+        )}
+      </div>
+    </>
   );
-
 }
 
 export default ShowDetailArticleData;

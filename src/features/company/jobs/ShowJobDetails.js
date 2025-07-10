@@ -328,7 +328,7 @@ const handleApplicationClick = (application) => {
   const requiredSkills = Array.isArray(job.job_skills) ? job.job_skills.filter(skill => skill.is_required) : [];
 
   return (
-    <div className="w-5/6 mx-auto p-6">
+    <div className="w-full mx-auto p-6">
       {/* Job Header Section */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8">
         <div className="p-8">

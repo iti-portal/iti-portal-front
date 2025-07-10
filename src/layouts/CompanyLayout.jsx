@@ -15,7 +15,7 @@ const CompanyLayout = () => {
       {/* Sidebar fixed to the left */}
       <CompanySidebar />
 
-      {/* Main content shifted right and down */}
+
       <motion.main
         key={location.pathname}
         className="
