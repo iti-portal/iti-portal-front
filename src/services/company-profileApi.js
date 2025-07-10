@@ -10,3 +10,12 @@ export const fetchCompanyProfile = () => {
     },
   });
 };
+
+export const fetchCompanyStatistics = () => {
+  const token = localStorage.getItem('token');
+  return axios.get(`${API_BASE_URL}/general-statistics`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

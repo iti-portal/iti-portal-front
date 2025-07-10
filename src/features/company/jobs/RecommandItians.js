@@ -93,14 +93,15 @@ export const getAllDevelopers = async () => {
 
 const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
+
 export async function getTopDevelopersForJob(jobId, developers, authToken) {
   if (!developers || developers.length === 0) {
     console.error('No developers provided for evaluation');
-    return []; 
+    return [];
   }
 
   try {
-    console.log(`Fetching job details for jobId: ${jobId}`);
+    // Fetch job details
     const jobResponse = await fetch(`${API_BASE_URL}/jobs/${jobId}`, {
       headers: {
         'Authorization': `Bearer ${authToken}`,
@@ -110,150 +111,111 @@ export async function getTopDevelopersForJob(jobId, developers, authToken) {
 
     if (!jobResponse.ok) {
       const errorText = await jobResponse.text();
-      console.error(`Failed to fetch job data. Status: ${jobResponse.status}, Response: ${errorText}`);
       throw new Error(`Failed to fetch job data: ${jobResponse.status}`);
     }
 
     const jobData = await jobResponse.json();
-    console.log('Job data received:', jobData);
-
-    if (!jobData || (!jobData.data && !jobData.title)) {
-      console.error('Invalid job data structure:', jobData);
-      throw new Error('Invalid job data received - missing required fields');
-    }
-
     const jobDetails = jobData.data || jobData;
     const requiredSkills = jobDetails.job_skills?.filter(s => s.is_required).map(s => s.skill?.name || s.name) || [];
-    const preferredSkills = jobDetails.job_skills?.filter(s => !s.is_required).map(s => s.skill?.name || s.name) || [];
+
+    // Pre-process developer data for efficiency
+    const devSummaries = developers.map(dev => ({
+      id: dev.id,
+      name: `${dev.profile?.first_name || ''} ${dev.profile?.last_name || ''}`.trim(),
+      skills: (dev.skills || []).map(s => s.name),
+      track: dev.profile?.track || 'Not specified',
+      summary: dev.profile?.summary || 'No summary'
+    }));
 
     const prompt = `
-      Analyze these developers and recommend the best candidates for this job based strictly on the following criteria:
-      
+      Analyze these developers and recommend the best candidates for this job based on the following criteria:
+
       JOB REQUIREMENTS:
       - Title: "${jobDetails.title || 'No title'}"
-      - Required Skills: ${requiredSkills.join(', ') || 'None'}
-      - Preferred Skills: ${preferredSkills.join(', ') || 'None'}
-      - Experience Level: ${jobDetails.experience_level || 'Not specified'}
+      - Required Skills: ${requiredSkills.length > 0 ? requiredSkills.join(', ') : 'None'}
       - Description: "${jobDetails.description || 'No description'}"
-      - Requirements: "${jobDetails.requirements || 'No requirements'}"
-      
-      DEVELOPERS TO ANALYZE:
-      ${developers.map(dev => `
-        ID: ${dev.id}
-        Name: "${dev.profile?.first_name || ''} ${dev.profile?.last_name || ''}"
-        Skills: ${dev.skills?.map(s => s.name).join(', ') || 'None'}
-        Experience: ${dev.profile?.years_of_experience || 0} years
-        Track: ${dev.profile?.track || 'Not specified'}
-        Education: ${dev.education?.map(e => `${e.degree} at ${e.institution}`).join('; ') || 'None'}
+
+      EVALUATION CRITERIA (100 points total):
+      1. Required Skills Match (60 points):
+         - 10 points per required skill matched
+         - Max 60 points
+      2. Track Relevance (30 points):
+         - Perfect match: 30 points
+         - Related field: 20 points
+         - Unrelated: 0 points
+      3. Summary Relevance (10 points):
+         - High relevance: 10 points
+         - Some relevance: 5 points
+         - No relevance: 0 points
+
+      DEVELOPERS TO ANALYZE (${devSummaries.length} candidates):
+      ${devSummaries.map(dev => `
+        Developer ID: ${dev.id}
+        Name: "${dev.name}"
+        Track: "${dev.track}"
+        Skills: ${dev.skills.length > 0 ? dev.skills.join(', ') : 'None'}
+        Summary: "${dev.summary}"
       `).join('\n')}
-      
-      EVALUATION INSTRUCTIONS:
-      1. Analyze each developer's profile against the job requirements
-      2. Only include developers who meet at least one required skill
-      3. Score each candidate 0-100 based on:
-         - Required skills match (50% weight)
-         - Preferred skills match (20% weight)
-         - Experience level alignment (15% weight)
-         - Project relevance (10% weight)
-         - Education background (5% weight)
-      4. Return only developers with score > 10
-      5. Provide detailed matching reasons and analysis
-      
-      RESPONSE FORMAT (STRICT JSON):
-      {
-        "recommendations": [
-          {
-            "developer_id": "id1",
-            "developer_name": "John Doe",
-            "score": 85,
-            "matching_details": {
-              "required_skill_completeness": 75,
-              "matched_skills": ["skill1", "skill2"],
-              "experience_match": "exact|adjacent|mismatch",
-              "track_relevance": "perfect|related|unrelated",
-              "strengths": ["Strong backend experience", "Relevant education"],
-              "weaknesses": ["Lacking in frontend skills"],
-              "reason": "Matches 3/4 required skills and has relevant project experience"
-            }
-          }
-        ],
-        "analysis_summary": "Found 3 qualified candidates out of 10"
-      }
+
+      OUTPUT REQUIREMENTS:
+      - Return ONLY a JSON array of developers with score >= 40
+      - Sort by score descending
+      - Include matching details
+      - Format:
+        [{
+          "developer_id": "id",
+          "score": number,
+          "track_name": "track"
+          "developer_skills": "skills",
+          "matched_skills": ["skill1", "skill2"],
+          "track_relevance": "perfect|related|unrelated",
+          "summary_relevance": "high|some|none",
+          "reason": "short explanation and must describtive reason for the recommendation"
+        }]
     `;
 
-
-    
     const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
         generationConfig: {
+          temperature: 0.2,  
           response_mime_type: "application/json"
         }
       })
     });
-    
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', errorText);
-      throw new Error(`API error: ${response.status}`);
-    }
 
     const data = await response.json();
-    console.log('Gemini API response:', data);
-
     const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!responseText) {
-      console.error('No response text from Gemini API');
-      throw new Error('No response text from Gemini');
-    }
+    
 
-    console.log('Gemini response text:', responseText);
+    const cleanedResponse = responseText.replace(/```json|```/g, '').trim();
+    const recommendations = JSON.parse(cleanedResponse);
 
-    let recommendationData;
-    try {
-      const jsonString = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      recommendationData = JSON.parse(jsonString);
-    } catch (e) {
-      console.error('JSON parsing error:', e);
-      console.error('Original response text:', responseText);
-      throw new Error('Invalid response format from Gemini');
-    }
+    // Map recommendations back to full developer objects and sort
+    const matchedDevelopers = recommendations
+      .map(rec => {
+        const developer = developers.find(d => String(d.id) === String(rec.developer_id));
+        return developer ? {
+          ...developer,
+          matching_score: rec.score,
+          matching_details: {
+            matched_skills: rec.matched_skills || [],
+            track_relevance: rec.track_relevance || 'unrelated',
+            summary_relevance: rec.summary_relevance || 'none',
+            reason: rec.reason || ''
+          }
+        } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.matching_score - a.matching_score);  
 
-    if (!recommendationData.recommendations || recommendationData.recommendations.length === 0) {
-      console.log('No developers matched the criteria');
-      return [];
-    }
-
-
-    console.log('Original developer IDs:', developers.map(d => d.id));
-    console.log('Recommended developer IDs:', recommendationData.recommendations.map(r => r.developer_id));
-
-    const topDevelopers = recommendationData.recommendations.map(rec => {
-      // Handle both string and numeric IDs
-      const developer = developers.find(d => String(d.id) === String(rec.developer_id));
-      if (!developer) {
-        console.warn(`Developer with ID ${rec.developer_id} not found in original list`);
-        return null;
-      }
-      
-      return {
-        ...developer,
-        matching_score: rec.score,
-        matching_details: rec.matching_details,
-        is_top_candidate: true,
-        evaluation_date: new Date().toISOString()
-      };
-    }).filter(dev => dev !== null);
-
-        if (!Array.isArray(topDevelopers)) {
-        console.error('topDevelopers is not an array');
-        return [];
-        }
-        return topDevelopers; 
-        
+    return matchedDevelopers;
 
   } catch (error) {
     console.error('Error in getTopDevelopersForJob:', error);

@@ -185,14 +185,13 @@ const DeveloperCard = ({ developer }) => {
           <div className="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center text-red-600">
             {dev.profile?.profile_picture ? (
               <img
-                src={dev.profile.profile_picture}
-                alt="Profile"
+                src={`http://127.0.0.1:8000/storage/${dev.profile.profile_picture}`}
                 className="rounded-full w-full h-full object-cover"
               />
             ) : (
               <span className="text-sm font-medium">
-                {dev.profile?.first_name?.charAt(0)}
-                {dev.profile?.last_name?.charAt(0)}
+                {dev.profile?.first_name?.charAt(0) || ''}
+                {dev.profile?.last_name?.charAt(0) || ''}
               </span>
             )}
           </div>
@@ -201,23 +200,17 @@ const DeveloperCard = ({ developer }) => {
               <h3 className="font-semibold text-gray-800">
                 {dev.profile?.first_name} {dev.profile?.last_name}
               </h3>
-              <div className={`flex items-center ${scoreColor} px-2 py-1 rounded-full`}>
-                <BadgeCheck className="w-4 h-4 mr-1" />
-                <span className="text-xs font-medium">
-                  {score}%
-                </span>
-              </div>
             </div>
             <p className="text-sm text-gray-500">
               {dev.profile?.track}
-              {dev.profile?.years_of_experience && ` • ${dev.profile.years_of_experience} yrs`}
+             
             </p>
           </div>
         </div>
       </div>
 
       <div className="p-5 flex-grow">
-        <div className="space-y-3 mb-4">
+        <div className="space-y-3 mb-3">
           <div className="flex items-center text-sm">
             <Mail className="w-4 h-4 mr-2 text-gray-400" />
             <span className="text-gray-600 truncate">{dev.email}</span>
@@ -239,7 +232,7 @@ const DeveloperCard = ({ developer }) => {
 
         <div className="mb-4">
           <h4 className="text-xs font-medium text-gray-500 mb-2">
-            SKILLS MATCH ({matchingDetails.required_skill_completeness || 0}% REQUIRED)
+            SKILLS MATCH 
           </h4>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -263,27 +256,11 @@ const DeveloperCard = ({ developer }) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-3 mb-0">
           <div className="bg-gray-50 p-2 rounded">
-            <h4 className="text-xs font-medium text-gray-500 mb-1">Experience</h4>
-            <div className="flex items-center">
-              {matchingDetails.experience_match === 'exact' ? (
-                <>
-                  <Check className="w-4 h-4 text-green-500 mr-1" />
-                  <span className="text-xs text-green-700">Perfect match</span>
-                </>
-              ) : matchingDetails.experience_match === 'adjacent' ? (
-                <>
-                  <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                  <span className="text-xs text-yellow-700">Close match</span>
-                </>
-              ) : (
-                <>
-                  <X className="w-4 h-4 text-red-500 mr-1" />
-                  <span className="text-xs text-red-700">Mismatch</span>
-                </>
-              )}
-            </div>
+            <h4 className="text-xs font-medium text-gray-500 mb-1">Education</h4>
+            <p className='text-sm text-gray-500'>ITI {dev.profile.program} Program {dev.profile.intake}</p>
+      
           </div>
           <div className="bg-gray-50 p-2 rounded">
             <h4 className="text-xs font-medium text-gray-500 mb-1">Track</h4>
@@ -309,7 +286,7 @@ const DeveloperCard = ({ developer }) => {
         </div>
 
         {matchingDetails.strengths?.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-2">
             <h4 className="text-xs font-medium text-gray-500 mb-1">Strengths</h4>
             <ul className="list-disc list-inside text-xs text-gray-700 space-y-1">
               {matchingDetails.strengths.map((strength, i) => (

@@ -22,13 +22,14 @@ import { CreateAchievement, ViewAchievements, MyAchievements } from '../features
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
 import CompanyAdmin from '../features/admin/components/company/CompanyAdmin';  
-import CompanyAdminDetails from '../features/admin/components/company/CompanyAdminDetails';
+
 import JobsAdmin from '../features/admin/components/jobs/jobsAdmin';
 import JobManagementPage from '../features/admin/pages/JobsManagement';
 import AvaliableJobs from '../features/student/jobs/AvaliableJobs';
 import JobsList from '../features/company/jobs/ShowCompanyJobs';
 import JobDetailsView from '../features/company/jobs/ShowJobDetails';
 import StudentArticles from '../features/student/articles/StudentsArticles';
+import MyNetwork from '../features/student/network/MyNetwork';
 
 import CompanyLayout from './../layouts/CompanyLayout';
 import CompanyProfile from '../features/company/profile/CompanyProfile';
@@ -165,14 +166,7 @@ const AppRoutes = () => {
       />
 
       
-           <Route
-        path="/admin/companies/:id"
-        element={
-          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
-            <CompanyAdminDetails/>
-          </RoleBasedRoute>
-        }
-      />
+
 
 
         <Route
@@ -228,10 +222,26 @@ const AppRoutes = () => {
         }
       />
       <Route
+        path="/profile/:id" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <ProfilePage /> 
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/student/profile/edit" 
         element={
           <PrivateRoute isAuthenticated={isAuthenticated}>
             <EditProfilePage /> 
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/my-network" 
+        element={
+          <PrivateRoute isAuthenticated={isAuthenticated}>
+            <MyNetwork /> 
           </PrivateRoute>
         }
       />

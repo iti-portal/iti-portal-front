@@ -128,7 +128,7 @@ export default function AvailableJobs() {
           setSelectedJob(jobsData.jobs[0]);
         }
 
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem('token');
         if (token) {
           const skills = await fetchUserSkills(token);
           setUserSkills(skills);
