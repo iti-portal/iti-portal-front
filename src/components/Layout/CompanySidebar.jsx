@@ -8,7 +8,11 @@ import {
 
 const sidebarItems = [
   { icon: Briefcase, label: 'Post Job', path: '/company/dashboard/post-job' },
-  { icon: List, label: 'Manage Jobs', path: '/company/jobs' },
+  { icon: List, label: 'Manage Jobs', path: '/company/dashboard/manage-jobs'  , 
+    matchPaths: [
+      '/company/dashboard/manage-jobs',
+      '/company/dashboard/manage-jobs/:id' 
+    ] },
   { icon: Users, label: 'Manage Applicants', path: '/company/dashboard/applicants' },
 ];
 
