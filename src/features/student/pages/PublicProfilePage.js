@@ -1,14 +1,73 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { User, Mail, Phone, Linkedin, Github, Briefcase, BookOpen, BrainCircuit, GraduationCap, Lightbulb, Award } from 'lucide-react';
 import Navbar from '../../../components/Layout/Navbar';
-import ProfileHeader from '../components/profile/ProfileHeader';
-import ProfileSectionCard from '../components/profile/ProfileSectionCard';
 import ExperienceCard from '../components/profile/ExperienceCard';
 import EducationCard from '../components/profile/EducationCard';
 import SkillItem from '../components/profile/SkillItem';
 import CertificateCard from '../components/profile/CertificateCard';
 import ProjectCard from '../components/profile/ProjectCard';
 import { fetchUserById } from '../../../services/usersApi';
+
+// Helper to get image URL safely
+const getImageUrl = (imagePath) => {
+  if (!imagePath || imagePath.startsWith('http')) return imagePath;
+  const baseUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const cleanBaseUrl = baseUrl.replace('/api', '');
+  return `${cleanBaseUrl}/storage/${imagePath}`;
+};
+
+const AnimatedProfileHeader = ({ data }) => {
+  // FIX: Use optional chaining to safely access nested properties
+  const profileData = data?.profile; 
+  const profilePictureUrl = getImageUrl(profileData?.profile_picture);
+  const coverPhotoUrl = getImageUrl(profileData?.cover_photo);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+      className="relative rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-[#203947] to-[#901b20]"
+    >
+      <div className="h-48 bg-black/20">
+        {coverPhotoUrl && <img src={coverPhotoUrl} alt="Cover" className="w-full h-full object-cover" />}
+      </div>
+      <div className="p-6 pt-0 flex flex-col md:flex-row items-center gap-6 text-white">
+        <motion.img
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.4, delay: 0.2, type: 'spring', stiffness: 120 }}
+          src={profilePictureUrl || `https://ui-avatars.com/api/?name=${profileData?.first_name}+${profileData?.last_name}&background=fff&color=901b20&size=128`}
+          alt="Profile"
+          className="w-28 h-28 -mt-14 rounded-full object-cover border-4 border-white/80 shadow-xl"
+        />
+        <div className="text-center md:text-left mt-4 md:mt-0">
+          <h1 className="text-3xl font-bold">{profileData?.first_name} {profileData?.last_name}</h1>
+          <p className="text-red-100/80 text-lg mt-1">{profileData?.track}</p>
+          {profileData?.intake && <p className="text-red-100/70 text-sm">Intake {profileData.intake}</p>}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const AnimatedProfileSection = ({ title, icon, children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.2 }}
+    transition={{ duration: 0.5, ease: 'easeOut' }}
+    className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-6"
+  >
+    <div className="flex items-center gap-3 mb-4">
+      {icon}
+      <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+    </div>
+    {children}
+  </motion.div>
+);
 
 const PublicProfilePage = () => {
   const { id } = useParams();
@@ -18,152 +77,82 @@ const PublicProfilePage = () => {
 
   useEffect(() => {
     const getProfile = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const response = await fetchUserById(id);
-        // Adjust this according to your API response structure
-        setProfile(response?.data?.user || response?.user || null);
-      } catch (err) {
-        setError('Failed to load profile');
-      } finally {
-        setLoading(false);
-      }
+      try { setLoading(true); setError(''); const response = await fetchUserById(id); setProfile(response?.data?.user || response?.user || null); }
+      catch (err) { setError('Failed to load profile'); }
+      finally { setLoading(false); }
     };
-    getProfile();
+    if (id) getProfile();
   }, [id]);
 
-  if (loading) {
+  // FIX: Strengthen the guard to be absolutely sure rendering doesn't happen prematurely.
+  // This will now correctly show the loading/error states until profile is fully available.
+  if (loading || error || !profile) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50">
         <Navbar />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading profile...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !profile) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navbar />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="text-red-500 mb-4">
-              <span className="material-icons text-4xl">error</span>
+        <div className="flex items-center justify-center h-screen">
+          {loading && (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#901b20] mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading Profile...</p>
             </div>
-            <p className="text-red-600 mb-4">{error || 'Profile not found'}</p>
-          </div>
+          )}
+          {(error || !profile) && !loading && (
+             <div className="text-center">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4"><User className="text-red-500 w-10 h-10" /></div>
+              <h3 className="text-xl font-semibold text-red-700">{error || 'Profile could not be found.'}</h3>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
-  // Use the same structure as your main profile page, but do not render any edit buttons
-  // DEBUG: Log profile picture src for troubleshooting
-  console.log('PublicProfilePage profile.profile_picture:', profile?.profile?.profile_picture);
   return (
     <>
       <Navbar />
-      <div className="min-h-screen pb-10 py-10">
-        <div className="container mx-auto px-4 py-8">
-          <ProfileHeader data={profile} isPublic />
-          <div className="mt-8">
-            {/* No navigation tabs for public profile, just show all sections */}
-            <ProfileSectionCard title="About Me">
-              <p className="text-gray-700 leading-relaxed text-base">
-                {profile.profile?.summary || 'No summary available'}
-              </p>
-            </ProfileSectionCard>
-            <ProfileSectionCard title="Contact Information">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-4 text-gray-700">
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Email</p>
-                  <a href={`mailto:${profile.email}`} className="text-gray-800 hover:underline">
-                    {profile.email || 'Not provided'}
-                  </a>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Phone</p>
-                  <p className="text-gray-800">{profile.profile?.phone || 'Not provided'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">LinkedIn</p>
-                  {profile.profile?.linkedin ? (
-                    <a href={profile.profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      View LinkedIn Profile
-                    </a>
-                  ) : (
-                    <p className="text-gray-800">Not provided</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">GitHub</p>
-                  {profile.profile?.github ? (
-                    <a href={profile.profile.github} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      View GitHub Profile
-                    </a>
-                  ) : (
-                    <p className="text-gray-800">Not provided</p>
-                  )}
-                </div>
-                <div>
-                  <p className="text-gray-500 text-sm font-medium">Portfolio</p>
-                  {profile.profile?.portfolio_url ? (
-                    <a href={profile.profile.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                      View Portfolio
-                    </a>
-                  ) : (
-                    <p className="text-gray-800">Not provided</p>
-                  )}
-                </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden pb-16">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
+        <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
+        
+        <main className="container mx-auto px-4 py-10 relative z-10">
+          <AnimatedProfileHeader data={profile} />
+          
+          <div className="mt-8 grid grid-cols-1 gap-6">
+            {/* FIX: Use optional chaining for all data access */}
+            {profile?.profile?.summary && (
+              <AnimatedProfileSection title="About Me" icon={<BookOpen className="w-6 h-6 text-gray-500" />}>
+                <p className="text-gray-700 leading-relaxed">{profile.profile.summary}</p>
+              </AnimatedProfileSection>
+            )}
+
+            <AnimatedProfileSection title="Contact Information" icon={<Mail className="w-6 h-6 text-gray-500" />}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+                <div className="flex items-start gap-3"><Mail size={18} className="text-gray-400 mt-1 flex-shrink-0" /><a href={`mailto:${profile.email}`} className="text-gray-800 hover:text-[#901b20] hover:underline break-all">{profile.email || 'Not provided'}</a></div>
+                <div className="flex items-start gap-3"><Phone size={18} className="text-gray-400 mt-1 flex-shrink-0" /><p className="text-gray-800">{profile?.profile?.phone || 'Not provided'}</p></div>
+                {profile?.profile?.linkedin && <div className="flex items-start gap-3"><Linkedin size={18} className="text-gray-400 mt-1 flex-shrink-0" /><a href={profile.profile.linkedin} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View LinkedIn</a></div>}
+                {profile?.profile?.github && <div className="flex items-start gap-3"><Github size={18} className="text-gray-400 mt-1 flex-shrink-0" /><a href={profile.profile.github} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View GitHub</a></div>}
+                {profile?.profile?.portfolio_url && <div className="flex items-start gap-3"><Briefcase size={18} className="text-gray-400 mt-1 flex-shrink-0" /><a href={profile.profile.portfolio_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Portfolio</a></div>}
               </div>
-            </ProfileSectionCard>
-            {profile.skills && profile.skills.length > 0 && (
-              <ProfileSectionCard title="Top Skills">
-                <div className="flex flex-wrap gap-2">
-                  {profile.skills.slice(0, 5).map(skill => (
-                    <SkillItem key={skill.id} skill={skill} />
-                  ))}
-                </div>
-              </ProfileSectionCard>
+            </AnimatedProfileSection>
+
+            {profile?.skills?.length > 0 && (
+              <AnimatedProfileSection title="Skills" icon={<BrainCircuit className="w-6 h-6 text-gray-500" />}><div className="flex flex-wrap gap-2">{profile.skills.map(skill => <SkillItem key={skill.id} skill={skill} />)}</div></AnimatedProfileSection>
             )}
-            {profile.work_experiences && profile.work_experiences.length > 0 && (
-              <ProfileSectionCard title="Latest Experience">
-                {profile.work_experiences.slice(0, 1).map(exp => (
-                  <ExperienceCard key={exp.id} data={exp} />
-                ))}
-              </ProfileSectionCard>
+            {profile?.work_experiences?.length > 0 && (
+              <AnimatedProfileSection title="Experience" icon={<Briefcase className="w-6 h-6 text-gray-500" />}><div className="space-y-6">{profile.work_experiences.map(exp => <ExperienceCard key={exp.id} data={exp} />)}</div></AnimatedProfileSection>
             )}
-            {profile.educations && profile.educations.length > 0 && (
-              <ProfileSectionCard title="Latest Education">
-                {profile.educations.slice(0, 1).map(edu => (
-                  <EducationCard key={edu.id} data={edu} />
-                ))}
-              </ProfileSectionCard>
+            {profile?.educations?.length > 0 && (
+              <AnimatedProfileSection title="Education" icon={<GraduationCap className="w-6 h-6 text-gray-500" />}><div className="space-y-6">{profile.educations.map(edu => <EducationCard key={edu.id} data={edu} />)}</div></AnimatedProfileSection>
             )}
-            {profile.projects && profile.projects.length > 0 && (
-              <ProfileSectionCard title="Projects & Portfolio">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {profile.projects.map(project => (
-                    <ProjectCard key={project.id} data={project} />
-                  ))}
-                </div>
-              </ProfileSectionCard>
+            {profile?.projects?.length > 0 && (
+              <AnimatedProfileSection title="Projects" icon={<Lightbulb className="w-6 h-6 text-gray-500" />}><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{profile.projects.map(project => <ProjectCard key={project.id} data={project} />)}</div></AnimatedProfileSection>
             )}
-            {profile.certificates && profile.certificates.length > 0 && (
-              <ProfileSectionCard title="Certificates">
-                {profile.certificates.map(cert => (
-                  <CertificateCard key={cert.id} data={cert} />
-                ))}
-              </ProfileSectionCard>
+            {profile?.certificates?.length > 0 && (
+              <AnimatedProfileSection title="Certificates" icon={<Award className="w-6 h-6 text-gray-500" />}><div className="space-y-4">{profile.certificates.map(cert => <CertificateCard key={cert.id} data={cert} />)}</div></AnimatedProfileSection>
             )}
           </div>
-        </div>
+        </main>
       </div>
     </>
   );

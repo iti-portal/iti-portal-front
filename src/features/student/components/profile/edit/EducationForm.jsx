@@ -57,7 +57,7 @@ function EducationForm({ onSubmit, initialData = null }) {
       onSubmit(formData);
     }
   };  return (
-    <div className="space-y-6">
+    <div className="space-y-6 ">
       <div>
         <label htmlFor="institution" className="block text-sm font-medium text-gray-700 mb-1">
           University / Institution *

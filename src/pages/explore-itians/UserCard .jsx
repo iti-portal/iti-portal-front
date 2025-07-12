@@ -1,3 +1,5 @@
+// src/components/Explore/UserCard.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -9,6 +11,7 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
   const [connectionStatus, setConnectionStatus] = useState('idle'); // 'idle', 'connecting', 'sent'
 
   const handleProfileClick = () => {
+    // This is the key line. It navigates to the specific user's profile page.
     navigate(`/profile/${user.id}`);
   };
 
@@ -21,16 +24,10 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
       const message = `Hi ${user.first_name}! I'd like to connect with you.`;
       await createConnection(user.id, message);
       
-      toast.success(`Connection request sent to ${user.first_name}!`, {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-      });
+      toast.success(`Connection request sent to ${user.first_name}!`);
 
       setConnectionStatus('sent');
       
-      // Notify the parent component after a short delay so the user can see the "Sent" state
       setTimeout(() => {
         if (onConnectionSuccess) {
           onConnectionSuccess(user.id);
@@ -38,20 +35,18 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
       }, 1500);
 
     } catch (error) {
-      console.error('Connection error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to send connection request.';
       toast.error(errorMessage);
-      setConnectionStatus('idle'); // Reset button on error
+      setConnectionStatus('idle');
     }
   };
 
-  // Simplified and more robust check for company role
   const isCurrentUserCompany = currentUser?.role === 'company';
 
   return (
     <div 
       className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-xl cursor-pointer"
-      onClick={handleProfileClick}
+      onClick={handleProfileClick} // Clicking anywhere on the card works
     >
       <div className="p-6 flex flex-col items-center text-center">
         {/* Avatar with Gradient Ring */}
@@ -86,7 +81,6 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
 
         {/* Action Buttons */}
         <div className="w-full mt-6 space-y-2">
-          {/* Only show connect button if current user is not a company */}
           {!isCurrentUserCompany && (
             <button 
               onClick={handleConnect}
@@ -103,7 +97,9 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
             </button>
           )}
 
+          {/* FIX: Add the onClick handler directly to the button */}
           <button 
+            onClick={handleProfileClick}
             className="w-full py-2 px-4 rounded-lg text-sm font-semibold border border-gray-300 text-gray-700 bg-white/50 hover:border-[#901b20] hover:text-[#901b20] transition-all duration-300"
           >
             View Profile

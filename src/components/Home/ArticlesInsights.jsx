@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { FaCalendar, FaUser, FaArrowRight, FaEye, FaHeart, FaNewspaper } from 'react-icons/fa';
 import { getPopularArticles } from '../../services/articlesService';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
+import { Link } from 'react-router-dom';
+
 
 const ArticleCard = ({ article, index }) => {
   const formatDate = (dateString) => {
@@ -241,10 +243,13 @@ const ArticlesInsights = () => {
             
             {/* View All Button */}
             <div className="text-center mt-16">
-              <button className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#203947] to-[#901b20] text-white font-semibold rounded-full hover:from-[#901b20] hover:to-[#203947] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+              <Link 
+                to="/student/articles" 
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#901b20] to-[#203947] text-white font-semibold rounded-full hover:from-[#203947] hover:to-[#901b20] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 View All Articles
                 <FaArrowRight className="ml-2" />
-              </button>
+              </Link>
             </div>
           </>
         )}

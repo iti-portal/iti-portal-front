@@ -15,6 +15,7 @@ const menu = [
   { label: 'Staff', icon: 'check_circle', path: '/admin/staff' },
   {label: 'Company', icon: 'business', path: '/admin/companies' },
   { label: 'Contact Us', icon: 'settings', path: '/admin/contact-us' },
+  { label: 'Applications', icon: 'check_circle', path: '/admin/applications' },
 ];
 
 /**

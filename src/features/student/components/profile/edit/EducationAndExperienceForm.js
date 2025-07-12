@@ -224,6 +224,7 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
           setIsEducationModalOpen(false);
         }}
         title={editingEducation ? "Edit Education" : "Add Education"}
+        className="max-w-2xl"
       >
         <EducationForm
           key={editingEducation ? `edit-${editingEducation.id}-${Date.now()}` : 'add-education'}
@@ -250,7 +251,7 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4"
+              className="bg-white rounded-xl shadow-2xl mx-4"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

@@ -13,7 +13,8 @@ const About = () => {
     { name: "Mohammed Rajab", image: "/avatars/mohamed.jpg" },
     { name: "Fatma Ali", image: "/avatars/fatma.jpg" },
     { name: "Aml Mohsen", image: "/avatars/aml.jpg" },
-    { name: "Rafat Ali", image: "/avatars/rafat.jpg" },
+    { name: "Rafat Gomaa", image: "/avatars/rafat.jpg" },
+    { name: "Mahmoud Eldeeb", image: "/avatars/mahmoud.jpg" },
   ];
 
   const sliderSettings = {
@@ -87,12 +88,12 @@ const About = () => {
             >
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                ITI Portal is Egypt's premier platform for technology education and career development. 
-                We bridge the gap between academic learning and industry demands, creating opportunities 
+                ITI Portal is Egypt's premier platform for technology education and career development.
+                We bridge the gap between academic learning and industry demands, creating opportunities
                 for students, alumni, and companies to connect and grow together.
               </p>
               <p className="text-gray-600 leading-relaxed">
-                Through our comprehensive platform, we empower the next generation of tech leaders 
+                Through our comprehensive platform, we empower the next generation of tech leaders
                 while fostering innovation and collaboration within Egypt's thriving technology ecosystem.
               </p>
             </motion.div>
@@ -164,27 +165,30 @@ const About = () => {
             </div>
           </motion.div>
 
-          {/* ✅ Community Slider Section */}
+          {/* ✅ Community Slider Section (BIGGER IMAGE) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mt-20"
           >
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
               Meet Our Community
             </h2>
-            <div className="max-w-md mx-auto">
+            {/* Widened the container to better fit the larger image */}
+            <div className="max-w-lg mx-auto">
               <Slider {...sliderSettings}>
                 {communityMembers.map((member, i) => (
-                  <div key={i} className="flex flex-col items-center justify-center text-center px-4 min-h-[180px]">
+                  // Added more vertical padding for breathing room
+                  <div key={i} className="flex flex-col items-center justify-center text-center px-4 py-10">
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="w-24 h-24 rounded-full object-cover mb-4 shadow-lg ring-4 ring-white block mx-auto align-middle"
-                      style={{ display: 'block', margin: '0 auto' }}
+                      // Increased size significantly for more impact
+                      className="w-40 h-40 rounded-full object-cover mb-6 shadow-lg ring-4 ring-white mx-auto"
                     />
-                    <p className="text-gray-800 font-semibold text-lg mt-0">{member.name}</p>
+                    {/* Increased font size to match the larger image */}
+                    <p className="text-gray-900 font-semibold text-2xl">{member.name}</p>
                   </div>
                 ))}
               </Slider>

@@ -5,7 +5,8 @@ import Modal from '../../../../components/UI/Modal';
 import Alert from '../../../../components/UI/Alert';
 
 const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievement, onAchievementUpdate }) => {
-  const { user } = useAuth(); // Get current user from auth context
+  // ... (all your existing state and functions remain the same)
+  const { user } = useAuth();
   const [achievement, setAchievement] = useState(null);
   const [loading] = useState(false);
   const [error, setError] = useState(null);
@@ -18,6 +19,7 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
   const [confirmModalContent, setConfirmModalContent] = useState({ title: '', message: '', onConfirm: () => {} });
   const commentsEndRef = useRef(null);
 
+  // ... (all other functions like scrollToBottom, handleLikeToggle, etc. are unchanged)
   // Scroll to bottom of comments when modal opens or comments change
   const scrollToBottom = () => {
     if (commentsEndRef.current) {
@@ -347,7 +349,7 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     if (comment.id) {
         setConfirmModalContent({
             title: 'Confirm Deletion',
-            message: 'Are you sure you want to delete this comment?',
+            message: 'Are you sure you want to delete this comment? This action cannot be undone.',
             onConfirm: () => {
                 handleDelete();
                 setConfirmModalOpen(false);
@@ -405,6 +407,7 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
     return types[type] || types.default;
   };
 
+
   return (
     <>
       <Alert
@@ -413,29 +416,49 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
         message={notification.message}
         onClose={hideNotification}
       />
+      
+      {/* ✅ THIS IS THE FIXED CONFIRMATION MODAL */}
       <Modal
         isOpen={isConfirmModalOpen}
         onClose={() => setConfirmModalOpen(false)}
-        title={confirmModalContent.title}
+        title="" // We will render the title inside for better styling
+        hideHeader={true} // Optionally hide the default header if your Modal component supports it
+        containerClass="max-w-md" // Set a max-width for the confirmation modal
       >
-        <div className="flex justify-center items-center w-full">
-          <div className="max-w-sm w-full mx-auto">
-            <p>{confirmModalContent.message}</p>
-            <div className="flex justify-end space-x-4 mt-4">
-              <button
-                onClick={() => setConfirmModalOpen(false)}
-                className="px-4 py-2 rounded-lg text-gray-600 bg-gray-200 hover:bg-gray-300 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmModalContent.onConfirm}
-                className="px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-colors"
-              >
-                Confirm
-              </button>
+        <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+          <div className="sm:flex sm:items-start">
+            <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+              <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+              </svg>
+            </div>
+            <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+              <h3 className="text-base font-semibold leading-6 text-gray-900" id="modal-title">
+                {confirmModalContent.title}
+              </h3>
+              <div className="mt-2">
+                <p className="text-sm text-gray-500">
+                  {confirmModalContent.message}
+                </p>
+              </div>
             </div>
           </div>
+        </div>
+        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+          <button
+            type="button"
+            onClick={confirmModalContent.onConfirm}
+            className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+          >
+            Confirm
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmModalOpen(false)}
+            className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+          >
+            Cancel
+          </button>
         </div>
       </Modal>
 
@@ -449,11 +472,13 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
             onClick={e => e.stopPropagation()}
           >
             {loading ? (
+              // ... loading JSX ...
               <div className="flex items-center justify-center p-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : error ? (
-              <div className="p-6 text-center">
+              // ... error JSX ...
+               <div className="p-6 text-center">
                 <div className="text-red-500 mb-4">
                   <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -463,7 +488,8 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
                 <p className="text-gray-600">{error}</p>
               </div>
             ) : achievement ? (
-              <div className="flex flex-col h-full">
+              // ... main achievement details JSX ...
+               <div className="flex flex-col h-full">
                 {/* Header - Fixed at top */}
                 <div className="flex items-center justify-between p-4 border-b">
                   <h2 className="text-xl font-semibold text-gray-800">Achievement Details</h2>
@@ -707,8 +733,9 @@ const AchievementDetailsModal = ({ isOpen, onClose, achievement: initialAchievem
             ) : null}
           </div>
           
-          {/* Likes List Overlay - appears on top when toggled */}
+          {/* Likes List Overlay */}
           {showLikesList && achievement && achievement.like_count > 0 && (
+            // ... likes list JSX (unchanged) ...
             <div 
               className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 rounded-xl"
               onClick={(e) => {
