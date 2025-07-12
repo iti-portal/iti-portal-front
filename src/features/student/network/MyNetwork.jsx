@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, Users, Check, X, Send, UserX } from 'lucide-react';
+import { REACT_APP_API_ASSET_URL } from '../../../services/apiConfig';
 import Navbar from '../../../components/Layout/Navbar';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,7 +11,7 @@ import { getConnectedUsers, getPendingConnections, getSentConnections, acceptCon
 
 const ConnectionCard = ({ user, onDisconnect }) => (
     <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-5 text-center flex flex-col h-full">
-        <img src={user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
+        <img src={`${REACT_APP_API_ASSET_URL}/` + user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
         <h3 className="font-bold text-gray-800 text-base mt-3 truncate">{user.first_name} {user.last_name}</h3>
         <p className="text-xs text-gray-500 mb-3 truncate">{user.track}</p>
         <div className="flex-grow"></div>
@@ -23,7 +24,7 @@ const ConnectionCard = ({ user, onDisconnect }) => (
 
 const RequestCard = ({ user, onAccept, onDecline }) => (
     <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-5 text-center flex flex-col h-full">
-        <img src={user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
+        <img src={`${REACT_APP_API_ASSET_URL}/` + user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
         <h3 className="font-bold text-gray-800 text-base mt-3 truncate">{user.first_name} {user.last_name}</h3>
         <p className="text-xs text-gray-500 mb-3 truncate">{user.track}</p>
         {user.message && <div className="flex-grow text-xs italic text-gray-600 bg-gray-100/70 p-2 rounded-md mb-3 line-clamp-2">"{user.message}"</div>}
@@ -36,7 +37,7 @@ const RequestCard = ({ user, onAccept, onDecline }) => (
 
 const SentRequestCard = ({ user }) => (
      <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-5 text-center flex flex-col h-full">
-        <img src={user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
+        <img src={`${REACT_APP_API_ASSET_URL}/` + user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
         <h3 className="font-bold text-gray-800 text-base mt-3 truncate">{user.first_name} {user.last_name}</h3>
         <p className="text-xs text-gray-500 mb-3 truncate">{user.track}</p>
         <div className="flex-grow"></div>

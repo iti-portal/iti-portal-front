@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ThumbsUp, ArrowLeft, Loader2, AlertCircle, Calendar, User as AuthorIcon } from 'lucide-react';
+import { REACT_APP_API_ASSET_URL } from '../../../services/apiConfig';
 import { motion } from 'framer-motion';
 import Navbar from '../../../components/Layout/Navbar';
 
@@ -83,7 +84,7 @@ function ShowDetailArticleData() {
                     className="relative h-80 md:h-96 w-full"
                 >
                     <img
-                        src={article.featured_image || 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1170&q=80'}
+                        src={`${REACT_APP_API_ASSET_URL}/` + article.featured_image || 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1170&q=80'}
                         alt={article.title}
                         className="w-full h-full object-cover"
                     />

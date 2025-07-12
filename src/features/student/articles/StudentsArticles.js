@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { GetAllArticles } from './GetAllArticles';
 import { GetTrendingArticles } from './GetPopularArticles';
 import { ThumbsUp, Newspaper, Flame, ChevronsRight, ChevronsLeft, Loader2 } from 'lucide-react';
+import {REACT_APP_API_ASSET_URL} from '../../../services/apiConfig';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../../components/Layout/Navbar';
 
@@ -15,7 +16,7 @@ const ArticleCard = ({ article, onLike, onUnlike, likingArticleId }) => {
         <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-xl flex flex-col h-full">
             <div className="h-48 overflow-hidden">
                 <img
-                    src={article.featured_image || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"}
+                    src={`${REACT_APP_API_ASSET_URL}/` + article.featured_image || "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80"}
                     alt={article.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -147,7 +148,7 @@ function StudentArticles() {
                         </div>
                     ) : latest && (
                         <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 overflow-hidden flex flex-col md:flex-row">
-                            <div className="md:w-1/2 h-64 md:h-auto"><img src={latest.featured_image || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1170&q=80'} alt={latest.title} className="w-full h-full object-cover" /></div>
+                            <div className="md:w-1/2 h-64 md:h-auto"><img src={`${REACT_APP_API_ASSET_URL}/` + latest.featured_image|| 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1170&q=80'} alt={latest.title} className="w-full h-full object-cover" /></div>
                             <div className="md:w-1/2 p-8 flex flex-col justify-center">
                                 <span className="text-sm font-semibold text-[#901b20] mb-2">Featured Article</span>
                                 <h2 className="text-3xl font-bold text-gray-800 mb-3">{latest.title}</h2>

@@ -11,7 +11,7 @@ const AdminNavbar = ({ className = '' }) => (
         <img src={logo} alt="Logo" className="h-8 w-auto" />
       </span>
       <Link to="/" className="font-semibold text-lg text-[#901b20] hover:underline">
-        ITI Portal
+        UnITI
       </Link>
     </div>
 

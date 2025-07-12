@@ -307,12 +307,13 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
                   </button>
                   <button
                     type="button"
-                    onClick={(e) => {
+                    onClick={async (e) => {
                       e.preventDefault();
                       e.stopPropagation();
                       if (confirmModal.onConfirm) {
-                        confirmModal.onConfirm();
+                        await confirmModal.onConfirm();
                       }
+                      hideConfirmation();
                     }}
                     className={`px-4 py-2 text-white rounded-lg transition-colors focus:outline-none focus:ring-2 ${
                       confirmModal.type === 'danger'

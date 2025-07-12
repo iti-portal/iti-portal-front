@@ -51,7 +51,7 @@ const About = () => {
               className="inline-flex items-center px-4 py-2 bg-[#203947]/10 text-[#203947] rounded-full text-sm font-medium mb-6"
             >
               <span className="material-icons text-lg mr-2">info</span>
-              About ITI Portal
+              About UnITI
             </motion.div>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -59,7 +59,7 @@ const About = () => {
               transition={{ duration: 0.6, delay: 0.25 }}
               className="text-4xl lg:text-6xl font-bold text-gray-900 mb-6"
             >
-              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#203947]">ITI Portal</span>
+              About <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#203947]">UnITI</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -88,7 +88,7 @@ const About = () => {
             >
               <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-gray-600 leading-relaxed mb-6">
-                ITI Portal is Egypt's premier platform for technology education and career development.
+                UnITI is Egypt's premier platform for technology education and career development.
                 We bridge the gap between academic learning and industry demands, creating opportunities
                 for students, alumni, and companies to connect and grow together.
               </p>
@@ -130,7 +130,7 @@ const About = () => {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-center"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Why Choose ITI Portal?</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Why Choose UnITI?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[{
                 icon: 'school',

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { createConnection } from '../../services/usersApi';
 import { Send, UserCheck } from 'lucide-react';
+import { REACT_APP_API_ASSET_URL } from '../../services/apiConfig'; // Adjust the import path as necessary
 
 const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
 
   return (
     <div 
-      className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-xl cursor-pointer"
+      className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1.5 hover:shadow-xl cursor-pointer h-full"
       onClick={handleProfileClick} // Clicking anywhere on the card works
     >
       <div className="p-6 flex flex-col items-center text-center">
@@ -53,7 +54,7 @@ const UserCard = ({ user, onConnectionSuccess, currentUser }) => {
         <div className="relative mb-4">
           <div className="p-1 rounded-full bg-gradient-to-tr from-[#901b20] to-[#203947] shadow-md">
             <img 
-              src={user.image}
+              src={`${REACT_APP_API_ASSET_URL}/` + user.image}
               alt={`${user.first_name} ${user.last_name}`}
               className="w-24 h-24 rounded-full object-cover border-4 border-white"
               onError={(e) => {

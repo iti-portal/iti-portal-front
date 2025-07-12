@@ -23,13 +23,8 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
   });
 
   // Confirmation modal state
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [confirmationData, setConfirmationData] = useState({
-    title: '',
-    message: '',
-    onConfirm: null,
-    type: 'danger'
-  });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   // Fetch projects with images on component mount or when userId changes
   useEffect(() => {
@@ -85,24 +80,6 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
 
   const hideNotification = () => {
     setNotification({ show: false, type: 'info', message: '' });
-  };
-
-  // Confirmation modal helpers
-  const showConfirmationModal = (title, message, onConfirm, type = 'danger') => {
-    setConfirmationData({ title, message, onConfirm, type });
-    setShowConfirmation(true);
-  };
-
-  const hideConfirmationModal = () => {
-    setShowConfirmation(false);
-    setConfirmationData({ title: '', message: '', onConfirm: null, type: 'danger' });
-  };
-
-  const handleConfirmAction = () => {
-    if (confirmationData.onConfirm) {
-      confirmationData.onConfirm();
-    }
-    hideConfirmationModal();
   };
 
   // Project Modal Handlers
@@ -161,40 +138,40 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
     }
   };
 
-  const handleProjectDelete = async (idToDelete) => {
-    showConfirmationModal(
-      'Delete Project',
-      'Are you sure you want to delete this project? This action cannot be undone.',
-      async () => {
-        try {
-          const result = await deleteProject(idToDelete);
-          
-          if (result.success) {
-            showNotification('Project deleted successfully!', 'success');
-            
-            // Remove project from local state instead of API refresh
-            const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
-            setCurrentProjects(updatedProjects);
-            onUpdateProjects(updatedProjects);
-          } else {
-            throw new Error(result.message || 'Failed to delete project');
-          }
-        } catch (error) {
-          console.error('Error deleting project:', error);
-          
-          // Even if API call fails, remove from UI if project already deleted
-          if (error.message && error.message.includes('not found')) {
-            const updatedProjects = currentProjects.filter(project => project.id !== idToDelete);
-            setCurrentProjects(updatedProjects);
-            onUpdateProjects(updatedProjects);
-            showNotification('Project removed from list (already deleted)', 'info');
-          } else {
-            showNotification(`Error deleting project: ${error.message}`, 'error');
-          }
-        }
-      },
-      'danger'
-    );
+  const handleProjectDelete = (idToDelete) => {
+    setConfirmDeleteId(idToDelete);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDeleteProject = async (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    try {
+      const result = await deleteProject(confirmDeleteId);
+      if (result.success) {
+        showNotification('Project deleted successfully!', 'success');
+        const updatedProjects = currentProjects.filter(project => project.id !== confirmDeleteId);
+        setCurrentProjects(updatedProjects);
+        onUpdateProjects(updatedProjects);
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      showNotification(`Error deleting project: ${error.message}`, 'error');
+    } finally {
+      setShowConfirmModal(false);
+      setConfirmDeleteId(null);
+    }
+  };
+
+  const cancelDeleteProject = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setShowConfirmModal(false);
+    setConfirmDeleteId(null);
   };
 
   const handleCloseProjectModal = () => {
@@ -294,48 +271,19 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
         />
       </Modal>
 
-      {/* Confirmation Modal */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
-            {/* Header */}
-            <div className={`px-6 py-4 border-b border-gray-200 rounded-t-xl ${
-              confirmationData.type === 'danger' ? 'bg-red-50' : 'bg-blue-50'
-            }`}>
-              <h3 className={`text-lg font-semibold ${
-                confirmationData.type === 'danger' ? 'text-red-800' : 'text-blue-800'
-              }`}>
-                {confirmationData.title}
-              </h3>
+      {/* Custom Confirmation Modal for Project Delete */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6 border-b">
+              <h3 className="text-lg font-bold text-gray-900">Delete Project</h3>
             </div>
-            
-            {/* Content */}
-            <div className="px-6 py-4">
-              <p className="text-gray-700 leading-relaxed">
-                {confirmationData.message}
-              </p>
+            <div className="p-6">
+              <p className="text-sm text-gray-600">Are you sure you want to delete this project? This action cannot be undone.</p>
             </div>
-            
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={hideConfirmationModal}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmAction}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
-                  confirmationData.type === 'danger'
-                    ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-                    : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-                }`}
-              >
-                Confirm
-              </button>
+            <div className="px-6 py-4 bg-gray-50 flex justify-end space-x-3">
+              <button type="button" onClick={cancelDeleteProject} className="px-4 py-2 text-sm font-medium bg-white border rounded-md hover:bg-gray-100">Cancel</button>
+              <button type="button" onClick={confirmDeleteProject} className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md">Confirm</button>
             </div>
           </div>
         </div>

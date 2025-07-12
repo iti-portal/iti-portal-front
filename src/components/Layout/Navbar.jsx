@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
+import { Briefcase } from 'lucide-react';
 import { getGeneralStatistics } from '../../services/statisticsService';
 import Logo from '../Common/Logo';
 
@@ -14,7 +15,7 @@ const ProfileDropdown = ({ user, isAdmin, isCompany, onLogout, closeDropdown, lo
   let links = [];
   if (isAdmin) { links = [{ path: '/admin/dashboard', text: 'Admin Dashboard', icon: 'dashboard' }, { path: '/admin/profile', text: 'View Profile', icon: 'person' }]; }
   else if (isCompany) { links = [{ path: '/company/dashboard', text: 'Company Dashboard', icon: 'dashboard' }, { path: '/company/profile', text: 'View Profile', icon: 'person' }]; }
-  else { links = [{ path: '/student/profile', text: 'View Profile', icon: 'person' }, { path: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' }, { path: '/my-network', text: 'My Network', icon: 'group' }, { path: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' }]; }
+  else { links = [{ path: '/student/profile', text: 'View Profile', icon: 'person' }, { path: '/my-applications', text: 'My Applications', icon: <Briefcase size={20} /> } ,{ path: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' }, { path: '/my-network', text: 'My Network', icon: 'group' }, { path: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' }]; }
 
   return (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">

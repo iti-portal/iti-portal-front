@@ -18,8 +18,8 @@ function JobCard({ jobData, onSelectJob, isSelected, showScore = false }) {
       whileHover={{ y: -4, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
       className={`border rounded-lg p-4 cursor-pointer relative 
         ${isSelected
-          ? 'bg-red-50 border-[#901b20]/50 ring-1 ring-[#901b20]/70 shadow-md'
-          : 'bg-white border-gray-200 hover:border-[#901b20]/50'}`}
+          ? 'bg-blue-50 border-blue-400 ring-1 ring-blue-300 shadow-md'
+          : 'bg-white border-gray-200 hover:border-blue-300'}`}
       onClick={() => onSelectJob(jobData)}
     >
       {showScore && jobData.matching_score && (
@@ -31,9 +31,17 @@ function JobCard({ jobData, onSelectJob, isSelected, showScore = false }) {
 
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center border border-gray-100">
-            <Building2 className="w-6 h-6 text-[#901b20]" />
-          </div>
+          {jobData.company?.company_profile?.logo ? (
+            <img
+              src={`http://127.0.0.1:8000/storage/${jobData.company.company_profile.logo}`}
+              alt={jobData.company.company_profile.company_name + ' logo'}
+              className="w-12 h-12 rounded-lg object-cover border border-gray-100 bg-white"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center border border-gray-100">
+              <Building2 className="w-6 h-6 text-[#901b20]" />
+            </div>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -194,7 +202,19 @@ export default function AvailableJobs() {
                       className="flex flex-col h-full"
                     >
                       <div className="relative h-24 bg-gradient-to-br from-[#203947] to-[#901b20] flex-shrink-0 p-5 flex items-center">
-                        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center mr-4"><Building2 className="w-7 h-7 text-white" /></motion.div>
+                        {selectedJob.company?.company_profile?.logo ? (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center mr-4">
+                            <img
+                              src={`http://127.0.0.1:8000/storage/${selectedJob.company.company_profile.logo}`}
+                              alt={selectedJob.company.company_profile.company_name + ' logo'}
+                              className="w-12 h-12 rounded-lg object-cover border border-gray-100 bg-white"
+                            />
+                          </motion.div>
+                        ) : (
+                          <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center mr-4">
+                            <Building2 className="w-7 h-7 text-white" />
+                          </motion.div>
+                        )}
                         <div>
                           <h1 className="text-xl font-bold text-white truncate">{selectedJob.title}</h1>
                           <p className="text-red-100/80 text-sm truncate">{selectedJob.company?.company_profile?.company_name}</p>

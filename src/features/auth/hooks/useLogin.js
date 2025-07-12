@@ -94,10 +94,11 @@ export const useLogin = () => {
           setTimeout(() => {
             switch (role) {
               case 'admin':
-                navigate('/');
+                navigate('/admin/dashboard');
                 break;
               case 'student':
               case 'company':
+              case 'alumni':
                 navigate('/');
                 break;
               case 'staff':

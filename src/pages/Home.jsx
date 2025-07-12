@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Layout/Navbar';
 import Logo from '../components/Common/Logo';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,9 +31,18 @@ import {
   CTASection,
   Footer
 } from '../components/Home';
+import { USER_ROLES } from '../features/auth/types/auth.types';
+
 const Home = () => {
   // Authentication context
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === USER_ROLES.ADMIN) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   // Counter animation hook
   const useCounter = (end, duration = 2000, start = 0) => {
