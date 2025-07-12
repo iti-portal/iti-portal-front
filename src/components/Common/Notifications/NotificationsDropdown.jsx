@@ -112,7 +112,7 @@ const NotificationDropdown = () => {
           ) : (
             <div className="max-h-64 overflow-y-auto">
               {notifications
-                .slice(0, 10) 
+                .slice(0, 16) 
                 .map((notification) => (
                   <div
                     key={notification.id}
