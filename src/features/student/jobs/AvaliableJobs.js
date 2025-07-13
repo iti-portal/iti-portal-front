@@ -518,6 +518,7 @@ export default function AvailableJobs() {
                           <MapPin className="w-4 h-4 text-gray-600" />
                           <span className="text-xs font-medium text-gray-700">Location</span>
                         </div>
+                        <p>{selectedJob.id}</p>
                         <p className="text-gray-800 text-sm truncate">
                           {selectedJob.company?.company_profile?.location || 'Location not specified'}
                         </p>

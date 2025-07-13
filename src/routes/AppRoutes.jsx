@@ -47,6 +47,8 @@ import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage
 import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
 import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
 import AdminApplications from '../features/admin/components/applications/Applications';
+import AllJobApplications from '../features/company/jobs/ShowAllJobApps';
+import ApplicationView from '../features/company/jobs/ShowAppDetails';
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -165,6 +167,15 @@ const AppRoutes = () => {
         }
       />
 
+      <Route
+        path="/admin/companies-ai"
+        element={
+          <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}>
+            <AdminApplicationsPage />
+          </RoleBasedRoute>
+        }
+      />
+
       
 
 
@@ -200,6 +211,11 @@ const AppRoutes = () => {
         <Route path="post-job" element={<PostJob />} />
         <Route path="manage-jobs" element={<JobsList />} />
         <Route path="manage-jobs/:id" element={<JobDetailsView />} />
+
+        {/* More specific route comes first */}
+        <Route path="manage-jobs/:jobId/applications/:applicationId" element={<ApplicationView />} />
+        <Route path="manage-jobs/:id/applications" element={<AllJobApplications />} />
+
         <Route path="applicants" element={<ManageApplicants />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="messages" element={<Messages />} />
@@ -347,6 +363,17 @@ const AppRoutes = () => {
         </RoleBasedRoute>
       } 
     />
+
+
+    {/* <Route 
+      path="/company/dashboard/manage-jobs/:id/applications" 
+      element={
+        <PrivateRoute isAuthenticated={isAuthenticated}>
+          <AllJobApplications />
+        </PrivateRoute>
+      } 
+    /> */}
+
     <Route 
       path="/company/jobs/:jobId/applications" 
       element={
