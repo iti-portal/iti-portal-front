@@ -7,6 +7,7 @@ import { REACT_APP_API_ASSET_URL } from '../../services/apiConfig';
 import { Briefcase } from 'lucide-react';
 import { getGeneralStatistics } from '../../services/statisticsService';
 import Logo from '../Common/Logo';
+import NotificationDropdown from '../Common/Notifications/NotificationsDropdown';
 
 // This component is unchanged and remains for logged-in users.
 const ProfileDropdown = ({ user, isAdmin, isCompany, onLogout, closeDropdown, logoutLoading }) => {
@@ -98,7 +99,8 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-4">
             {isAuthenticated ? (
               <>
-                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><span className="material-icons text-gray-600">notifications</span></button>
+                <NotificationDropdown />
+                {/* <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><span className="material-icons text-gray-600">notifications</span></button> */}
                 <div className="relative" ref={dropdownRef}>
                   <button onClick={() => setProfileDropdownOpen(p => !p)}><img src={avatarSrc} alt="User" className="w-9 h-9 rounded-full border-2 border-[#901b20] object-cover"/></button>
                   <AnimatePresence>{profileDropdownOpen && <ProfileDropdown user={user} isAdmin={isAdmin} isCompany={isCompany} onLogout={handleLogout} logoutLoading={logoutLoading} closeDropdown={() => setProfileDropdownOpen(false)} />}</AnimatePresence>
