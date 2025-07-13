@@ -35,11 +35,12 @@ const StepNavigation = ({
             onClick={onPrevious}
             disabled={isSubmitting}
             className="
-              inline-flex items-center px-4 py-2 border border-gray-300 
-              text-sm font-medium rounded-md text-gray-700 bg-white 
+              inline-flex items-center px-4 py-2.5 border border-gray-200 
+              text-sm font-medium rounded-lg text-gray-700 bg-white 
               hover:bg-gray-50 focus:outline-none focus:ring-2 
-              focus:ring-offset-2 focus:ring-[#901b20]
+              focus:ring-offset-2 focus:ring-[#901b20]/20
               disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-200
             "
           >
             <svg 
@@ -68,11 +69,14 @@ const StepNavigation = ({
             onClick={handleNext}
             disabled={isSubmitting}
             className="
-              inline-flex items-center px-6 py-2 border border-transparent 
-              text-sm font-medium rounded-md text-white bg-[#901b20] 
-              hover:bg-[#7a1419] focus:outline-none focus:ring-2 
-              focus:ring-offset-2 focus:ring-[#901b20]
+              inline-flex items-center px-6 py-2.5 border border-transparent 
+              text-sm font-medium rounded-lg text-white 
+              bg-gradient-to-r from-[#901b20] to-[#203947]
+              hover:from-[#7a1419] hover:to-[#1a2f3a] 
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20]/20
               disabled:opacity-50 disabled:cursor-not-allowed
+              transition-all duration-200 transform hover:scale-105
+              shadow-lg hover:shadow-xl
             "
           >
             {isSubmitting ? (

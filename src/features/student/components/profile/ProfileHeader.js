@@ -8,6 +8,20 @@ import { IoLocationSharp } from 'react-icons/io5'; // Location icon
 import { BsFillCalendarFill } from "react-icons/bs"; // Calendar icon
 import { PLACEHOLDERS } from '../../../../utils/placeholders';
 
+// Utility to get absolute image URL
+const getFullImageUrl = (originalSrc) => {
+  if (!originalSrc) return PLACEHOLDERS.AVATAR_USER;
+  if (/^https?:\/\//.test(originalSrc)) return originalSrc;
+  if (originalSrc.startsWith('data:image/svg+xml')) return PLACEHOLDERS.AVATAR_USER;
+  if (/^(profile_images|cover_photos)/.test(originalSrc)) {
+    return `http://127.0.0.1:8000/storage/${originalSrc.replace(/^\/+/, '')}`;
+  }
+  if (originalSrc.startsWith('/')) {
+    return `http://127.0.0.1:8000${originalSrc}`;
+  }
+  return `http://127.0.0.1:8000/storage/${originalSrc}`;
+};
+
 // Custom ProfileImage component with fallback URLs
 const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
   const [currentSrc, setCurrentSrc] = useState(src);
@@ -18,29 +32,26 @@ const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
     if (!originalSrc || originalSrc.startsWith('data:image/svg+xml')) {
       return [];
     }
-
-    // Extract the relative path from the full URL
-    const url = new URL(originalSrc);
-    const path = url.pathname;
     const baseUrl = 'http://127.0.0.1:8000';
-    
-    // Try different path patterns
-    if (path.includes('/storage/')) {
-      const relativePath = path.replace('/storage/', '');
-      return [
-        `${baseUrl}/storage/${relativePath}`,
-        `${baseUrl}/media/${relativePath}`,
-        `${baseUrl}/${relativePath}`
-      ];
-    } else if (path.includes('/media/')) {
-      const relativePath = path.replace('/media/', '');
-      return [
-        `${baseUrl}/media/${relativePath}`,
-        `${baseUrl}/storage/${relativePath}`,
-        `${baseUrl}/${relativePath}`
-      ];
+    // If already absolute URL
+    if (/^https?:\/\//.test(originalSrc)) {
+      try {
+        const url = new URL(originalSrc);
+        const path = url.pathname;
+        const relativePath = path.replace(/^\/(storage|media)\//, '');
+        return [
+          originalSrc,
+          `${baseUrl}/storage/${relativePath}`,
+          `${baseUrl}/media/${relativePath}`,
+          `${baseUrl}/${relativePath}`
+        ];
+      } catch {
+        // If URL parsing fails, fallback to below
+        return [originalSrc];
+      }
     } else {
-      const relativePath = path.substring(1); // Remove leading slash
+      // Relative path
+      const relativePath = originalSrc.replace(/^\/(storage|media)\//, '');
       return [
         `${baseUrl}/storage/${relativePath}`,
         `${baseUrl}/media/${relativePath}`,
@@ -77,10 +88,13 @@ const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
   );
 };
 
-function ProfileHeader({ data, onUpdatePhoto }) {
+function ProfileHeader({ data, onUpdatePhoto, isPublic }) {
   const navigate = useNavigate(); 
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [photoType, setPhotoType] = useState(''); // 'profile' or 'cover'
+
+  // Only show edit button and photo update if not public
+  const canEdit = !isPublic;
 
   // Function to format date
   const formatDate = (dateString) => {
@@ -120,6 +134,10 @@ function ProfileHeader({ data, onUpdatePhoto }) {
     }
   };
 
+  // Use getFullImageUrl for both profile and cover images
+  const profilePicUrl = getFullImageUrl(data?.profile?.profile_picture);
+  const coverPhotoUrl = getFullImageUrl(data?.profile?.cover_photo);
+
   return (
     <>
       <motion.div 
@@ -130,58 +148,62 @@ function ProfileHeader({ data, onUpdatePhoto }) {
       >
         {/* Cover Photo */}
         <motion.div
-          className={`relative w-full h-48 cursor-pointer group ${
+          className={`relative w-full h-48${canEdit ? ' cursor-pointer group' : ''} ${
             data?.profile?.cover_photo 
               ? 'bg-cover bg-center' 
               : 'bg-gradient-to-r from-[#901b20] to-[#b8252b] flex items-center justify-center'
           }`}
-          style={data?.profile?.cover_photo ? { backgroundImage: `url(${data.profile.cover_photo})` } : {}}
-          onClick={() => handlePhotoClick('cover')}
-          whileHover={{ scale: 1.02 }}
+          style={data?.profile?.cover_photo ? { backgroundImage: `url(${coverPhotoUrl})` } : {}}
+          onClick={canEdit ? () => handlePhotoClick('cover') : undefined}
+          whileHover={canEdit ? { scale: 1.02 } : {}}
           transition={{ duration: 0.3 }}
         >
-          {!data?.profile?.cover_photo && (
+          {!data?.profile?.cover_photo && canEdit && (
             <div className="text-white text-center">
               <FaCamera className="text-4xl mb-2 mx-auto opacity-70" />
               <p className="text-lg font-medium opacity-90">Add Cover Photo</p>
             </div>
           )}
-          <motion.div
-            className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-            whileHover={{ opacity: 1 }}
-          >
+          {canEdit && (
             <motion.div
-              className="flex items-center space-x-2 text-white"
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileHover={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.2 }}
+              className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              whileHover={{ opacity: 1 }}
             >
-              <FaCamera className="text-2xl" />
-              <span className="text-lg font-medium">Change Cover Photo</span>
+              <motion.div
+                className="flex items-center space-x-2 text-white"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileHover={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.2 }}
+              >
+                <FaCamera className="text-2xl" />
+                <span className="text-lg font-medium">Change Cover Photo</span>
+              </motion.div>
             </motion.div>
-          </motion.div>
+          )}
         </motion.div>
 
         {/* Profile Picture & Basic Info */}
         <div className="p-6 relative">
           <motion.div
-            className="relative cursor-pointer group"
-            onClick={() => handlePhotoClick('profile')}
-            whileHover={{ scale: 1.05 }}
+            className={`relative${canEdit ? ' cursor-pointer group' : ''}`}
+            onClick={canEdit ? () => handlePhotoClick('profile') : undefined}
+            whileHover={canEdit ? { scale: 1.05 } : {}}
             transition={{ duration: 0.2 }}
           >
             <ProfileImage
-              key={data?.profile?.profile_picture || 'default'}
-              src={data?.profile?.profile_picture}
+              key={profilePicUrl || 'default'}
+              src={profilePicUrl}
               alt={`${data?.profile?.first_name || 'User'} ${data?.profile?.last_name || ''}'s Profile`}
               className="w-32 h-32 rounded-full border-4 border-white absolute -top-16 left-6 shadow-md object-cover"
             />
-            <motion.div
-              className="absolute -top-16 left-6 w-32 h-32 rounded-full bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              whileHover={{ opacity: 1 }}
-            >
-              <FaCamera className="text-white text-xl" />
-            </motion.div>
+            {canEdit && (
+              <motion.div
+                className="absolute -top-16 left-6 w-32 h-32 rounded-full bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                whileHover={{ opacity: 1 }}
+              >
+                <FaCamera className="text-white text-xl" />
+              </motion.div>
+            )}
           </motion.div>
 
           <div className="ml-40 pt-4"> {/* Space for the image */}
@@ -229,20 +251,24 @@ function ProfileHeader({ data, onUpdatePhoto }) {
           </div>
 
           {/* Action Buttons */}
-          <motion.div 
-            className="mt-4 flex space-x-3 justify-end"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-          >            <motion.button
-              onClick={handleEditProfileClick}
-              className="bg-iti-primary hover:bg-iti-primary-dark text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out shadow-lg"
-              whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(144, 27, 32, 0.3)" }}
-              whileTap={{ scale: 0.95 }}
+          {canEdit && (
+            <motion.div 
+              className="mt-4 flex space-x-3 justify-end"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
             >
-              Edit Profile
-            </motion.button>
-          </motion.div>          {/* Contact Information Bar */}
+              <motion.button
+                onClick={handleEditProfileClick}
+                className="bg-iti-primary hover:bg-iti-primary-dark text-white font-semibold py-2 px-4 rounded-full transition duration-300 ease-in-out shadow-lg"
+                whileHover={{ scale: 1.05, boxShadow: "0 8px 20px rgba(144, 27, 32, 0.3)" }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Edit Profile
+              </motion.button>
+            </motion.div>
+          )}
+          {/* Contact Information Bar */}
           <motion.div 
             className="mt-6 border-t pt-4"
             initial={{ opacity: 0 }}
@@ -342,7 +368,7 @@ function ProfileHeader({ data, onUpdatePhoto }) {
 
       {/* Photo Upload Modal */}
       <AnimatePresence>
-        {showPhotoModal && (
+        {canEdit && showPhotoModal && (
           <motion.div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             initial={{ opacity: 0 }}

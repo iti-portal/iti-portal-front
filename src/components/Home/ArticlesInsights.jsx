@@ -3,7 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { FaCalendar, FaUser, FaArrowRight, FaEye, FaHeart, FaNewspaper } from 'react-icons/fa';
 import { getPopularArticles } from '../../services/articlesService';
+import {REACT_APP_API_ASSET_URL}from '../../services/apiConfig';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
+import { Link } from 'react-router-dom';
+
 
 const ArticleCard = ({ article, index }) => {
   const formatDate = (dateString) => {
@@ -19,8 +22,6 @@ const ArticleCard = ({ article, index }) => {
     return content.substring(0, maxLength) + '...';
   };
 
-
-
   return (
     <div className="group bg-white/90 backdrop-blur-sm rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/20 hover:border-[#901b20]/30 transform hover:-translate-y-2">
       {/* Gradient header */}
@@ -29,7 +30,7 @@ const ArticleCard = ({ article, index }) => {
       <div className="relative h-48 bg-gray-200 overflow-hidden">
         {article.featured_image ? (
           <img 
-            src={article.featured_image} 
+            src={`${REACT_APP_API_ASSET_URL}/${article.featured_image}`} 
             alt={article.title} 
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
           />
@@ -243,10 +244,13 @@ const ArticlesInsights = () => {
             
             {/* View All Button */}
             <div className="text-center mt-16">
-              <button className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#203947] to-[#901b20] text-white font-semibold rounded-full hover:from-[#901b20] hover:to-[#203947] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+              <Link 
+                to="/student/articles" 
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#901b20] to-[#203947] text-white font-semibold rounded-full hover:from-[#203947] hover:to-[#901b20] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 View All Articles
                 <FaArrowRight className="ml-2" />
-              </button>
+              </Link>
             </div>
           </>
         )}

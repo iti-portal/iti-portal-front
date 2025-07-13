@@ -12,13 +12,13 @@ const RegistrationHeader = ({
   subtitleClassName = ''
 }) => {
   return (
-    <div className={`text-center space-y-2 ${className}`}>
-      <h1 className={`text-2xl font-bold text-gray-900 ${titleClassName}`}>
+    <div className={`text-center space-y-3 ${className}`}>
+      <h1 className={`text-3xl md:text-4xl font-bold text-white leading-tight ${titleClassName}`}>
         {title}
       </h1>
       
       {subtitle && (
-        <p className={`text-sm text-gray-600 max-w-md mx-auto ${subtitleClassName}`}>
+        <p className={`text-base text-white/80 max-w-md mx-auto leading-relaxed ${subtitleClassName}`}>
           {subtitle}
         </p>
       )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronDown } from 'lucide-react';
 import { toast, ToastContainer } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { fetchAllSkills, addNewSkill, postNewJob } from '../../../services/post-jobApi';
@@ -182,23 +183,70 @@ export default function JobPostingForm() {
   const canAddNewSkill = skillInput.trim() && !allSkills.map(s => s.toLowerCase()).includes(skillInput.trim().toLowerCase());
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+      className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6"
+    >
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Post New Job</h1>
-          <p className="text-gray-600">Fill out the form below to post a new job opportunity</p>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mb-8 text-center"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="inline-flex items-center px-4 py-2 bg-[#203947]/10 text-[#203947] rounded-full text-sm font-medium mb-4"
+          >
+            <span className="material-icons text-lg mr-2">work_outline</span>
+            Post a Job
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-3xl lg:text-5xl font-bold text-gray-900 mb-2"
+          >
+            Post New <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#901b20] to-[#203947]">Job</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed"
+          >
+            Fill out the form below to post a new job opportunity
+          </motion.p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={{
+            hidden: { opacity: 0, y: 40 },
+            visible: { opacity: 1, y: 0, transition: { duration: 0.7 } },
+          }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        >
           {/* Left Column - Job Details */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8"
+          >
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Job Details</h2>
               <p className="text-gray-600 text-sm">Provide the core information about the job position.</p>
             </div>
             <div className="space-y-6">
               {/* Job Title */}
-              <div>
+              <motion.div whileFocus={{ scale: 1.02 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Job Title <span className="text-red-500">*</span>
                 </label>
@@ -207,12 +255,11 @@ export default function JobPostingForm() {
                   placeholder="e.g., Senior Software Engineer"
                   value={formData.title}
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition-all"
                 />
-              </div>
-
+              </motion.div>
               {/* Job Description */}
-              <div>
+              <motion.div whileFocus={{ scale: 1.02 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Job Description <span className="text-red-500">*</span>
                 </label>
@@ -221,12 +268,11 @@ export default function JobPostingForm() {
                   rows={4}
                   value={formData.description}
                   onChange={(e) => handleInputChange('description', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent resize-vertical"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent resize-vertical transition-all"
                 />
-              </div>
-
+              </motion.div>
               {/* Job Requirements */}
-              <div>
+              <motion.div whileFocus={{ scale: 1.02 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Job Requirements <span className="text-red-500">*</span>
                 </label>
@@ -235,12 +281,11 @@ export default function JobPostingForm() {
                   rows={4}
                   value={formData.requirements}
                   onChange={(e) => handleInputChange('requirements', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent resize-vertical"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent resize-vertical transition-all"
                 />
-              </div>
-
+              </motion.div>
               {/* Experience Level */}
-              <div>
+              <motion.div whileHover={{ scale: 1.01 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Experience Level <span className="text-red-500">*</span>
                 </label>
@@ -249,16 +294,22 @@ export default function JobPostingForm() {
                     type="button"
                     onClick={() => setShowExperienceDropdown(!showExperienceDropdown)}
                     onBlur={() => setTimeout(() => setShowExperienceDropdown(false), 150)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent text-left flex items-center justify-between"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent text-left flex items-center justify-between transition-all"
                   >
                     <span className={formData.experienceLevel ? 'text-gray-900' : 'text-gray-500'}>
                       {experienceLevelOptions.find(opt => opt.value === formData.experienceLevel)?.label || 'Select experience level'}
                     </span>
                     <ChevronDown className="h-4 w-4 text-gray-400" />
                   </button>
-                  
+                  <AnimatePresence>
                   {showExperienceDropdown && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg"
+                    >
                       {experienceLevelOptions.map((level) => (
                         <button
                           key={level.value}
@@ -272,23 +323,28 @@ export default function JobPostingForm() {
                           {level.label}
                         </button>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
-              </div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Right Column - Compensation & Logistics */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8"
+          >
             <div className="mb-6">
               <h2 className="text-xl font-semibold text-gray-900 mb-2">Compensation & Logistics</h2>
               <p className="text-gray-600 text-sm">Set salary, deadline, and required skills for applicants.</p>
             </div>
-
             <div className="space-y-6">
               {/* Salary Range */}
-              <div>
+              <motion.div whileFocus={{ scale: 1.02 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Salary Range (Annual) <span className="text-red-500">*</span>
                 </label>
@@ -300,7 +356,7 @@ export default function JobPostingForm() {
                       min="0"
                       value={formData.salaryMin}
                       onChange={(e) => handleInputChange('salaryMin', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition-all"
                     />
                   </div>
                   <div>
@@ -310,14 +366,13 @@ export default function JobPostingForm() {
                       min="0"
                       value={formData.salaryMax}
                       onChange={(e) => handleInputChange('salaryMax', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
-              </div>
-
+              </motion.div>
               {/* Application Deadline */}
-              <div>
+              <motion.div whileFocus={{ scale: 1.02 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Application Deadline
                 </label>
@@ -327,38 +382,43 @@ export default function JobPostingForm() {
                     value={formData.applicationDeadline}
                     min={new Date().toISOString().split("T")[0]}
                     onChange={(e) => handleInputChange('applicationDeadline', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent pr-10"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent pr-10 transition-all"
                   />
                   <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
-              </div>
-
+              </motion.div>
               {/* Required Skills */}
-              <div>
+              <motion.div whileFocus={{ scale: 1.02 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Required Skills
                 </label>
                 <div className="relative">
-                    <input
-                        type="text"
-                        placeholder="Search or add a new skill"
-                        value={skillInput}
-                        onChange={(e) => {
-                            setSkillInput(e.target.value);
-                            setShowSkillsDropdown(true);
-                        }}
-                        onFocus={() => setShowSkillsDropdown(true)}
-                        onBlur={() => setTimeout(() => setShowSkillsDropdown(false), 150)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent"
-                    />
-                  
+                  <input
+                    type="text"
+                    placeholder="Search or add a new skill"
+                    value={skillInput}
+                    onChange={(e) => {
+                      setSkillInput(e.target.value);
+                      setShowSkillsDropdown(true);
+                    }}
+                    onFocus={() => setShowSkillsDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowSkillsDropdown(false), 150)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition-all"
+                  />
+                  <AnimatePresence>
                   {showSkillsDropdown && (filteredSkills.length > 0 || canAddNewSkill) && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto"
+                    >
                       {filteredSkills.map((skill) => (
                         <button
                           key={skill}
                           type="button"
-                          onMouseDown={() => handleSelectSkill(skill)} // use onMouseDown to fire before onBlur
+                          onMouseDown={() => handleSelectSkill(skill)}
                           className="w-full px-3 py-2 text-left hover:bg-gray-50 text-sm text-gray-700"
                         >
                           {skill}
@@ -367,20 +427,24 @@ export default function JobPostingForm() {
                       {canAddNewSkill && (
                         <button
                           type="button"
-                          onMouseDown={handleAddNewSkill} // use onMouseDown to fire before onBlur
+                          onMouseDown={handleAddNewSkill}
                           className="w-full px-3 py-2 text-left hover:bg-gray-50 text-sm text-gray-700 font-semibold"
                         >
                           Add "{skillInput}" as a new skill
                         </button>
                       )}
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
-                
                 {formData.requiredSkills.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <motion.div className="mt-2 flex flex-wrap gap-2">
                     {formData.requiredSkills.map((skill) => (
-                      <span key={skill} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <motion.span
+                        key={skill}
+                        whileHover={{ scale: 1.08 }}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 shadow-sm"
+                      >
                         {skill}
                         <button
                           type="button"
@@ -389,14 +453,13 @@ export default function JobPostingForm() {
                         >
                           <span className="text-xs text-white pb-0.5">×</span>
                         </button>
-                      </span>
+                      </motion.span>
                     ))}
-                  </div>
+                  </motion.div>
                 )}
-              </div>
-
+              </motion.div>
               {/* Job Type */}
-              <div>
+              <motion.div whileHover={{ scale: 1.01 }}>
                 <label className="block text-sm font-medium text-gray-900 mb-2">
                   Job Type <span className="text-red-500">*</span>
                 </label>
@@ -405,16 +468,22 @@ export default function JobPostingForm() {
                     type="button"
                     onClick={() => setShowJobTypeDropdown(!showJobTypeDropdown)}
                     onBlur={() => setTimeout(() => setShowJobTypeDropdown(false), 150)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent text-left flex items-center justify-between"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent text-left flex items-center justify-between transition-all"
                   >
                     <span className={formData.jobType ? 'text-gray-900' : 'text-gray-500'}>
                       {jobTypeOptions.find(opt => opt.value === formData.jobType)?.label || 'Select a job type'}
                     </span>
                     <ChevronDown className="h-4 w-4 text-gray-400" />
                   </button>
-                  
+                  <AnimatePresence>
                   {showJobTypeDropdown && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg"
+                    >
                       {jobTypeOptions.map((type) => (
                         <button
                           key={type.value}
@@ -428,13 +497,13 @@ export default function JobPostingForm() {
                           {type.label}
                         </button>
                       ))}
-                    </div>
+                    </motion.div>
                   )}
+                  </AnimatePresence>
                 </div>
-              </div>
-
+              </motion.div>
               {/* Additional Options */}
-              <div className="space-y-3 pt-3">
+              <motion.div className="space-y-3 pt-3">
                 <label className="flex items-center cursor-pointer">
                   <input
                     type="checkbox"
@@ -453,30 +522,39 @@ export default function JobPostingForm() {
                   />
                   <span className="text-sm text-gray-700">This is a fully remote position</span>
                 </label>
-              </div>
+              </motion.div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end gap-3 mt-8">
-          <button
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex justify-end gap-3 mt-8"
+        >
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => handleSubmit('Cancel')}
             className="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20]"
             disabled={isSubmitting}
           >
             Cancel
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             type="button"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
             onClick={() => handleSubmit('Post Job')}
-            className="px-6 py-2 bg-[#901b20] text-white rounded-md text-sm font-medium hover:bg-[#7a1719] transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20]"
+            className="px-6 py-2 bg-gradient-to-r from-[#901b20] to-[#203947] text-white rounded-md text-sm font-medium hover:from-[#a83236] hover:to-[#2a4a5a] transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20] shadow-lg"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Posting...' : 'Post Job'}
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
 
       {/* Toast Container */}
@@ -492,6 +570,6 @@ export default function JobPostingForm() {
         pauseOnHover
         theme="light"
       />
-    </div>
+    </motion.div>
   );
 }

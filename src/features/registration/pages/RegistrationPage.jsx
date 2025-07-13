@@ -130,7 +130,7 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen  py-8 px-4 sm:px-6 lg:px-8 rounded-lg">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <RegistrationHeader />
@@ -139,10 +139,10 @@ const RegistrationPage = () => {
         <ProgressSteps 
           currentStep={currentStep} 
           role={formData.role}
-          className="mt-8"
+          className="mt-6"
         />
           {/* Form Container */}
-        <div className="bg-white py-8 px-6 shadow-lg rounded-lg mt-8">
+        <div className="bg-white/95 backdrop-blur-sm py-6 px-6 shadow-xl rounded-xl mt-6 border border-white/20">
           {/* Redirect Message Display */}
           {redirectMessage && (
             <div className="mb-6 p-4 border border-yellow-300 rounded-md bg-yellow-50">
@@ -201,11 +201,11 @@ const RegistrationPage = () => {
         
         {/* Login Link */}
         <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-white/80">
             Already have an account?{' '}
             <a
               href="/login"
-              className="font-medium text-[#901b20] hover:text-[#7a1419]"
+              className="font-medium text-yellow-400 hover:text-yellow-300 transition-colors duration-200"
             >
               Sign in
             </a>

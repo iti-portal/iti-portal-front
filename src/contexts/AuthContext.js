@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { logoutUser } from '../features/auth/services/authAPI';
 import { getUserProfile } from '../services/profileService';
+import { fetchCompanyProfile } from '../services/company-profileApi';
+import { USER_ROLES } from '../features/auth/types/auth.types';
 
 const AuthContext = createContext();
 
@@ -30,11 +32,12 @@ export const AuthProvider = ({ children }) => {
       if (token && userData) {
         setIsAuthenticated(true);
         const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
+        // console.log('AuthContext: User object from localStorage in checkAuthStatus (initial set):', parsedUser);
+        setUser(parsedUser); // Immediately set user from local storage
         
         // Try to fetch fresh profile data if token exists
         try {
-          await refreshUserProfile();
+          await refreshUserProfile(parsedUser);
         } catch (error) {
           console.warn('Could not refresh user profile:', error);
           // Keep the stored user data even if profile refresh fails
@@ -52,23 +55,45 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const refreshUserProfile = async () => {
+
+  const refreshUserProfile = async (userOverride = null) => {
+    const userToRefresh = userOverride || user;
+
+    if (!userToRefresh?.role) {
+      console.warn('refreshUserProfile called, but no user is available.');
+      return;
+    }
+
     try {
-      
-      const profileResponse = await getUserProfile();
-      
-      
-      if (profileResponse.success && profileResponse.data?.user) {
-        const freshUserData = profileResponse.data.user;
+      let finalUpdatedUser = null;
+
+      if (userToRefresh.role === USER_ROLES.COMPANY) {
+        console.log('🔄 Refreshing as COMPANY...');
+        const response = await fetchCompanyProfile();
         
-        setUser(freshUserData);
-        localStorage.setItem('user', JSON.stringify(freshUserData));
-        return freshUserData;
+        if (response.data) {
+          finalUpdatedUser = { ...userToRefresh, profile: response.data };
+        } else {
+          console.warn('⚠️ Invalid company profile response:', response);
+        }
       } else {
-        console.warn('⚠️ Invalid profile response:', profileResponse);
+        console.log('🔄 Refreshing as STUDENT/ADMIN...');
+        const response = await getUserProfile();
+        
+        if (response.data && response.data.user) {
+          finalUpdatedUser = response.data.user;
+        } else {
+          console.warn('⚠️ Invalid user profile response:', response);
+        }
       }
+
+      if (finalUpdatedUser) {
+        setUser(finalUpdatedUser);
+        localStorage.setItem('user', JSON.stringify(finalUpdatedUser));
+      }
+
     } catch (error) {
-      console.error('❌ Error refreshing user profile:', error);
+      console.error('❌ Error during API call in refreshUserProfile:', error);
       throw error;
     }
   };
@@ -82,10 +107,9 @@ export const AuthProvider = ({ children }) => {
       
       // Try to fetch fresh profile data after login
       try {
-        await refreshUserProfile();
+        await refreshUserProfile(userData);
       } catch (error) {
         console.warn('Could not refresh profile after login:', error);
-        // Keep the login data even if profile refresh fails
       }
     } catch (error) {
       console.error('Error during login:', error);

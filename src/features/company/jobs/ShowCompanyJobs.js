@@ -122,7 +122,7 @@ const JobsList = () => {
   );
 
   return (
-    <div className="p-6 w-5/6 mx-auto">
+    <div className="p-6 w-full mx-auto">
       <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center">
         <Briefcase className="mr-3 w-8 h-8 text-red-700" />
         Jobs History
@@ -279,7 +279,7 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
             </div>
             <button
               key={`details-button-${job.id}`}
-              onClick={() => navigate(`/company/jobs/${job.id}`)} 
+              onClick={() => navigate(`/company/dashboard/manage-jobs/${job.id}`)}
               className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
             >
               View Details
@@ -288,7 +288,7 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
         ) : (
           <button
             key={`closed-details-button-${job.id}`}
-            onClick={() => navigate(`/company/jobs/${job.id}`)} 
+            onClick={() => navigate(`/company/dashboard/manage-jobs/${job.id}`)}
             className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
           >
             View Details

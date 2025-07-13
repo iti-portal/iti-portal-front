@@ -14,11 +14,11 @@ const FormSection = ({
   contentClassName = ''
 }) => {
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 ${className}`}>
       {(title || description) && (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {title && (
-            <h3 className={`text-lg font-medium text-gray-900 ${titleClassName}`}>
+            <h3 className={`text-base font-semibold text-gray-800 ${titleClassName}`}>
               {title}
             </h3>
           )}

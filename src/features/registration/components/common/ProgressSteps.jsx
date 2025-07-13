@@ -49,11 +49,11 @@ const ProgressSteps = ({
     
     switch (status) {
       case 'completed':
-        return `${baseClasses} bg-[#901b20] text-white border-[#901b20]`;
+        return `${baseClasses} bg-red-400 text-[#203947] border-red-400 shadow-lg`;
       case 'current':
-        return `${baseClasses} bg-[#901b20] text-white border-[#901b20] ring-4 ring-[#901b20] ring-opacity-20`;
+        return `${baseClasses} bg-red-400 text-[#203947] border-red-400 ring-4 ring-red-400/30 shadow-lg`;
       case 'upcoming':
-        return `${baseClasses} bg-gray-100 text-gray-500 border-gray-300`;
+        return `${baseClasses} bg-white/20 text-white/70 border-white/30`;
       default:
         return baseClasses;
     }
@@ -64,11 +64,11 @@ const ProgressSteps = ({
     
     switch (status) {
       case 'completed':
-        return `${baseClasses} text-[#901b20]`;
+        return `${baseClasses} text-red-400`;
       case 'current':
-        return `${baseClasses} text-[#901b20] font-semibold`;
+        return `${baseClasses} text-red-400 font-semibold`;
       case 'upcoming':
-        return `${baseClasses} text-gray-500`;
+        return `${baseClasses} text-white/60`;
       default:
         return baseClasses;
     }
@@ -80,7 +80,7 @@ const ProgressSteps = ({
     const isCompleted = stepNumber <= currentStepIndex;
     
     return `flex-1 ${config.connector} mx-3 rounded-full transition-colors duration-200 ${
-      isCompleted ? 'bg-[#901b20]' : 'bg-gray-200'
+      isCompleted ? 'bg-yellow-400' : 'bg-white/20'
     }`;
   };
 

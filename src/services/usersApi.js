@@ -45,6 +45,12 @@ export const deleteUser = async (userId) => {
   return response.data;
 };
 
+export const fetchUserById = async (id) => {
+  const response = await axios.get(`${BASE_URL}/profile/${id}`, {
+    headers: getAuthHeaders(),
+  });
+  return response.data;
+};
 
 export const createConnection = async (userId, message) => {
   try {

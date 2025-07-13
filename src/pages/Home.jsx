@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Layout/Navbar';
 import Logo from '../components/Common/Logo';
 import { useAuth } from '../contexts/AuthContext';
@@ -31,9 +31,18 @@ import {
   CTASection,
   Footer
 } from '../components/Home';
+import { USER_ROLES } from '../features/auth/types/auth.types';
+
 const Home = () => {
   // Authentication context
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && user?.role === USER_ROLES.ADMIN) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
 
   // Counter animation hook
   const useCounter = (end, duration = 2000, start = 0) => {
@@ -358,8 +367,8 @@ const Home = () => {
       {isAuthenticated && (
         <div ref={achievementsRef} className={`max-w-7xl mx-auto px-4 relative z-10 ${achievementsClasses}`}>
           <div className="text-center mb-16">
-            <div className="inline-flex items-center px-4 py-2 bg-[#901b20]/10 text-[#901b20] rounded-full text-sm font-medium mb-6 animate-fadeIn">
-              <FaTrophy className="mr-2" />
+            <div className="inline-flex items-center px-4 py-2 bg-[#901b20]/10 text-[#901b20] rounded-full text-sm font-medium mb-6 mt-6 animate-fadeIn">
+              <FaTrophy className="mr-3" />
               Community Achievements
             </div>
             <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 mb-6 animate-fadeInUp animation-delay-200">
@@ -814,7 +823,7 @@ const Home = () => {
             <div className="flex-1 text-center md:text-left animate-fadeInUp">
               <div className="mb-3">
                 <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#f59e0b] to-[#901b20]">
-                  ITI Portal
+                  UnITI
                 </span>
               </div>
               <p className="text-gray-300 text-sm leading-relaxed max-w-sm mx-auto md:mx-0">

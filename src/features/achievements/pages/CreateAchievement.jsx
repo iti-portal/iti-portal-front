@@ -74,7 +74,7 @@ const CreateAchievement = () => {
   };
 
   return (
-    <><Navbar /><div className="min-h-screen bg-gray-50 pt-10 pb-10">
+    <><Navbar /><div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 pt-10 pb-10 px-4 relative overflow-hidden">
       <Alert
         show={notification.show}
         type={notification.type}
@@ -108,7 +108,7 @@ const CreateAchievement = () => {
       {/* Header */}
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-6 py-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -116,7 +116,7 @@ const CreateAchievement = () => {
           className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden"
         >
           {/* Form Header */}
-          <div className="bg-gradient-to-r from-[#901b20] to-[#a83236] px-6 sm:px-8 py-5">
+          <div className="bg-gradient-to-r from-red-900 to-red-700 px-6 sm:px-8 py-5">
             <div className="flex items-center space-x-4">
               <img
                 src={user?.profile?.profile_picture || "/avatar.png"}
@@ -124,7 +124,7 @@ const CreateAchievement = () => {
                 className="w-10 h-10 rounded-full border-3 border-white object-cover shadow-md" />
               <div>
                 <h2 className="text-lg font-bold text-white">Share Your Achievement</h2>
-                <p className="text-red-100 text-xs">Showcase your accomplishments with the community</p>
+                <p className="text-slate-100 text-xs">Showcase your accomplishments with the community</p>
               </div>
             </div>
           </div>
@@ -183,7 +183,7 @@ const CreateAchievement = () => {
                     px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 
                     flex items-center space-x-1.5
                     ${isValid
-                      ? 'bg-[#901b20] text-white hover:bg-[#a83236] shadow-md hover:shadow-lg'
+                      ? 'bg-slate-700 text-white hover:bg-slate-800 shadow-md hover:shadow-lg'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'}
                   `}
                 >

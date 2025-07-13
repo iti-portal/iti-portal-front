@@ -383,7 +383,7 @@ function AwardsManagement({
         isOpen={showAwardModal}
         onClose={handleCloseAwardModal}
         title={editingAward ? 'Edit Award' : 'Add New Award'}
-        className="max-w-2xl"
+        className="w-full max-w-3xl"
       >
         <AwardForm
           onSubmit={handleAwardSubmit}
