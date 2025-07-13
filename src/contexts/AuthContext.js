@@ -30,14 +30,19 @@ export const AuthProvider = ({ children }) => {
       if (token && userData) {
         setIsAuthenticated(true);
         const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        
-        // Try to fetch fresh profile data if token exists
+        console.log('AuthContext: User object from localStorage in checkAuthStatus (initial set):', parsedUser);
+        setUser(parsedUser); // Immediately set user from local storage
+
+        // Try to fetch fresh profile data if token exists, passing the parsedUser as prevUser
         try {
-          await refreshUserProfile();
+          const freshProfile = await refreshUserProfile(parsedUser);
+          if (freshProfile) {
+            // If refresh was successful and returned data, update the user state with fresh data
+            setUser(freshProfile);
+          }
         } catch (error) {
-          console.warn('Could not refresh user profile:', error);
-          // Keep the stored user data even if profile refresh fails
+          console.warn('AuthContext: Could not refresh user profile after initial set:', error);
+          // If refresh fails, the user state remains parsedUser, which is desired.
         }
       } else {
         setIsAuthenticated(false);
@@ -57,11 +62,17 @@ export const AuthProvider = ({ children }) => {
       const profileResponse = await getUserProfile();
       if (profileResponse.success && profileResponse.data?.user) {
         let freshUserData = profileResponse.data.user;
-        // If role is missing from refreshed profile, preserve previous role
+        console.log('AuthContext: freshUserData from profile API:', freshUserData);
+        // Ensure role is preserved if not present in fresh data
         if (!freshUserData.role && prevUser?.role) {
           freshUserData = { ...freshUserData, role: prevUser.role };
+          console.log('AuthContext: Role preserved from prevUser:', freshUserData.role);
+        } else if (freshUserData.role) {
+          console.log('AuthContext: Fresh user data includes role:', freshUserData.role);
+        } else {
+          console.warn('AuthContext: Role missing from fresh user data and prevUser.role is undefined.');
         }
-        setUser(freshUserData);
+        setUser(freshUserData); // This updates the state
         localStorage.setItem('user', JSON.stringify(freshUserData));
         return freshUserData;
       } else {
@@ -77,6 +88,7 @@ export const AuthProvider = ({ children }) => {
     try {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userData));
+      console.log('AuthContext: User object after login call (login function):', userData);
       setUser(userData);
       setIsAuthenticated(true);
       // Try to fetch fresh profile data after login, preserving role if missing

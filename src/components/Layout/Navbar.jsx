@@ -39,6 +39,7 @@ const Navbar = () => {
 
   const isAdmin = user?.role === USER_ROLES.ADMIN;
   const isCompany = user?.role === USER_ROLES.COMPANY;
+  const isAlumni= user?.role === USER_ROLES.ALUMNI;
   const isStudentOrAlumni = isAuthenticated && !isAdmin && !isCompany;
 
   // --- LINK DEFINITIONS ---
@@ -53,6 +54,7 @@ const Navbar = () => {
     { to: '/student/availablejobs', text: 'Jobs', icon: 'work', show: isStudentOrAlumni },
     { to: '/network', text: 'Network', icon: 'group' },
     { to: '/achievements', text: 'Achievements', icon: 'emoji_events' },
+    {to:'/my-services', text: 'My Services', icon: 'build', show: isAlumni },
     { to: '/student/articles', text: 'Articles', icon: 'article', show: isStudentOrAlumni },
     { to: '/admin/dashboard', text: 'Admin', icon: 'admin_panel_settings', show: isAdmin },
   ];

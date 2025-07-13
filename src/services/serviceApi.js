@@ -1,53 +1,117 @@
-// You may already have a file like apiConfig.js. If not, this is a good pattern.
-// For this example, we'll define the base URL directly.
-import {API_BASE_URL} from './apiConfig';
+import { API_BASE_URL } from './apiConfig';
 
 /**
- * A helper function to handle API responses.
+ * A helper function to handle API responses and errors consistently.
  * @param {Response} response - The raw response from the fetch call.
  * @returns {Promise<object>} The parsed JSON data.
- * @throws {Error} Throws an error if the response is not ok.
+ * @throws {Error} Throws an error if the response is not successful.
  */
 const handleApiResponse = async (response) => {
   const data = await response.json();
-  if (!response.ok) {
-    // Use the error message from the API if available, otherwise a default message.
-    throw new Error(data.message || `Request failed with status ${response.status}`);
+  // Check for a non-ok HTTP status or a `success: false` flag in the API response body.
+  if (!response.ok || !data.success) {
+    const errorMessage = data.message || `Request failed with status ${response.status}`;
+    throw new Error(errorMessage);
   }
   return data;
 };
 
 /**
- * Creates a new service by making a POST request to the /service endpoint.
- * @param {object} serviceData - The data for the new service.
- * @param {string} serviceData.serviceType - The type of service (e.g., 'business_session').
- * @param {string} serviceData.title - The title of the service.
- * @param {string} serviceData.description - The description of the service.
- * @returns {Promise<object>} The response from the API, containing the new service data.
+ * Retrieves the authentication token from localStorage.
+ * @throws {Error} If the token is not found.
+ * @returns {string} The bearer token.
  */
-export const createService = async (serviceData) => {
+const getAuthToken = () => {
   const token = localStorage.getItem('token');
   if (!token) {
-    // Immediately fail if the user is not authenticated.
     throw new Error('Authentication token not found. Please log in.');
   }
+  return `Bearer ${token}`;
+};
 
+/**
+ * Fetches all services for the authenticated user.
+ * @returns {Promise<object>} The API response containing the list of services.
+ */
+export const getMyServices = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/service`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': getAuthToken(),
+      },
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    console.error('Error in getMyServices API call:', error);
+    throw error; // Re-throw to be caught by the component
+  }
+};
+
+/**
+ * Creates a new service.
+ * @param {object} serviceData - { serviceType, title, description }
+ * @returns {Promise<object>} The API response containing the new service.
+ */
+export const createService = async (serviceData) => {
   try {
     const response = await fetch(`${API_BASE_URL}/service`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': getAuthToken(),
       },
-      body: JSON.stringify(serviceData) // Convert the JavaScript object to a JSON string
+      body: JSON.stringify(serviceData),
     });
-    
-    // The handleApiResponse function will check for errors and parse the JSON.
     return await handleApiResponse(response);
   } catch (error) {
     console.error('Error in createService API call:', error);
-    // Re-throw the error so the component can catch it and display a message.
+    throw error;
+  }
+};
+
+/**
+ * Updates an existing service.
+ * @param {object} serviceData - { id, serviceType, title, description }
+ * @returns {Promise<object>} The API response containing the updated service.
+ */
+export const updateService = async (serviceData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/service`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': getAuthToken(),
+      },
+      body: JSON.stringify(serviceData),
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    console.error('Error in updateService API call:', error);
+    throw error;
+  }
+};
+
+/**
+ * Deletes a service by its ID.
+ * @param {number} serviceId - The ID of the service to delete.
+ * @returns {Promise<object>} The API confirmation response.
+ */
+export const deleteService = async (serviceId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/service/${serviceId}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': getAuthToken(),
+      },
+    });
+    return await handleApiResponse(response);
+  } catch (error) {
+    console.error('Error in deleteService API call:', error);
     throw error;
   }
 };

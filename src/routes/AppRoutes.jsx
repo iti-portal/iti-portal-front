@@ -49,6 +49,7 @@ import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
 import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage'
 import CreateServicePage from '../pages/services/CreateServicePage';
+import MyServicesPage from '../pages/services/MyServicesPage';
 import AdminLayout from '../layouts/AdminLayout';
 
 const AppRoutes = () => {
@@ -208,6 +209,7 @@ const AppRoutes = () => {
                 </RoleBasedRoute>
               }
             />
+            <Route path="/my-services" element={<MyServicesPage />} />
 
 
           {/* Student Specific Routes */}

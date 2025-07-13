@@ -75,7 +75,7 @@ export const useLogin = () => {
         if (ok && data.success && data.data?.token) {
           const user = data.data.user || data.data;
           const role = user.role;
-
+          console.log('useLogin: User object before login context call:', user);
           login(user, data.data.token); // store user and token in context
 
           if (role !== 'staff' &&role !== 'admin' &&!user.isVerified) {
