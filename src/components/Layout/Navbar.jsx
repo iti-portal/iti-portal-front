@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
-import { API_BASE_ASSET_URL } from '../../services/apiConfig';
+import { REACT_APP_API_ASSET_URL } from '../../services/apiConfig';
 import { Briefcase } from 'lucide-react';
 import { getGeneralStatistics } from '../../services/statisticsService';
 import Logo from '../Common/Logo';
@@ -49,7 +49,7 @@ const Navbar = () => {
 
   let companyLogoUrl = null; 
   if (isCompany && user?.profile?.data?.logo) {
-    companyLogoUrl = `${API_BASE_ASSET_URL}/${user.profile.data.logo}`;
+    companyLogoUrl = `${REACT_APP_API_ASSET_URL}/${user.profile.data.logo}`;
   }
 
   const avatarSrc = companyLogoUrl || user?.profile?.profile_picture || "/avatar.png";
