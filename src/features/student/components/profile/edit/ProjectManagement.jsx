@@ -263,7 +263,7 @@ function ProjectManagement({ projects = [], onUpdateProjects, showNotifications 
         isOpen={showProjectModal}
         onClose={handleCloseProjectModal}
         title={editingProject ? 'Edit Project' : 'Add New Project'}
-        className="max-w-3xl"
+        className="w-full max-w-3xl"
       >
         <ProjectForm
           onSubmit={handleProjectSubmit}

@@ -232,7 +232,7 @@ function ExperienceManagement({
         isOpen={showExperienceModal}
         onClose={handleCloseExperienceModal}
         title={editingExperience ? 'Edit Work Experience' : 'Add New Work Experience'}
-        className="max-w-2xl"
+        className="w-full max-w-3xl"
       >
         <ExperienceForm
           onSubmit={handleExperienceSubmit}
