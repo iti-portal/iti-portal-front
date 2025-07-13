@@ -20,7 +20,7 @@ const containerVariants = {
 const ForgotPasswordPage = () => {
   return (
     <motion.div
-      className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50"
+      className="min-h-screen flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947]"
       initial="hidden"
       animate="visible"
       variants={containerVariants}

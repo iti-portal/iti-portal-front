@@ -79,22 +79,22 @@ const EmailVerificationPage = () => {
     }
   };
   return (
-    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col justify-center py-8 sm:px-6 lg:px-8 bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947]">
       {/* Show redirect message if no email provided */}
       {!location.state?.email && (
         <div className="flex justify-center mb-8">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-w-md">
+          <div className="bg-yellow-400 text-[#203947] border border-yellow-500 rounded-xl p-4 max-w-md shadow-lg">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <svg className="h-5 w-5 text-[#203947]" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800">
+                <h3 className="text-sm font-semibold text-[#203947]">
                   Redirecting to Registration
                 </h3>
-                <div className="mt-2 text-sm text-yellow-700">
+                <div className="mt-2 text-sm text-[#203947]/80">
                   <p>Please complete registration first. Redirecting...</p>
                 </div>
               </div>
@@ -103,18 +103,18 @@ const EmailVerificationPage = () => {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row items-stretch bg-white rounded-3xl shadow-2xl overflow-hidden mx-auto w-full max-w-7xl min-h-[500px] border border-[#e0e7ff]">
+      <div className="flex flex-col md:flex-row items-stretch bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl overflow-hidden mx-auto w-full max-w-6xl min-h-[600px] border border-white/20">
         {/* Left Side: Image and Title */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
-          className="md:w-1/2 flex-1 flex flex-col items-center justify-center bg-gray-100 p-10 relative"
+          className="md:w-1/2 flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-[#203947]/90 via-[#901b20]/90 to-[#203947]/90 p-10 relative"
         >          <motion.img
             src={logo}
             alt="ITI Portal Logo"
-            className="h-56 object-contain mb-8 drop-shadow-xl"
-            style={{ maxHeight: '220px' }}
+            className="h-48 object-contain mb-6 drop-shadow-2xl"
+            style={{ maxHeight: '190px' }}
             initial={{ scale: 0.8 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -122,16 +122,16 @@ const EmailVerificationPage = () => {
           
           {/* Animated Checkmark */}
           <motion.div 
-            className="flex items-center justify-center mb-4"
+            className="flex items-center justify-center mb-6"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <svg className="w-20 h-20 text-green-500 animate-bounce drop-shadow-lg" fill="none" viewBox="0 0 48 48">
-              <circle cx="24" cy="24" r="22" stroke="#22c55e" strokeWidth="4" fill="#fff" />
+            <svg className="w-16 h-16 text-yellow-400 animate-bounce drop-shadow-lg" fill="none" viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="22" stroke="#fbbf24" strokeWidth="4" fill="#fff" />
               <motion.path 
                 d="M16 25l6 6 10-12" 
-                stroke="#22c55e" 
+                stroke="#fbbf24" 
                 strokeWidth="4" 
                 strokeLinecap="round" 
                 strokeLinejoin="round" 
@@ -144,7 +144,7 @@ const EmailVerificationPage = () => {
           </motion.div>
           
           <motion.h2 
-            className="text-3xl font-extrabold text-[#22c55e] text-center drop-shadow-sm mb-2"
+            className="text-3xl font-bold text-white text-center drop-shadow-lg mb-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.8 }}
@@ -152,7 +152,7 @@ const EmailVerificationPage = () => {
             Email Sent!
           </motion.h2>
           <motion.p 
-            className="text-gray-600 text-center"
+            className="text-white/90 text-center text-lg leading-relaxed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 1 }}
@@ -196,7 +196,7 @@ const EmailVerificationPage = () => {
             </motion.h2>
 
             <motion.p 
-              className="text-gray-700 mb-6 text-lg"
+              className="text-gray-700 mb-6 text-base leading-relaxed"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
@@ -206,17 +206,17 @@ const EmailVerificationPage = () => {
             </motion.p>
 
             <motion.div 
-              className="bg-gray-50 p-5 rounded-xl mb-6 border border-gray-200 shadow"
+              className="bg-gray-50 p-4 rounded-xl mb-6 border border-gray-200 shadow-sm"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.5 }}
             >
               <p className="text-sm text-gray-500">A confirmation email has been sent to</p>
-              <p className="font-semibold text-[#901b20] text-lg break-all">{email}</p>
+              <p className="font-semibold text-[#901b20] text-base break-all">{email}</p>
             </motion.div>
 
             <motion.p 
-              className="text-sm text-gray-500 mb-8"
+              className="text-sm text-gray-500 mb-6"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
@@ -233,8 +233,7 @@ const EmailVerificationPage = () => {
               <button
                 onClick={handleResendEmail}
                 disabled={isResending}
-                className="w-full flex justify-center py-2 px-4 rounded-lg shadow-md text-sm font-semibold text-white transition hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{ background: 'linear-gradient(90deg,rgb(124, 44, 23) 0%, #901b20 100%)' }}
+                className="w-full flex justify-center py-3 px-4 rounded-lg shadow-lg text-sm font-semibold text-white transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-[#901b20] to-[#203947] hover:from-[#7a1419] hover:to-[#1a2f3a] hover:shadow-xl"
               >
                 {isResending ? (
                   <>
@@ -251,15 +250,14 @@ const EmailVerificationPage = () => {
 
               <button
                 onClick={() => navigate('/login')}
-                className="w-full flex justify-center py-2 px-4 rounded-lg shadow-md text-sm font-semibold border border-[#901b20] transition hover:bg-[#fbeaec] hover:text-[#901b20]"
-                style={{ color: '#901b20', borderColor: '#901b20' }}
+                className="w-full flex justify-center py-3 px-4 rounded-lg shadow-md text-sm font-semibold border-2 border-[#901b20] text-[#901b20] transition-all duration-200 hover:bg-[#901b20]/10 hover:scale-105"
               >
                 Return to Login
               </button>
 
               <button
                 onClick={() => navigate('/register')}
-                className="text-sm text-gray-500 hover:text-gray-700 transition"
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors duration-200"
               >
                 ← Back to Registration
               </button>

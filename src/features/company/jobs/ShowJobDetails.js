@@ -331,6 +331,7 @@ const JobDetailsView = () => {
 
   return (
     <div className="w-full mx-auto p-6">
+      {/* Job Header Section */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mb-8">
         <div className="p-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-6">

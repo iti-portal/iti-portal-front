@@ -1,60 +1,41 @@
-// src/features/student/components/profile/edit/EducationForm.js
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Save } from 'lucide-react';
 
-function EducationForm({ initialData = null, onSubmit }) {
+const formVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.07, // Stagger animation for each field
+    },
+  },
+};
+
+const fieldVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+};
+
+function EducationForm({ initialData, onSubmit }) {
   const [formData, setFormData] = useState({
     institution: '',
     degree: '',
     fieldOfStudy: '',
     startDate: '',
     endDate: '',
-    description: ''
+    description: '',
   });
 
-  // Helper function to format date for input field
-  const formatDateForInput = (dateString) => {
-    if (!dateString) return '';
-    
-    try {
-      // Convert ISO date to YYYY-MM-DD format for HTML date input
-      const date = new Date(dateString);
-      
-      // Check if the date is valid
-      if (isNaN(date.getTime())) {
-        return '';
-      }
-      
-      return date.toISOString().split('T')[0];
-    } catch (error) {
-      return '';
-    }
-  };
-
-  // Initialize form data when initialData changes
   useEffect(() => {
     if (initialData) {
-      const formattedStartDate = formatDateForInput(initialData.startDate);
-      const formattedEndDate = formatDateForInput(initialData.endDate);
-      
       setFormData({
         institution: initialData.institution || '',
         degree: initialData.degree || '',
         fieldOfStudy: initialData.fieldOfStudy || '',
-        startDate: formattedStartDate,
-        endDate: formattedEndDate,
-        description: initialData.description || ''
-      });
-    } else {
-      // Reset form when no initial data
-      setFormData({
-        institution: '',
-        degree: '',
-        fieldOfStudy: '',
-        startDate: '',
-        endDate: '',
-        description: ''
+        startDate: initialData.startDate ? new Date(initialData.startDate).toISOString().split('T')[0] : '',
+        endDate: initialData.endDate ? new Date(initialData.endDate).toISOString().split('T')[0] : '',
+        description: initialData.description || '',
       });
     }
   }, [initialData]);
@@ -66,122 +47,127 @@ function EducationForm({ initialData = null, onSubmit }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent event bubbling
     onSubmit(formData);
   };
 
   return (
-    <motion.form 
+    <motion.form
+      variants={formVariants}
+      initial="hidden"
+      animate="visible"
       onSubmit={handleSubmit}
       className="space-y-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
     >
+      {/* Institution & Degree Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label htmlFor="institution" className="block text-sm font-medium text-gray-700 mb-2">
-            Institution*
+        <motion.div variants={fieldVariants}>
+          <label htmlFor="institution" className="block text-sm font-medium text-gray-700 mb-1">
+            Institution<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            name="institution"
             id="institution"
-            required
+            name="institution"
             value={formData.institution}
             onChange={handleChange}
             placeholder="e.g. Cairo University"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+            required
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20]/50 focus:border-transparent transition"
           />
-        </div>
-
-        <div>
-          <label htmlFor="degree" className="block text-sm font-medium text-gray-700 mb-2">
-            Degree*
+        </motion.div>
+        <motion.div variants={fieldVariants}>
+          <label htmlFor="degree" className="block text-sm font-medium text-gray-700 mb-1">
+            Degree<span className="text-red-500">*</span>
           </label>
           <input
             type="text"
-            name="degree"
             id="degree"
-            required
+            name="degree"
             value={formData.degree}
             onChange={handleChange}
             placeholder="e.g. Bachelor of Science"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+            required
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20]/50 focus:border-transparent transition"
           />
-        </div>
+        </motion.div>
       </div>
 
-      <div>
-        <label htmlFor="fieldOfStudy" className="block text-sm font-medium text-gray-700 mb-2">
-          Field of Study*
+      {/* Field of Study */}
+      <motion.div variants={fieldVariants}>
+        <label htmlFor="fieldOfStudy" className="block text-sm font-medium text-gray-700 mb-1">
+          Field of Study<span className="text-red-500">*</span>
         </label>
         <input
           type="text"
-          name="fieldOfStudy"
           id="fieldOfStudy"
-          required
+          name="fieldOfStudy"
           value={formData.fieldOfStudy}
           onChange={handleChange}
           placeholder="e.g. Computer Engineering"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+          required
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20]/50 focus:border-transparent transition"
         />
-      </div>
+      </motion.div>
 
+      {/* Start & End Dates */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-2">
-            Start Date*
+        <motion.div variants={fieldVariants}>
+          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700 mb-1">
+            Start Date<span className="text-red-500">*</span>
           </label>
           <input
             type="date"
-            name="startDate"
             id="startDate"
-            required
+            name="startDate"
             value={formData.startDate}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+            required
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20]/50 focus:border-transparent transition"
           />
-        </div>
-
-        <div>
-          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-2">
+        </motion.div>
+        <motion.div variants={fieldVariants}>
+          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700 mb-1">
             End Date
           </label>
           <input
             type="date"
-            name="endDate"
             id="endDate"
+            name="endDate"
             value={formData.endDate}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
+            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20]/50 focus:border-transparent transition"
           />
-          <p className="text-xs text-gray-500 mt-1">Leave blank if currently enrolled</p>
-        </div>
+          <p className="text-xs text-gray-500 mt-1">Leave blank if currently enrolled.</p>
+        </motion.div>
       </div>
 
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+      {/* Description */}
+      <motion.div variants={fieldVariants}>
+        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
           Description
         </label>
         <textarea
-          name="description"
           id="description"
-          rows="4"
+          name="description"
           value={formData.description}
           onChange={handleChange}
+          rows="4"
           placeholder="Describe your studies, achievements, relevant coursework..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20]"
-        />
-      </div>
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20]/50 focus:border-transparent transition"
+        ></textarea>
+      </motion.div>
 
-      <div className="flex justify-end space-x-4">
-        <button
+      {/* Submit Button */}
+      <div className="flex justify-end pt-4">
+        <motion.button
           type="submit"
-          className="px-6 py-2 bg-[#901b20] text-white rounded-lg hover:bg-[#7a1519] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#901b20] transition-colors duration-200"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#901b20] to-[#a83236] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
         >
-          {initialData ? 'Update' : 'Add'} Education
-        </button>
+          <Save size={18} />
+          {initialData ? 'Save Changes' : 'Add Education'}
+        </motion.button>
       </div>
     </motion.form>
   );

@@ -7,7 +7,7 @@ const Unauthorized = () => {
   const { user } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4 bg-gradient-to-br from-[#203947] via-[#901b20] to-[#203947]">
       <div className="max-w-md w-full text-center">
         <div className="bg-white rounded-lg shadow-lg p-8">
           {/* Icon */}

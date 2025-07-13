@@ -26,7 +26,7 @@ const AuthInputField = ({
   return (
     <motion.div variants={itemVariants} className="space-y-1">
       <label 
-        className="block text-gray-700 mb-1 font-medium text-sm" 
+        className="block text-gray-700 mb-2 font-medium text-sm" 
         htmlFor={id}
       >
         {label} {required && <span className="text-red-500">*</span>}
@@ -41,11 +41,11 @@ const AuthInputField = ({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#901b20] focus:border-transparent transition text-sm ${error ? 'border-red-500' : ''} ${className}`}
+        className={`w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#901b20]/20 focus:border-[#901b20] transition-all duration-200 text-sm ${error ? 'border-red-300 focus:ring-red-200' : ''} ${className}`}
       />
       
       {error && (
-        <p className="text-red-500 text-xs mt-1">{error}</p>
+        <p className="text-red-500 text-xs mt-1.5">{error}</p>
       )}
     </motion.div>
   );

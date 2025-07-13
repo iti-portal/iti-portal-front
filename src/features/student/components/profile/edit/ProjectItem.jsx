@@ -1,35 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { FaEdit, FaTrash, FaExternalLinkAlt, FaProjectDiagram, FaCamera, FaTimes, FaPlus } from 'react-icons/fa';
 
 function ProjectItem({ project, onEdit, onDelete, onImageAdd, onImageDelete }) {
   const fileInputRef = useRef(null);
-  
-  // Confirmation modal state
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [confirmationData, setConfirmationData] = useState({
-    title: '',
-    message: '',
-    onConfirm: null,
-    type: 'danger'
-  });
-
-  // Confirmation modal handlers
-  const showConfirmationModal = (title, message, onConfirm, type = 'danger') => {
-    setConfirmationData({ title, message, onConfirm, type });
-    setShowConfirmation(true);
-  };
-
-  const hideConfirmationModal = () => {
-    setShowConfirmation(false);
-    setConfirmationData({ title: '', message: '', onConfirm: null, type: 'danger' });
-  };
-
-  const handleConfirmAction = () => {
-    if (confirmationData.onConfirm) {
-      confirmationData.onConfirm();
-    }
-    hideConfirmationModal();
-  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'Date not specified';
@@ -63,17 +36,9 @@ function ProjectItem({ project, onEdit, onDelete, onImageAdd, onImageDelete }) {
   const handleImageDelete = (e, imageId) => {
     e.preventDefault();
     e.stopPropagation();
-    
-    showConfirmationModal(
-      'Delete Image',
-      'Are you sure you want to delete this image? This action cannot be undone.',
-      () => {
-        if (onImageDelete) {
-          onImageDelete(imageId);
-        }
-      },
-      'danger'
-    );
+    if (onImageDelete && window.confirm('Are you sure you want to delete this image?')) {
+      onImageDelete(imageId);
+    }
   };
 
   return (
@@ -201,53 +166,6 @@ function ProjectItem({ project, onEdit, onDelete, onImageAdd, onImageDelete }) {
           </button>
         </div>
       </div>
-
-      {/* Confirmation Modal */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-100">
-            {/* Header */}
-            <div className={`px-6 py-4 border-b border-gray-200 rounded-t-xl ${
-              confirmationData.type === 'danger' ? 'bg-red-50' : 'bg-blue-50'
-            }`}>
-              <h3 className={`text-lg font-semibold ${
-                confirmationData.type === 'danger' ? 'text-red-800' : 'text-blue-800'
-              }`}>
-                {confirmationData.title}
-              </h3>
-            </div>
-            
-            {/* Content */}
-            <div className="px-6 py-4">
-              <p className="text-gray-700 leading-relaxed">
-                {confirmationData.message}
-              </p>
-            </div>
-            
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 rounded-b-xl flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={hideConfirmationModal}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmAction}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors duration-200 ${
-                  confirmationData.type === 'danger'
-                    ? 'bg-red-600 hover:bg-red-700 focus:ring-red-500'
-                    : 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500'
-                }`}
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -2,81 +2,66 @@
 
 import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { FaTimes } from 'react-icons/fa';
+import { motion, AnimatePresence } from 'framer-motion'; // Import Framer Motion
+import { X } from 'lucide-react'; // Use a consistent icon library
 
-function Modal({ isOpen, onClose, title, children, className = '' }) {  // Lock body scroll when modal is open
+function Modal({ isOpen, onClose, title, children, className = '' }) {
+  // Lock body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.classList.add('modal-open');
     } else {
       document.body.style.overflow = '';
-      document.body.classList.remove('modal-open');
     }
-    
     return () => {
       document.body.style.overflow = '';
-      document.body.classList.remove('modal-open');
     };
   }, [isOpen]);
-  
+
   // Close modal on escape key press
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();
     };
-    
-    if (isOpen) {
-      window.addEventListener('keydown', handleEscape);
-    }
-    
-    return () => {
-      window.removeEventListener('keydown', handleEscape);
-    };
+    if (isOpen) window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
-  
-  // Close when clicking outside modal content
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };  const modalContent = (
-    <>
+
+  const modalContent = (
+    <AnimatePresence>
       {isOpen && (
-        <div
-          className="modal-overlay bg-black bg-opacity-50 flex items-center justify-center p-4"
-          style={{ 
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: '100vw',
-            height: '100vh',
-            zIndex: 99999
-          }}
-          onClick={handleBackdropClick}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={onClose} // Click on overlay closes modal
         >
-          <div
-            className={`modal-content bg-white rounded-xl shadow-xl w-full overflow-hidden ${className}`}
-            style={{ zIndex: 100000 }}
+          {/* FIX: Removed `max-w-sm` to allow size to be set by parent component via `className` prop */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            className={`bg-white rounded-xl shadow-2xl mx-auto overflow-hidden ${className}`} // The hardcoded size is gone
+            onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
           >
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-800">{title}</h2>
+              <h2 className="text-lg font-bold text-gray-800">{title}</h2>
               <button
-                className="text-gray-500 hover:text-gray-700 focus:outline-none transition-colors duration-200"
+                className="p-1.5 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-colors"
                 onClick={onClose}
               >
-                <FaTimes className="w-5 h-5" />
+                <X size={20} />
               </button>
             </div>
-            <div className="p-4 overflow-y-auto max-h-[calc(90vh-90px)]">
+            <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 100px)' }}>
               {children}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
-    </>
+    </AnimatePresence>
   );
 
   return createPortal(modalContent, document.body);
