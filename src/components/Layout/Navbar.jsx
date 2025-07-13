@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { USER_ROLES } from '../../features/auth/types/auth.types';
+import { REACT_APP_API_ASSET_URL } from '../../services/apiConfig';
+import { Briefcase } from 'lucide-react';
 import { getGeneralStatistics } from '../../services/statisticsService';
 import Logo from '../Common/Logo';
 
@@ -14,11 +16,15 @@ const ProfileDropdown = ({ user, isAdmin, isCompany, onLogout, closeDropdown, lo
   let links = [];
   if (isAdmin) { links = [{ path: '/admin/dashboard', text: 'Admin Dashboard', icon: 'dashboard' }, { path: '/admin/profile', text: 'View Profile', icon: 'person' }]; }
   else if (isCompany) { links = [{ path: '/company/dashboard', text: 'Company Dashboard', icon: 'dashboard' }, { path: '/company/profile', text: 'View Profile', icon: 'person' }]; }
-  else { links = [{ path: '/student/profile', text: 'View Profile', icon: 'person' }, { path: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' }, { path: '/my-network', text: 'My Network', icon: 'group' }, { path: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' }]; }
+  else { links = [{ path: '/student/profile', text: 'View Profile', icon: 'person' }, { path: '/my-applications', text: 'My Applications', icon: <Briefcase size={20} /> } ,{ path: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' }, { path: '/my-network', text: 'My Network', icon: 'group' }, { path: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' }]; }
 
   return (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-      <div className="px-4 py-2 border-b"><div className="font-semibold text-gray-800 text-sm truncate">{user?.profile?.first_name || user?.name || 'User'}</div><div className="text-xs text-gray-500 truncate">{user?.email || 'No email'}</div></div>
+      <div className="px-4 py-2 border-b"><div className="font-semibold text-gray-800 text-sm truncate">{user?.profile?.first_name || user?.profile?.data?.company_name || 'User'}</div>        {!isCompany && (
+          <div className="text-xs text-gray-500 truncate">
+            {user?.email || 'No email'}
+          </div>
+        )}</div>
       {links.map(link => <button key={link.path} onClick={() => handleNavigate(link.path)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><span className="material-icons text-lg mr-3">{link.icon}</span>{link.text}</button>)}
       <div className="border-t mt-2 pt-2"><button onClick={() => handleNavigate('/account/settings')} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><span className="material-icons text-lg mr-3">settings</span>Account Settings</button><button onClick={onLogout} disabled={logoutLoading} className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"><span className="material-icons text-lg mr-3">{logoutLoading ? 'hourglass_empty' : 'logout'}</span>{logoutLoading ? 'Logging out...' : 'Logout'}</button></div>
     </motion.div>
@@ -38,7 +44,15 @@ const Navbar = () => {
 
   const isAdmin = user?.role === USER_ROLES.ADMIN;
   const isCompany = user?.role === USER_ROLES.COMPANY;
+  const isAlumni= user?.role === USER_ROLES.ALUMNI;
   const isStudentOrAlumni = isAuthenticated && !isAdmin && !isCompany;
+
+  let companyLogoUrl = null; 
+  if (isCompany && user?.profile?.data?.logo) {
+    companyLogoUrl = `${REACT_APP_API_ASSET_URL}/${user.profile.data.logo}`;
+  }
+
+  const avatarSrc = companyLogoUrl || user?.profile?.profile_picture || "/avatar.png";
 
   // --- LINK DEFINITIONS ---
   const publicLinks = [
@@ -52,6 +66,7 @@ const Navbar = () => {
     { to: '/student/availablejobs', text: 'Jobs', icon: 'work', show: isStudentOrAlumni },
     { to: '/network', text: 'Network', icon: 'group' },
     { to: '/achievements', text: 'Achievements', icon: 'emoji_events' },
+    {to:'/my-services', text: 'My Services', icon: 'build', show: isAlumni },
     { to: '/student/articles', text: 'Articles', icon: 'article', show: isStudentOrAlumni },
     { to: '/admin/dashboard', text: 'Admin', icon: 'admin_panel_settings', show: isAdmin },
   ];
@@ -85,7 +100,7 @@ const Navbar = () => {
               <>
                 <button className="p-2 rounded-full hover:bg-gray-100 transition-colors"><span className="material-icons text-gray-600">notifications</span></button>
                 <div className="relative" ref={dropdownRef}>
-                  <button onClick={() => setProfileDropdownOpen(p => !p)}><img src={user?.profile?.profile_picture || "/avatar.png"} alt="User" className="w-9 h-9 rounded-full border-2 border-[#901b20] object-cover"/></button>
+                  <button onClick={() => setProfileDropdownOpen(p => !p)}><img src={avatarSrc} alt="User" className="w-9 h-9 rounded-full border-2 border-[#901b20] object-cover"/></button>
                   <AnimatePresence>{profileDropdownOpen && <ProfileDropdown user={user} isAdmin={isAdmin} isCompany={isCompany} onLogout={handleLogout} logoutLoading={logoutLoading} closeDropdown={() => setProfileDropdownOpen(false)} />}</AnimatePresence>
                 </div>
               </>
@@ -110,8 +125,12 @@ const Navbar = () => {
               <div className="flex justify-between items-center p-4 border-b"><span className="font-bold text-lg text-[#901b20]">Menu</span><button onClick={() => setMenuOpen(false)} className="p-2" aria-label="Close menu"><span className="material-icons text-2xl text-[#901b20]">close</span></button></div>
               {isAuthenticated && (
                 <div className="p-4 flex items-center gap-3 border-b bg-gray-50">
-                  <img src={user?.profile?.profile_picture || "/avatar.png"} alt="User" className="w-12 h-12 rounded-full border-2 border-[#901b20] object-cover"/>
-                  <div className="flex-1 overflow-hidden"><div className="font-semibold text-gray-800 truncate">{user?.profile?.first_name || user?.name || 'User'}</div><div className="text-xs text-gray-500 truncate">{user?.email || 'No email'}</div></div>
+                  <img src={avatarSrc} alt="User" className="w-12 h-12 rounded-full border-2 border-[#901b20] object-cover"/>
+                  <div className="flex-1 overflow-hidden"><div className="font-semibold text-gray-800 truncate">{user?.profile?.first_name || user?.profile?.data?.company_name || 'User'}</div>        {!isCompany && (
+          <div className="text-xs text-gray-500 truncate">
+            {user?.email || 'No email'}
+          </div>
+        )}</div>
                 </div>
               )}
               <nav className="flex-1 py-4 overflow-y-auto">

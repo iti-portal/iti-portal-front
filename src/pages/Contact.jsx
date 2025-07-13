@@ -67,16 +67,19 @@ const Contact = () => {
             {/* Contact Form */}
             <div className="bg-white rounded-2xl shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name
                   </label>
                   <input
                     type="text"
+                    name="full_name"
+                    value={formData.full_name}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] transition-colors"
                     placeholder="Your full name"
-                    disabled
+                    required
                   />
                 </div>
                 <div>
@@ -85,9 +88,12 @@ const Contact = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] transition-colors"
                     placeholder="your.email@example.com"
-                    disabled
+                    required
                   />
                 </div>
                 <div>
@@ -96,9 +102,12 @@ const Contact = () => {
                   </label>
                   <input
                     type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] transition-colors"
                     placeholder="What is this about?"
-                    disabled
+                    required
                   />
                 </div>
                 <div>
@@ -106,20 +115,28 @@ const Contact = () => {
                     Message
                   </label>
                   <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     rows="5"
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#901b20] focus:border-[#901b20] transition-colors"
                     placeholder="Tell us more about your inquiry..."
-                    disabled
+                    required
                   ></textarea>
                 </div>
                 <button
-                  type="button"
-                  className="w-full bg-gradient-to-r from-[#901b20] to-[#203947] text-white py-3 px-6 rounded-lg font-semibold opacity-60 cursor-not-allowed"
-                  disabled
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-[#901b20] to-[#203947] text-white py-3 px-6 rounded-lg font-semibold hover:from-[#a83236] hover:to-[#2a4a5a] transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
+                  disabled={isSubmitting}
                 >
-                  Send Message
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
+              {submitStatus.message && (
+                <div className={`mt-4 text-center p-3 rounded-lg ${submitStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                  {submitStatus.message}
+                </div>
+              )}
             </div>
 
             {/* Contact Information */}

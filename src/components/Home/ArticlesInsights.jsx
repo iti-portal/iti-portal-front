@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaCalendar, FaUser, FaArrowRight, FaEye, FaHeart, FaNewspaper } from 'react-icons/fa';
 import { getPopularArticles } from '../../services/articlesService';
+import {REACT_APP_API_ASSET_URL}from '../../services/apiConfig';
 import useScrollAnimation from '../../hooks/useScrollAnimation';
 import { Link } from 'react-router-dom';
 
@@ -29,7 +30,7 @@ const ArticleCard = ({ article, index }) => {
       <div className="relative h-48 bg-gray-200 overflow-hidden">
         {article.featured_image ? (
           <img 
-            src={article.featured_image} 
+            src={`${REACT_APP_API_ASSET_URL}/${article.featured_image}`} 
             alt={article.title} 
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
           />

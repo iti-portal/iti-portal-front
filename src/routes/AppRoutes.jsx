@@ -43,10 +43,14 @@ import Messages from '../features/company/messages/Messages';
 import ApplicationForm from '../features/student/components/applications/ApplicationForm';
 import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
-import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
-import AdminApplicationsPage from '../features/admin/pages/AdminApplicationsPage';
+// import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
+import AdminApplicationsPage from '../features/admin/components/applications/AdminApplicationsPage';
 import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
 import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
+import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage'
+import CreateServicePage from '../pages/services/CreateServicePage';
+import MyServicesPage from '../pages/services/MyServicesPage';
+import AdminLayout from '../layouts/AdminLayout';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -93,15 +97,19 @@ const AppRoutes = () => {
           {/* Admin routes - Protected by RoleBasedRoute for admin only */}
           <Route 
             path="/admin/dashboard" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><AdminDashboardPage /></RoleBasedRoute> } 
+            element={
+              <RoleBasedRoute allowedRoles={['admin', 'staff']}>
+                <AdminDashboardPage />
+              </RoleBasedRoute>
+            } 
           />
           <Route 
             path="/admin/users" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><UsersManagementPage /></RoleBasedRoute> } 
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><UsersManagementPage /></RoleBasedRoute> } 
           />
           <Route 
             path="/admin/approvals" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><ApprovalsManagementPage /></RoleBasedRoute> } 
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><ApprovalsManagementPage /></RoleBasedRoute> } 
           />
           <Route
             path="/account/settings"
@@ -109,11 +117,11 @@ const AppRoutes = () => {
           />
           <Route 
             path="/admin/articles" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><ArticlesManagementPage /></RoleBasedRoute> } 
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><ArticlesManagementPage /></RoleBasedRoute> } 
           />
           <Route 
             path="/admin/articles/new" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><NewArticleFormPage /></RoleBasedRoute> } 
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><NewArticleFormPage /></RoleBasedRoute> } 
           />
           <Route 
             path="/admin/staff" 
@@ -121,19 +129,23 @@ const AppRoutes = () => {
           />
           <Route 
             path="/admin/contact-us" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><ContactUsManagementPage /></RoleBasedRoute> } 
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><ContactUsManagementPage /></RoleBasedRoute> } 
           />
           <Route 
             path="/admin/services" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><ServiceManagementPage /></RoleBasedRoute> } 
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><ServiceManagementPage /></RoleBasedRoute> } 
           />
           <Route
             path="/admin/companies"
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><CompanyAdmin /></RoleBasedRoute> }
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><CompanyAdmin /></RoleBasedRoute> }
           />
           <Route
             path="/admin/jobs"
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><JobManagementPage /></RoleBasedRoute> }
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><JobManagementPage /></RoleBasedRoute> }
+          />
+          <Route
+            path="/admin/applications"
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><AdminApplicationsPage /></RoleBasedRoute> }
           />
           
           {/* Company routes */}
@@ -145,8 +157,10 @@ const AppRoutes = () => {
             path="/company/dashboard"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><CompanyLayout /></PrivateRoute> }
           >
+            <Route index element={<PostJob />} />
             <Route path="post-job" element={<PostJob />} />
-            <Route path="manage-jobs" element={<ManageJobs />} />
+            <Route path="manage-jobs" element={<JobsList />} />
+            <Route path="manage-jobs/:id" element={<JobDetailsView />} />
             <Route path="applicants" element={<ManageApplicants />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="messages" element={<Messages />} />
@@ -187,6 +201,15 @@ const AppRoutes = () => {
           />
           
           {/* --- END OF CORRECTED PROFILE ROUTES --- */}
+            <Route
+              path="/services/create"
+              element={
+                <RoleBasedRoute allowedRoles={[USER_ROLES.ALUMNI] }>
+                  <CreateServicePage />
+                </RoleBasedRoute>
+              }
+            />
+            <Route path="/my-services" element={<MyServicesPage />} />
 
 
           {/* Student Specific Routes */}
@@ -240,10 +263,6 @@ const AppRoutes = () => {
           />
           
           {/* Company and Admin Application routes */}
-          <Route 
-            path="/admin/applications" 
-            element={ <RoleBasedRoute allowedRoles={[USER_ROLES.ADMIN]}><AdminApplicationsPage /></RoleBasedRoute> } 
-          />
           <Route 
             path="/company/jobs/:jobId/applications" 
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><CompanyJobApplicationsPage /></PrivateRoute> } 

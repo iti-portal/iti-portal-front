@@ -104,7 +104,7 @@ const MyAchievements = () => {
                                 : filteredAchievements.length > 0 ? (
                                     filteredAchievements.map((achievement, index) => (
                                         <motion.div key={achievement.id} ref={index === filteredAchievements.length - 1 ? lastAchievementRef : null} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.05 }}>
-                                            <AchievementCard achievement={achievement} showUser={false} showActions={false} onEdit={() => navigate(`/achievements/edit/${achievement.id}`)} onDelete={handleDeleteAchievement} />
+                                            <AchievementCard achievement={achievement} showUser={false} showActions={false} onDelete={handleDeleteAchievement} />
                                         </motion.div>
                                     ))
                                 ) : (

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 /**
  * Admin menu items configuration
@@ -14,6 +16,7 @@ const menu = [
   { label: 'Staff', icon: 'check_circle', path: '/admin/staff' },
   {label: 'Company', icon: 'business', path: '/admin/companies' },
   { label: 'Contact Us', icon: 'settings', path: '/admin/contact-us' },
+  { label: 'Applications', icon: 'check_circle', path: '/admin/applications' },
 ];
 
 /**
@@ -25,6 +28,45 @@ const menu = [
  */
 const AdminSidebar = ({ open, setOpen }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Filter out Staff tab for staff users
+  const filteredMenu = user?.role === 'staff'
+    ? menu.filter(item => item.label !== 'Staff')
+    : menu;
+
+  /**
+   * Handles user logout.
+   */
+  const handleLogout = async () => {
+    // Construct the full API URL from the environment variable
+    const logoutUrl = `${process.env.REACT_APP_API_URL}/auth/logout`;
+
+    try {
+      // Get the authentication token from storage (assuming it's in localStorage)
+      const token = localStorage.getItem('token');
+
+      // Make a POST request to the logout endpoint
+      // We send the token in the headers so the backend can invalidate it
+      await axios.post(logoutUrl, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+    } catch (error) {
+      // Log the error but proceed with client-side logout anyway
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Always perform client-side cleanup and redirection
+      // Remove the token from local storage
+      localStorage.removeItem('token');
+      // Redirect to the login page (assuming '/login' is your login route)
+      navigate('/login');
+    }
+  };
+
 
   return (
     <aside
@@ -36,7 +78,7 @@ const AdminSidebar = ({ open, setOpen }) => {
     >
       <nav className="flex-1 px-1">
         <ul className="space-y-1">
-          {menu.map(item => {
+          {filteredMenu.map(item => {
             const isActive = location.pathname === item.path;
             return (
               <li key={item.label}>
@@ -69,11 +111,16 @@ const AdminSidebar = ({ open, setOpen }) => {
             className="w-10 h-10 rounded-full border-2 border-red-500 object-cover"
           />
           <div>
-            <span className="font-semibold text-slate-800 block text-sm">Admin</span>
-            <span className="text-xs text-slate-500">Administrator</span>
+            <span className="font-semibold text-slate-800 block text-sm">
+              {user?.role === 'staff' ? 'Staff' : 'Admin'}
+            </span>
+            <span className="text-xs text-slate-500">
+              {user?.role === 'staff' ? 'Staff Member' : 'Administrator'}
+            </span>
           </div>
         </div>
         <button
+          onClick={handleLogout} // Added onClick handler to trigger logout
           className="w-full flex items-center justify-center px-4 py-3 bg-gradient-to-r from-red-900 to-red-700 text-white rounded-lg font-medium hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg"
         >
           <span className="material-icons-outlined mr-2 text-lg">logout</span>

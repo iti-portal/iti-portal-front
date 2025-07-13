@@ -9,17 +9,14 @@ const CompanyLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Fixed Navbar at the top */}
       <CompanyNavbar className="fixed top-0 left-0 right-0 z-30" />
 
-      {/* Sidebar fixed to the left */}
       <CompanySidebar />
 
-      {/* Main content shifted right and down */}
       <motion.main
         key={location.pathname}
         className="
-          ml-64 pt-14 min-h-screen px-2 py-4 sm:px-4 md:px-6 lg:px-8
+          ml-64 mt-8 pt-14 min-h-screen px-2 py-4 sm:px-4 md:px-6 lg:px-8
           transition-all duration-300
         "
         initial={{ opacity: 0, y: 30 }}
