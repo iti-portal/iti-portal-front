@@ -1,33 +1,28 @@
 import { useState, useRef, useEffect } from 'react';
-import { doc, updateDoc} from 'firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db, collection, onSnapshot } from '../../../firebase';
 
 const NotificationDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
-  const {user} = useAuth();
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
-  const [expanded, setExpanded] = useState(false);
   const userId = user?.id;
 
   useEffect(() => {
-    console.log("Fetching notifications for user:", userId);
-    if (!userId) return; 
-    
+    if (!userId) return;
+
     const unsubscribe = onSnapshot(
       collection(db, "notifications", String(userId), "user_notifications"),
       (snapshot) => {
         const allNotifications = snapshot.docs.map(doc => {
           const data = doc.data();
-          let timestamp = data.timestamp;
-          let timestampMs;
-          timestampMs = new Date(timestamp).getTime();
-          
+          let timestampMs = new Date(data.timestamp).getTime();
           return {
             id: doc.id,
             ...data,
-            timestamp: timestampMs, 
+            timestamp: timestampMs,
             formattedTimestamp: new Date(timestampMs).toLocaleString('en-US', {
               timeZone: 'Africa/Cairo',
               year: 'numeric',
@@ -40,21 +35,16 @@ const NotificationDropdown = () => {
           };
         });
 
-        const sortedNotifications = allNotifications.sort((a, b) => {
-          const aTime = Number(a.timestamp);
-          const bTime = Number(b.timestamp);
-          return bTime - aTime;
-        });
-
+        const sortedNotifications = allNotifications.sort((a, b) => b.timestamp - a.timestamp);
         setNotifications(sortedNotifications);
       },
       (error) => {
         console.error("Error fetching notifications:", error);
       }
     );
-    
+
     return () => unsubscribe();
-  }, [userId]); 
+  }, [userId]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -62,7 +52,6 @@ const NotificationDropdown = () => {
         setShowDropdown(false);
       }
     };
-    
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -84,15 +73,13 @@ const NotificationDropdown = () => {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  console.log("Notifications:", notifications);
-
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setShowDropdown((prev) => !prev)}
-        className="relative flex items-center text-gray-500 hover:text-[#901b20] focus:outline-none"
+        className="p-2 rounded-full hover:bg-gray-100 transition-colors relative"
       >
-        <span className="material-icons text-lg xl:text-xl">notifications_none</span>
+        <span className="material-icons text-gray-600">notifications</span>
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -101,7 +88,7 @@ const NotificationDropdown = () => {
       </button>
 
       {showDropdown && (
-        <div className="absolute right-0 mt-2 w-80 max-w-xs bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+        <div className="absolute right-0 mt-2 w-80 max-w-xs bg-white border border-gray-200 rounded-xl shadow-xl z-50">
           <div className="p-3 border-b text-gray-800 font-semibold">
             Notifications
           </div>
@@ -111,30 +98,27 @@ const NotificationDropdown = () => {
             </div>
           ) : (
             <div className="max-h-64 overflow-y-auto">
-              {notifications
-                .slice(0, 16) 
-                .map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`px-4 py-3 text-sm hover:bg-gray-100 cursor-pointer border-b last:border-b-0 ${
-                      !notification.read ? 'bg-blue-50' : ''
-                    }`}
-                    onClick={() => markAsRead(notification.id)}
-                  >
-                    <div className="font-medium text-gray-800 flex justify-between items-center">
-                      <span className={!notification.read ? 'font-bold' : ''}>
+              {notifications.slice(0, 16).map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`px-4 py-3 text-sm hover:bg-gray-50 cursor-pointer border-b last:border-b-0 ${
+                    !notification.read ? 'bg-blue-50' : ''
+                  }`}
+                  onClick={() => markAsRead(notification.id)}
+                >
+                  <div className="font-medium text-gray-800 flex justify-between items-center">
+                    <span className={!notification.read ? 'font-bold' : ''}>
                       {notification.body}
-                      </span>
-                      <span className="text-xs text-gray-500 whitespace-nowrap">
-                        {notification.formattedTimestamp}
-                      </span>
-                    </div>
-                    {/* <div className="text-gray-600">{notification.body}</div> */}
-                    {!notification.read && (
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
-                    )}
+                    </span>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                      {notification.formattedTimestamp}
+                    </span>
                   </div>
-                ))}
+                  {!notification.read && (
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
