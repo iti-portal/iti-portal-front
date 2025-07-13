@@ -6,16 +6,20 @@ import { useNavigate } from 'react-router-dom';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-import { getMyServices, updateService, deleteService } from '../../services/serviceApi'
-import ServiceForm from '../../features/services/components/ServiceForm'; 
-import Navbar from '../../components/Layout/Navbar'; 
+import { getMyServices, updateService, deleteService } from '../../services/serviceApi';
+import ServiceForm from '../../features/services/components/ServiceForm';
+import Navbar from '../../components/Layout/Navbar';
+import ConfirmationModal from '../../components/Common/ConfirmationModal';
 
 const MyServicesPage = () => {
   const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const fetchServices = useCallback(async () => {
@@ -37,30 +41,38 @@ const MyServicesPage = () => {
 
   const handleEditClick = (service) => {
     setSelectedService(service);
-    setIsModalOpen(true);
+    setIsEditModalOpen(true);
   };
 
-  const handleDeleteClick = async (serviceId) => {
-    if (window.confirm("Are you sure you want to permanently delete this service?")) {
-      try {
-        await deleteService(serviceId);
-        toast.success("Service deleted successfully!");
-        setServices(prev => prev.filter(s => s.id !== serviceId));
-      } catch (error) {
-        toast.error(error.message || "Failed to delete the service.");
-      }
+  const handleDeleteClick = (serviceId) => {
+    setServiceToDelete(serviceId);
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!serviceToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteService(serviceToDelete);
+      toast.success("Service deleted successfully!");
+      setServices(prev => prev.filter(s => s.id !== serviceToDelete));
+      setIsConfirmModalOpen(false);
+    } catch (error) {
+      toast.error(error.message || "Failed to delete the service.");
+    } finally {
+      setIsDeleting(false);
+      setServiceToDelete(null);
     }
   };
   
   const handleUpdateService = async (formData) => {
     if (!selectedService) return;
-    
     setIsSubmitting(true);
     try {
         const dataToSubmit = { ...formData, id: selectedService.id };
         await updateService(dataToSubmit);
         toast.success("Service updated successfully!");
-        closeModal();
+        closeEditModal();
         fetchServices();
     } catch (error) {
         toast.error(error.message || "Failed to update the service.");
@@ -69,8 +81,8 @@ const MyServicesPage = () => {
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
     setSelectedService(null);
   };
 
@@ -79,7 +91,6 @@ const MyServicesPage = () => {
       <ToastContainer position="bottom-right" theme="colored" />
       <Navbar />
       
-      {/* Decorative background elements from the Create page */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
       <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
 
@@ -90,7 +101,6 @@ const MyServicesPage = () => {
           transition={{ duration: 0.5 }}
           className="max-w-4xl mx-auto"
         >
-          {/* Page Header */}
           <div className="text-center mb-12">
             <div className="inline-flex items-center px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full mb-4 border border-white/30 shadow-sm">
               <List className="text-[#901b20] mr-2" size={18} />
@@ -100,7 +110,6 @@ const MyServicesPage = () => {
             <p className="text-gray-600 text-lg">View, edit, or delete the services you offer.</p>
           </div>
 
-          {/* Container for the list and button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -111,7 +120,7 @@ const MyServicesPage = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/services/create')}
+                onClick={() => navigate('/create-service')}
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#901b20] to-[#203947] text-white font-semibold rounded-full shadow-lg"
               >
                 <Plus size={20} />
@@ -160,13 +169,13 @@ const MyServicesPage = () => {
       </main>
       
       <AnimatePresence>
-        {isModalOpen && (
+        {isEditModalOpen && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
-              onClick={closeModal}
+              onClick={closeEditModal}
             >
                 <motion.div
                   initial={{ y: -50, opacity: 0 }}
@@ -176,7 +185,7 @@ const MyServicesPage = () => {
                   className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/30 w-full max-w-2xl relative"
                   onClick={(e) => e.stopPropagation()}
                 >
-                    <motion.button whileHover={{scale: 1.1}} whileTap={{scale: 0.9}} onClick={closeModal} className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"><X /></motion.button>
+                    <motion.button whileHover={{scale: 1.1}} whileTap={{scale: 0.9}} onClick={closeEditModal} className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-800 rounded-full hover:bg-gray-100 transition-colors"><X /></motion.button>
                     <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Service</h2>
                     <ServiceForm 
                       onSubmit={handleUpdateService}
@@ -188,6 +197,16 @@ const MyServicesPage = () => {
             </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmationModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Service"
+        message="Are you sure you want to permanently delete this service? This action cannot be undone."
+        confirmText="Yes, Delete"
+        isConfirming={isDeleting}
+      />
     </div>
   );
 };
