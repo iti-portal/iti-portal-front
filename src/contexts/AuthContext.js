@@ -69,13 +69,9 @@ export const AuthProvider = ({ children }) => {
 
       if (userToRefresh.role === USER_ROLES.COMPANY) {
         console.log('🔄 Refreshing as COMPANY...');
-        const response = await fetchCompanyProfile(); // This uses your apiClient
+        const response = await fetchCompanyProfile();
         
-        // FIX: Check `response.data` which holds the payload from your server.
-        // We assume your server returns the profile object directly on success.
         if (response.data) {
-          console.log('✅ Company profile data received:', response.data);
-          // The profile data is the payload itself. Merge it.
           finalUpdatedUser = { ...userToRefresh, profile: response.data };
         } else {
           console.warn('⚠️ Invalid company profile response:', response);
@@ -84,11 +80,7 @@ export const AuthProvider = ({ children }) => {
         console.log('🔄 Refreshing as STUDENT/ADMIN...');
         const response = await getUserProfile();
         
-        // FIX: Same logic here. Check `response.data`.
-        // We assume this API returns an object like { user: {...} } inside its data.
         if (response.data && response.data.user) {
-          console.log('✅ User profile data received:', response.data.user);
-          // This API returns the full user object, so we can use it directly.
           finalUpdatedUser = response.data.user;
         } else {
           console.warn('⚠️ Invalid user profile response:', response);
@@ -98,12 +90,10 @@ export const AuthProvider = ({ children }) => {
       if (finalUpdatedUser) {
         setUser(finalUpdatedUser);
         localStorage.setItem('user', JSON.stringify(finalUpdatedUser));
-        console.log('✅ AuthContext state updated with fresh profile:', finalUpdatedUser);
       }
 
     } catch (error) {
       console.error('❌ Error during API call in refreshUserProfile:', error);
-      // Let the caller handle the error if needed
       throw error;
     }
   };
@@ -120,7 +110,6 @@ export const AuthProvider = ({ children }) => {
         await refreshUserProfile(userData);
       } catch (error) {
         console.warn('Could not refresh profile after login:', error);
-        // Keep the login data even if profile refresh fails
       }
     } catch (error) {
       console.error('Error during login:', error);
