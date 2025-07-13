@@ -251,39 +251,41 @@ const AdminDashboard = () => {
                 transition={{ duration: 0.7, delay: 0.4 }}
               >
                 <h3 className="text-base font-bold text-white mb-6 tracking-tight">Job Status Overview</h3>
-                <ResponsiveContainer width="100%" height={160}>
-                  <PieChart>
-                    <Pie
-                      data={jobStatusData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={60}
-                      innerRadius={38}
-                      dataKey="count"
-                      startAngle={90}
-                      endAngle={-270}
-                      paddingAngle={2}
-                      label={false}
-                    >
-                      {jobStatusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={`url(#donutGradient${index})`} />
-                      ))}
-                    </Pie>
-                    <defs>
-                      {jobStatusData.map((entry, idx) => (
-                        <linearGradient key={idx} id={`donutGradient${idx}`} x1="0" y1="0" x2="1" y2="1">
-                          <stop offset="0%" stopColor={
-                            entry.status === 'Active' ? '#38bdf8' :
-                            entry.status === 'Closed' ? '#a78bfa' : '#fbbf24'
-                          } stopOpacity={0.9} />
-                          <stop offset="100%" stopColor={
-                            entry.status === 'Active' ? '#6366f1' :
-                            entry.status === 'Closed' ? '#f472b6' : '#fde68a'
-                          } stopOpacity={0.9} />
-                        </linearGradient>
-                      ))}
-                    </defs>
-                  </PieChart>
+                <div className="relative w-full h-[160px]">
+                  <ResponsiveContainer width="100%" height={160}>
+                    <PieChart>
+                      <Pie
+                        data={jobStatusData}
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={60}
+                        innerRadius={38}
+                        dataKey="count"
+                        startAngle={90}
+                        endAngle={-270}
+                        paddingAngle={2}
+                        label={false}
+                      >
+                        {jobStatusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={`url(#donutGradient${index})`} />
+                        ))}
+                      </Pie>
+                      <defs>
+                        {jobStatusData.map((entry, idx) => (
+                          <linearGradient key={idx} id={`donutGradient${idx}`} x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor={
+                              entry.status === 'Active' ? '#38bdf8' :
+                              entry.status === 'Closed' ? '#a78bfa' : '#fbbf24'
+                            } stopOpacity={0.9} />
+                            <stop offset="100%" stopColor={
+                              entry.status === 'Active' ? '#6366f1' :
+                              entry.status === 'Closed' ? '#f472b6' : '#fde68a'
+                            } stopOpacity={0.9} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                    </PieChart>
+                  </ResponsiveContainer>
                   {/* Center label */}
                   <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
                     <div className="text-2xl font-bold text-white">
@@ -303,7 +305,7 @@ const AdminDashboard = () => {
                       })()}
                     </div>
                   </div>
-                </ResponsiveContainer>
+                </div>
                 {/* Legend */}
                 <div className="flex flex-wrap gap-4 justify-center mt-6">
                   {jobStatusData.map((entry, idx) => (

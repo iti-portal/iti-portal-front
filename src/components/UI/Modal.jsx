@@ -43,7 +43,7 @@ function Modal({ isOpen, onClose, title, children, className = '' }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className={`bg-white rounded-xl shadow-2xl w-full mx-auto overflow-hidden ${className}`} // The hardcoded size is gone
+            className={`bg-white rounded-xl shadow-2xl mx-auto overflow-hidden ${className}`} // The hardcoded size is gone
             onClick={(e) => e.stopPropagation()} // Prevent clicks inside modal from closing it
           >
             <div className="flex justify-between items-center p-4 border-b border-gray-200">

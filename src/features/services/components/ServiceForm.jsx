@@ -41,17 +41,17 @@ function ServiceForm({ onSubmit, isLoading = false, initialData = null, submitBu
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <label htmlFor="serviceType" className="block text-sm font-medium text-gray-700 mb-2">Service Type</label>
-        <input
+        <select
           id="serviceType"
           name="serviceType"
-          type="text"
-          placeholder="e.g., Business Session, Course Teaching"
           value={formData.serviceType}
           onChange={handleChange}
-          required // Make this field required
           disabled={isLoading}
-          className="w-full px-4 py-2.5 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-[#901b20] outline-none transition"
-        />
+          className="w-full pl-4 pr-10 py-2.5 border border-gray-300 bg-white rounded-lg focus:ring-2 focus:ring-[#901b20] outline-none transition"
+        >
+          <option value="business_session">Business Session</option>
+          <option value="course_teaching">Course Teaching</option>
+        </select>
       </div>
 
       <div>

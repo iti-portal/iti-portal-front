@@ -250,7 +250,7 @@ function CertificatesManagement({
         isOpen={showCertificateModal}
         onClose={handleCloseCertificateModal}
         title={editingCertificate ? 'Edit Certificate' : 'Add New Certificate'}
-        className="max-w-2xl"
+        className="w-full max-w-3xl"
       >
         <CertificateForm
           onSubmit={handleCertificateSubmit}
