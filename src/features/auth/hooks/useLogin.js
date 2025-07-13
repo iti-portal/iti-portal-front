@@ -94,15 +94,13 @@ export const useLogin = () => {
           setTimeout(() => {
             switch (role) {
               case 'admin':
+              case 'staff':
                 navigate('/admin/dashboard');
                 break;
               case 'student':
               case 'company':
               case 'alumni':
                 navigate('/');
-                break;
-              case 'staff':
-                navigate('/staff/dashboard'); // Make sure this route exists
                 break;
               default:
                 navigate('/unauthorized');

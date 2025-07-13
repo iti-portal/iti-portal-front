@@ -25,7 +25,7 @@ const RoleBasedRoute = ({ children, allowedRoles }) => {
     // Save the location they were trying to go to, so we can redirect them back after login.
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
+  console.log('Role Check -> User Role:', user?.role, '| Allowed Roles:', allowedRoles);
   // 3. If the user is authenticated, check if their role is allowed.
   // The `user.role` is already processed by AuthContext to be 'student' if they were 'alumni'.
   if (!allowedRoles || !allowedRoles.includes(user.role)) {

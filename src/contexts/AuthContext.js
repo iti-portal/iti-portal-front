@@ -52,15 +52,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const refreshUserProfile = async () => {
+  const refreshUserProfile = async (prevUser = null) => {
     try {
-      
       const profileResponse = await getUserProfile();
-      
-      
       if (profileResponse.success && profileResponse.data?.user) {
-        const freshUserData = profileResponse.data.user;
-        
+        let freshUserData = profileResponse.data.user;
+        // If role is missing from refreshed profile, preserve previous role
+        if (!freshUserData.role && prevUser?.role) {
+          freshUserData = { ...freshUserData, role: prevUser.role };
+        }
         setUser(freshUserData);
         localStorage.setItem('user', JSON.stringify(freshUserData));
         return freshUserData;
@@ -79,10 +79,9 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       setUser(userData);
       setIsAuthenticated(true);
-      
-      // Try to fetch fresh profile data after login
+      // Try to fetch fresh profile data after login, preserving role if missing
       try {
-        await refreshUserProfile();
+        await refreshUserProfile(userData);
       } catch (error) {
         console.warn('Could not refresh profile after login:', error);
         // Keep the login data even if profile refresh fails
