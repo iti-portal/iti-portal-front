@@ -2,7 +2,7 @@
 
 
 
-export async function GetTrendingArticles(baseUrl = 'http://127.0.0.1:8000/api/articles/popular') {
+export async function GetTrendingArticles(baseUrl = `${process.env.REACT_APP_API_URL}/articles/popular`) {
   const token = localStorage.getItem("token");
      try {
     const response = await fetch(`${baseUrl}`, {

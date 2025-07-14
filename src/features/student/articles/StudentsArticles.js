@@ -71,7 +71,7 @@ function StudentArticles() {
         setLikingArticleId(articleId);
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`http://127.0.0.1:8000/api/articles/${articleId}/like`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/articles/${articleId}/like`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
             if (!res.ok) throw new Error('Failed to like');
             const update = a => a.id === articleId ? { ...a, like_count: a.like_count + 1, is_liked_by_user: true } : a;
             setAllArticles(p => p.map(update));
@@ -84,7 +84,7 @@ function StudentArticles() {
         setLikingArticleId(articleId);
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`http://127.0.0.1:8000/api/articles/${articleId}/unlike`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/articles/${articleId}/unlike`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }});
             if (!res.ok) throw new Error('Failed to unlike');
             const update = a => a.id === articleId ? { ...a, like_count: Math.max(0, a.like_count - 1), is_liked_by_user: false } : a;
             setAllArticles(p => p.map(update));

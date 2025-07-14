@@ -193,7 +193,7 @@ const handleJobDetailsClick = (job) => {
     const deleteHandler = async () => {
       setDeletingId(jobId);
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/company/jobs/${jobId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/company/jobs/${jobId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -249,7 +249,7 @@ const handleJobDetailsClick = (job) => {
       let hasMorePages = true;
 
       while (hasMorePages) {
-        const response = await fetch(`http://127.0.0.1:8000/api/admin/jobs?page=${currentPage}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/admin/jobs?page=${currentPage}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

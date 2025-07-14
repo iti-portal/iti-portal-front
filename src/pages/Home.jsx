@@ -197,7 +197,7 @@ const Home = () => {
                   >
                     <span className="relative z-10 flex items-center">
                       <FaTrophy className="mr-3 text-yellow-400" />
-                      Create Achievement
+                      Share Achievement
                       <FaArrowRight className="ml-3 group-hover:translate-x-1 transition-transform duration-300" />
                     </span>
                   </Link>
