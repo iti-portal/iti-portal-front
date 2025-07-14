@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../../../contexts/AuthContext';
 import { db, collection, onSnapshot } from '../../../firebase';
+import { Link } from 'react-router-dom';
 
 const NotificationDropdown = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -106,6 +107,7 @@ const NotificationDropdown = () => {
                   }`}
                   onClick={() => markAsRead(notification.id)}
                 >
+                  <Link to={notification.type === 'application' ? `/applications/${notification.target_id}` : notification.type === 'achievement' ? `/achievements/${notification.target_id}` : '/articles/${notification.target_id}'}>
                   <div className="font-medium text-gray-800 flex justify-between items-center">
                     <span className={!notification.read ? 'font-bold' : ''}>
                       {notification.body}
@@ -114,6 +116,7 @@ const NotificationDropdown = () => {
                       {notification.formattedTimestamp}
                     </span>
                   </div>
+                  </Link>
                   {!notification.read && (
                     <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
                   )}
