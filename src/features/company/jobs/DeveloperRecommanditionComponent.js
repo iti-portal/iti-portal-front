@@ -170,10 +170,6 @@ const HandleCardNumbers = () => {
 const DeveloperCard = ({ developer }) => {
   const dev = developer;
   const matchingDetails = dev.matching_details || {};
-  const score = matchingDetails.score || dev.matching_score || 0;
-
- 
-  const scoreColor = 'bg-blue-50 text-blue-700';
 
 
   return (

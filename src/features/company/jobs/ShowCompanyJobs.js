@@ -14,6 +14,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import CompanyLayout from '../../../layouts/CompanyLayout';
 
 const JobsList = () => {
   const [jobs, setJobs] = useState([]);
@@ -152,6 +153,8 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
   };
 
   return (
+    
+
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full">
       <div className="p-6 flex-grow">
         <div className="flex justify-between items-start mb-5">
@@ -279,7 +282,7 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
             </div>
             <button
               key={`details-button-${job.id}`}
-              onClick={() => navigate(`/company/dashboard/manage-jobs/${job.id}`)}
+              onClick={() => navigate(`/company/dashboard/manage-jobs/${job.id}`)} 
               className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
             >
               View Details
@@ -288,7 +291,7 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
         ) : (
           <button
             key={`closed-details-button-${job.id}`}
-            onClick={() => navigate(`/company/dashboard/manage-jobs/${job.id}`)}
+            onClick={() => navigate(`/company/dashboard/manage-jobs/${job.id}`)} 
             className='w-full bg-red-700 hover:bg-red-800 text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center'
           >
             View Details
@@ -296,6 +299,7 @@ const JobCard = ({ job, onStatusChange, onCloseJob, isUpdating }) => {
         )}
       </div>
     </div>
+  
   );
 };
 

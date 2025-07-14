@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, User, Users, Check, X, Send, UserX } from 'lucide-react';
 import { REACT_APP_API_ASSET_URL } from '../../../services/apiConfig';
@@ -9,18 +10,26 @@ import { getConnectedUsers, getPendingConnections, getSentConnections, acceptCon
 
 // --- Redesigned Card Components ---
 
-const ConnectionCard = ({ user, onDisconnect }) => (
-    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-5 text-center flex flex-col h-full">
-        <img src={`${REACT_APP_API_ASSET_URL}/` + user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
-        <h3 className="font-bold text-gray-800 text-base mt-3 truncate">{user.first_name} {user.last_name}</h3>
-        <p className="text-xs text-gray-500 mb-3 truncate">{user.track}</p>
-        <div className="flex-grow"></div>
-        <div className="space-y-2 mt-auto">
-            <button className="w-full text-sm font-semibold py-2 px-3 rounded-lg border border-gray-300 bg-white/50 hover:border-[#901b20] hover:text-[#901b20] transition-colors">View Profile</button>
-            <button onClick={() => onDisconnect(user.id)} className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"><UserX size={16}/>Disconnect</button>
-        </div>
-    </motion.div>
-);
+const ConnectionCard = ({ user, onDisconnect }) => {
+    const navigate = useNavigate();
+    return (
+        <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-5 text-center flex flex-col h-full">
+            <img src={`${REACT_APP_API_ASSET_URL}/` + user.image || `https://ui-avatars.com/api/?name=${user.first_name}+${user.last_name}&background=901b20&color=fff`} alt={user.first_name} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-white shadow-md -mt-12" />
+            <h3 className="font-bold text-gray-800 text-base mt-3 truncate">{user.first_name} {user.last_name}</h3>
+            <p className="text-xs text-gray-500 mb-3 truncate">{user.track}</p>
+            <div className="flex-grow"></div>
+            <div className="space-y-2 mt-auto">
+                <button
+                    className="w-full text-sm font-semibold py-2 px-3 rounded-lg border border-gray-300 bg-white/50 hover:border-[#901b20] hover:text-[#901b20] transition-colors"
+                    onClick={() => navigate(`/profile/${user.id}`)}
+                >
+                    View Profile
+                </button>
+                <button onClick={() => onDisconnect(user.id)} className="w-full flex items-center justify-center gap-2 text-sm font-semibold py-2 px-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"><UserX size={16}/>Disconnect</button>
+            </div>
+        </motion.div>
+    );
+};
 
 const RequestCard = ({ user, onAccept, onDecline }) => (
     <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-5 text-center flex flex-col h-full">

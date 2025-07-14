@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../../../contexts/AuthContext';
 
 /**
  * Admin menu items configuration
@@ -28,6 +29,12 @@ const menu = [
 const AdminSidebar = ({ open, setOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Filter out Staff tab for staff users
+  const filteredMenu = user?.role === 'staff'
+    ? menu.filter(item => item.label !== 'Staff')
+    : menu;
 
   /**
    * Handles user logout.
@@ -71,7 +78,7 @@ const AdminSidebar = ({ open, setOpen }) => {
     >
       <nav className="flex-1 px-1">
         <ul className="space-y-1">
-          {menu.map(item => {
+          {filteredMenu.map(item => {
             const isActive = location.pathname === item.path;
             return (
               <li key={item.label}>
@@ -104,8 +111,12 @@ const AdminSidebar = ({ open, setOpen }) => {
             className="w-10 h-10 rounded-full border-2 border-red-500 object-cover"
           />
           <div>
-            <span className="font-semibold text-slate-800 block text-sm">Admin</span>
-            <span className="text-xs text-slate-500">Administrator</span>
+            <span className="font-semibold text-slate-800 block text-sm">
+              {user?.role === 'staff' ? 'Staff' : 'Admin'}
+            </span>
+            <span className="text-xs text-slate-500">
+              {user?.role === 'staff' ? 'Staff Member' : 'Administrator'}
+            </span>
           </div>
         </div>
         <button

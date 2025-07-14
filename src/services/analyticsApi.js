@@ -6,7 +6,7 @@ export const initializeAPI = () => {
     : 'demo-token'; // fallback for demo
 
   return axios.create({
-    baseURL: 'http://127.0.0.1:8000/api/',
+    baseURL: `${process.env.REACT_APP_API_URL}/`,
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',

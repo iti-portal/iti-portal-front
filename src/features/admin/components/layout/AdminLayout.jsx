@@ -2,7 +2,7 @@ import React from 'react';
 import AdminSidebar from './AdminSidebar';
 import AdminNavbar from './AdminNavbar';
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 /**
  * AdminLayout component for wrapping admin pages
@@ -38,7 +38,7 @@ const AdminLayout = ({ children }) => {
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
         >
           <div className="bg-white rounded-xl shadow-xl p-3 sm:p-4 md:p-6 lg:p-8 flex-grow w-full overflow-hidden border border-gray-100">
-            {children}
+           {children}
           </div>
         </motion.main>
       </div>

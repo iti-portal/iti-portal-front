@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { logoutUser } from '../features/auth/services/authAPI';
 import { getUserProfile } from '../services/profileService';
+import { fetchCompanyProfile } from '../services/company-profileApi';
+import { USER_ROLES } from '../features/auth/types/auth.types';
 
 const AuthContext = createContext();
 
@@ -30,14 +32,14 @@ export const AuthProvider = ({ children }) => {
       if (token && userData) {
         setIsAuthenticated(true);
         const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        
-        // Try to fetch fresh profile data if token exists
+        setUser(parsedUser); // Immediately set user from local storage for quick UI feedback
+
+        // Try to fetch fresh profile data. The refreshUserProfile function will handle updating the state.
         try {
-          await refreshUserProfile();
+          await refreshUserProfile(parsedUser);
         } catch (error) {
-          console.warn('Could not refresh user profile:', error);
-          // Keep the stored user data even if profile refresh fails
+          console.warn('AuthContext: Could not refresh user profile on initial load:', error);
+          // If refresh fails, the user state remains the one from localStorage, which is desired.
         }
       } else {
         setIsAuthenticated(false);
@@ -52,24 +54,59 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const refreshUserProfile = async () => {
+  const refreshUserProfile = async (userOverride = null) => {
+    // Determine the user object to work with, prioritizing the direct parameter
+    const userToRefresh = userOverride || user;
+
+    if (!userToRefresh?.role) {
+      console.warn('AuthContext: refreshUserProfile called, but no user is available.');
+      return null; // Return null to indicate no update was made
+    }
+
     try {
-      
-      const profileResponse = await getUserProfile();
-      
-      
-      if (profileResponse.success && profileResponse.data?.user) {
-        const freshUserData = profileResponse.data.user;
+      let finalUpdatedUser = null;
+
+      // COMBINED LOGIC: Use role-aware fetching from Code A
+      if (userToRefresh.role === USER_ROLES.COMPANY) {
+        console.log('AuthContext: Refreshing profile for a COMPANY user...');
+        const response = await fetchCompanyProfile();
         
-        setUser(freshUserData);
-        localStorage.setItem('user', JSON.stringify(freshUserData));
-        return freshUserData;
+        // The company profile API returns the profile directly in `response.data`
+        if (response.data) {
+          // Merge the fresh profile data into the existing user object
+          finalUpdatedUser = { ...userToRefresh, profile: response.data };
+        } else {
+          console.warn('⚠️ Invalid company profile response:', response);
+        }
       } else {
-        console.warn('⚠️ Invalid profile response:', profileResponse);
+        console.log('AuthContext: Refreshing profile for a STUDENT/ADMIN user...');
+        const response = await getUserProfile();
+        
+        if (response.success && response.data?.user) {
+          let freshUserData = response.data.user;
+          
+          // COMBINED LOGIC: Use defensive role preservation from Code B
+          if (!freshUserData.role && userToRefresh?.role) {
+            freshUserData.role = userToRefresh.role;
+            console.log('AuthContext: Role preserved from previous user state:', freshUserData.role);
+          }
+          finalUpdatedUser = freshUserData;
+        } else {
+          console.warn('⚠️ Invalid user profile response:', response);
+        }
       }
+
+      if (finalUpdatedUser) {
+        console.log('AuthContext: Fresh user data prepared:', finalUpdatedUser);
+        setUser(finalUpdatedUser);
+        localStorage.setItem('user', JSON.stringify(finalUpdatedUser));
+        return finalUpdatedUser; // Return the fresh data so the caller knows it succeeded
+      }
+      return null; // Return null if no update was made
+
     } catch (error) {
-      console.error('❌ Error refreshing user profile:', error);
-      throw error;
+      console.error('❌ Error during API call in refreshUserProfile:', error);
+      throw error; // Propagate error to the caller
     }
   };
 
@@ -82,10 +119,9 @@ export const AuthProvider = ({ children }) => {
       
       // Try to fetch fresh profile data after login
       try {
-        await refreshUserProfile();
+        await refreshUserProfile(userData);
       } catch (error) {
         console.warn('Could not refresh profile after login:', error);
-        // Keep the login data even if profile refresh fails
       }
     } catch (error) {
       console.error('Error during login:', error);
@@ -95,32 +131,20 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       setLoading(true);
-      
-      // Call logout API
       await logoutUser();
-      
-      // Clear local storage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      
-      // Update state
       setIsAuthenticated(false);
       setUser(null);
-      
       return { success: true };
     } catch (error) {
       console.error('Error during logout:', error);
-      
-      // Even if API call fails, clear local data
+      // Even if API call fails, ensure user is logged out on the client-side
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       setIsAuthenticated(false);
       setUser(null);
-      
-      return { 
-        success: false, 
-        error: error.message || 'Logout failed' 
-      };
+      return { success: false, error: error.message || 'Logout failed' };
     } finally {
       setLoading(false);
     }
