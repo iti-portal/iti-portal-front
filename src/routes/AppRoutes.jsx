@@ -248,11 +248,12 @@ const AppRoutes = () => {
             path="/my-achievements"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><MyAchievements /></PrivateRoute> }
           />
+          
           <Route
             path="/achievements/create"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><CreateAchievement /></PrivateRoute> }
           />
-
+ 
           {/* Job application routes */}
           <Route
             path="/job/:jobId/apply" 

@@ -46,7 +46,7 @@ const JobsList = () => {
     setUpdatingJobs(prev => ({ ...prev, [jobId]: true }));
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/company/jobs/${jobId}/status`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/company/jobs/${jobId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,7 @@ const JobsList = () => {
     setUpdatingJobs(prev => ({ ...prev, [jobId]: true }));
     
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/company/jobs/${jobId}/status`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/company/jobs/${jobId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

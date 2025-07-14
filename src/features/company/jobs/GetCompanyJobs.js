@@ -1,4 +1,4 @@
-export async function getCompanyJobs(baseUrl = 'http://127.0.0.1:8000/api/company/jobs') {
+export async function getCompanyJobs(baseUrl = `${process.env.REACT_APP_API_URL}/company/jobs`) {
     const token = localStorage.getItem("token");
     let allJobs = [];
     let currentPage = 1;

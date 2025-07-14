@@ -35,7 +35,7 @@ function JobAdmin() {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch("http://127.0.0.1:8000/api/companies", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}//companies`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -70,7 +70,7 @@ function JobAdmin() {
       setDeletingId(companyId);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://127.0.0.1:8000/api/companies/${companyId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/companies/${companyId}`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",

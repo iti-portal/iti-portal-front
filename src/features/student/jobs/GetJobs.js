@@ -1,7 +1,7 @@
 
 
 const API_TOKEN = localStorage.getItem('token') ;
-const BASE_API_URL = 'http://127.0.0.1:8000/api/jobs';
+const BASE_API_URL = `${process.env.REACT_APP_API_URL}/jobs`;
 
 export async function fetchAllJobs(API_TOKEN) {
   let allJobs = [];
@@ -55,7 +55,7 @@ export async function fetchAllJobs(API_TOKEN) {
 
 export async function fetchUserSkills(token) {
   try {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/profile`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/profile`, {
       method: "GET",
       headers: {
         'Authorization': `Bearer ${token}`,

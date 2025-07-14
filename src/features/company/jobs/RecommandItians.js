@@ -15,7 +15,7 @@ export const getAllDevelopers = async () => {
     };
   }
 
-  const baseUrl = 'http://127.0.0.1:8000/api/itians-for-ai';
+  const baseUrl = `${process.env.REACT_APP_API_URL}/itians-for-ai`;
   
   try {
     const queryParams = new URLSearchParams();
@@ -91,7 +91,7 @@ export const getAllDevelopers = async () => {
   }
 };
 
-const API_BASE_URL = 'http://127.0.0.1:8000/api';
+const API_BASE_URL = `${process.env.REACT_APP_API_URL}`;
 
 
 export async function getTopDevelopersForJob(jobId, developers, authToken) {
