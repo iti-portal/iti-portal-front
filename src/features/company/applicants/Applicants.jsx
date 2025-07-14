@@ -60,12 +60,13 @@ function CompanyApplications() {
       const token = localStorage.getItem('token');
       
       if (!application.cv_downloaded_at) {
-        await axios.put(
+        await axios.get(
           `http://127.0.0.1:8000/api/job-applications/${application.id}/download-cv`,
           {},
           {
             headers: {
               'Authorization': `Bearer ${token}`
+              
             }
           }
         );
