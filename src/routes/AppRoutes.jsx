@@ -21,7 +21,6 @@ import PrivateRoute from './PrivateRoute';
 import RoleBasedRoute from './RoleBasedRoute';
 import { ProfilePage, EditProfilePage } from '../features/student';
 import { CreateAchievement, ViewAchievements, MyAchievements } from '../features/achievements';
-import ViewAchievement from '../features/achievements/pages/ViewAchievement';
 import { useAuth } from '../contexts/AuthContext';
 import { USER_ROLES } from '../features/auth/types/auth.types';
 import CompanyAdmin from '../features/admin/components/company/CompanyAdmin';  

@@ -117,7 +117,7 @@ const NotificationDropdown = () => {
                   }`}
                   onClick={() => markAsRead(notification.id)}
                 >
-                  <Link to={notification.type === 'application' ? `/applications/${notification.target_id}` : notification.type === 'achievement' ? `/achievements/${notification.target_id}` : '/articles/${notification.target_id}'}>
+                  <Link to={notification.type === 'application_user' ? `/my-applications/${notification.target_id}` : notification.type === 'application_company' ? `/company/jobs/${notification.target_id}/applications` : notification.type === 'achievement' ? `/my-achievements` : '/my-network'}>
                   <div className="font-medium text-gray-800 flex justify-between items-center">
                     <span className={!notification.read ? 'font-bold' : ''}>
                       {notification.body}
