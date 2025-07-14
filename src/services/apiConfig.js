@@ -3,8 +3,8 @@
  * Shared configuration and helper functions for all service modules
  */
 
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api';
-export const REACT_APP_API_ASSET_URL= process.env.REACT_APP_API_ASSET_URL || 'http://127.0.0.1:8000/storage';
+export const API_BASE_URL = process.env.REACT_APP_API_URL ;
+export const REACT_APP_API_ASSET_URL= process.env.REACT_APP_API_ASSET_URL;
 
 /**
  * Get authentication headers for API requests
@@ -109,7 +109,7 @@ export const constructProfilePictureUrl = (picturePath) => {
   }
 
   // Use environment variable, removing /api for storage URLs
-  const baseUrl = (process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000/api').replace('/api', '');
+  const baseUrl = (process.env.REACT_APP_API_URL).replace('/api', '');
   
   // Return the most likely URL pattern for Laravel
   if (picturePath.startsWith('storage/')) {
