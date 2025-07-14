@@ -37,7 +37,17 @@ const NotificationDropdown = () => {
         });
 
         const sortedNotifications = allNotifications.sort((a, b) => b.timestamp - a.timestamp);
-        setNotifications(sortedNotifications);
+        
+        const uniqueNotifications = [];
+        const bodies = new Set();
+
+        for (const notification of sortedNotifications) {
+          if (!bodies.has(notification.body)) {
+            uniqueNotifications.push(notification);
+            bodies.add(notification.body);
+          }
+      }
+        setNotifications(uniqueNotifications);
       },
       (error) => {
         console.error("Error fetching notifications:", error);
