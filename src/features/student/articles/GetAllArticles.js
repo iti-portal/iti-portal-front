@@ -1,4 +1,4 @@
-export async function GetAllArticles(baseUrl = 'http://127.0.0.1:8000/api/articles') {
+export async function GetAllArticles(baseUrl = `${process.env.REACT_APP_API_URL}/articles`) {
   const token = localStorage.getItem("token");
      try {
     const response = await fetch(`${baseUrl}`, {

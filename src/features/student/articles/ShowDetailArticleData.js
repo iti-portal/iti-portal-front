@@ -20,7 +20,7 @@ function ShowDetailArticleData() {
         const fetchArticle = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`http://127.0.0.1:8000/api/articles/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/articles/${id}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!response.ok) { if (response.status === 404) { navigate('/not-found', { replace: true }); return; } const errorData = await response.json(); throw new Error(errorData.message || 'Failed to fetch article'); }
                 const data = await response.json();
                 setArticle(data.data); 
