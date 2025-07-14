@@ -60,7 +60,7 @@ function CompanyApplications() {
       const token = localStorage.getItem('token');
       
       if (!application.cv_downloaded_at) {
-        await axios.put(
+        await axios.get(
           `http://127.0.0.1:8000/api/job-applications/${application.id}/download-cv`,
           {},
           {
@@ -361,7 +361,7 @@ function CompanyApplications() {
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                                <button 
+                                {/* <button 
                                   className={`group relative flex items-center justify-center h-8 w-8 rounded-lg hover:text-white transition-all duration-200 shadow-sm
                                     ${application.cv_path ? 'bg-green-50 text-green-600 hover:bg-green-600' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
                                   onClick={() => application.cv_path && handleDownloadCV(application)}
@@ -369,7 +369,7 @@ function CompanyApplications() {
                                   title={application.cv_path ? "Download CV" : "No CV available"}
                                 >
                                   <Download className="w-4 h-4" />
-                                </button>
+                                </button> */}
                               </div>
                             </td>
                           </tr>
