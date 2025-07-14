@@ -43,17 +43,17 @@ import Messages from '../features/company/messages/Messages';
 import ApplicationForm from '../features/student/components/applications/ApplicationForm';
 import MyApplicationsPage from '../features/student/pages/MyApplicationsPage';
 import ApplicationDetailsPage from '../features/student/pages/ApplicationDetailsPage';
-// import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage';
-import AdminApplicationsPage from '../features/admin/components/applications/AdminApplicationsPage';
+
 import ShowCompanyUser from '../features/student/company/ShowCompanyUser';
 import ShowDetailArticleData from '../features/student/articles/ShowDetailArticleData';
-import AdminApplications from '../features/admin/components/applications/Applications';
 import AllJobApplications from '../features/company/jobs/ShowAllJobApps';
 import ApplicationView from '../features/company/jobs/ShowAppDetails';
 import CompanyJobApplicationsPage from '../features/company/applicants/pages/CompanyJobApplicationsPage'
 import CreateServicePage from '../pages/services/CreateServicePage';
 import MyServicesPage from '../pages/services/MyServicesPage';
 import AdminLayout from '../layouts/AdminLayout';
+import AdminApplicationsPage from '../features/admin/components/applications/AdminApplicantionsComponent';
+import AdminDashboardPageLayout from '../features/admin/pages/AdminApplicationsPage';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -148,7 +148,7 @@ const AppRoutes = () => {
           />
           <Route
             path="/admin/applications"
-            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><AdminApplicationsPage /></RoleBasedRoute> }
+            element={ <RoleBasedRoute allowedRoles={['admin', 'staff']}><AdminDashboardPageLayout /></RoleBasedRoute> }
           />
           
           {/* Company routes */}
@@ -248,11 +248,12 @@ const AppRoutes = () => {
             path="/my-achievements"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><MyAchievements /></PrivateRoute> }
           />
+          
           <Route
             path="/achievements/create"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><CreateAchievement /></PrivateRoute> }
           />
-
+ 
           {/* Job application routes */}
           <Route
             path="/job/:jobId/apply" 

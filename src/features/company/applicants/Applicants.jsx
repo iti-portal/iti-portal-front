@@ -66,6 +66,7 @@ function CompanyApplications() {
           {
             headers: {
               'Authorization': `Bearer ${token}`
+              
             }
           }
         );
