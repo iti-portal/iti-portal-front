@@ -127,7 +127,7 @@ function AwardsManagement({
               ? { 
                   ...award, 
                   ...result.data,
-                  imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : award.imagePath,
+                  imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : award.imagePath,
                   imageUrl: result.data.imageUrl || award.imageUrl
                 }
               : award
@@ -151,7 +151,7 @@ function AwardsManagement({
           // Add the new award directly to local state
           const newAward = {
             ...result.data,
-            imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+            imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
             imageUrl: result.data.imageUrl || (result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null)
           };
           
@@ -268,7 +268,7 @@ function AwardsManagement({
             ? { 
                 ...award, 
                 image_path: result.data.image_path,
-                imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+                imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
                 imageUrl: result.data.imageUrl || result.data.imagePath,
                 updated_at: result.data.updated_at
               }
@@ -297,7 +297,7 @@ function AwardsManagement({
             ? { 
                 ...award, 
                 image_path: result.data.image_path,
-                imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+                imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
                 imageUrl: result.data.imageUrl || result.data.imagePath,
                 updated_at: result.data.updated_at
               }

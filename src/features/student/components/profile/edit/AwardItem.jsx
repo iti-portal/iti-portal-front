@@ -41,7 +41,7 @@ function AwardItem({ award, onEdit, onDelete, onImageUpdate, onImageAdd, onImage
             {(award.imagePath || award.image_path || award.imageUrl) ? (
               <div className="relative group">
                 <img 
-                  src={award.imagePath || award.imageUrl || `http://127.0.0.1:8000/storage/${award.image_path}`}
+                  src={award.imagePath || award.imageUrl || `${process.env.REACT_APP_API_ASSET_URL}/${award.image_path}`}
                   alt={award.title || award.name || 'Award'} 
                   className="w-20 h-20 object-cover rounded-lg border border-gray-200 group-hover:opacity-75 transition-opacity"
                   onError={(e) => {

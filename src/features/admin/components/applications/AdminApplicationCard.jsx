@@ -102,7 +102,7 @@ const AdminApplicationCard = ({
             <div className="flex items-center mb-4">
                 {profile_picture ? (
                     <img 
-                        src={`http://localhost:8000/storage/${profile_picture}`} 
+                        src={`${process.env.REACT_APP_API_ASSET_URL}/${profile_picture}`} 
                         alt={`${first_name} ${last_name}`} 
                         className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-iti-primary" 
                         onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/128x128/e0e0e0/000000?text=User"; }}

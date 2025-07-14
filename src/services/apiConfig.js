@@ -130,7 +130,7 @@ export const constructCertificateImageUrl = (imagePath) => {
     return imagePath;
   }
 
-  const baseUrl = 'http://127.0.0.1:8000';
+  const baseUrl = `${process.env.REACT_APP_API_URL_WITHOUT_API}`;
   
   // Return the most likely URL pattern for Laravel
   if (imagePath.startsWith('storage/')) {

@@ -32,7 +32,7 @@ export const addAward = async (awardData) => {
       }
     });
 
-    const response = await fetch(`${API_BASE_URL}/awards/add`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/awards/add`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(apiData)
@@ -87,7 +87,7 @@ export const updateAward = async (awardId, awardData) => {
         delete apiData[key];
       }
     });
-    const response = await fetch(`${API_BASE_URL}/awards/${awardId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/awards/${awardId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify(apiData)
@@ -134,7 +134,7 @@ export const updateAwardImage = async (awardId, imageFile) => {
     const formData = new FormData();
     formData.append('image', imageFile);
 
-    const response = await fetch(`${API_BASE_URL}/awards/image/${awardId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/awards/image/${awardId}`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -164,7 +164,7 @@ export const updateAwardImage = async (awardId, imageFile) => {
       certificateUrl: result.data.certificate_url,
       certificate_url: result.data.certificate_url,
       image_path: result.data.image_path,
-      imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+      imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
       imageUrl: result.data.image_path ? constructCertificateImageUrl(result.data.image_path) : null,
       // Keep original fields for compatibility
       ...result.data
@@ -186,7 +186,7 @@ export const updateAwardImage = async (awardId, imageFile) => {
  */
 export const getUserAwards = async (userId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/users/${userId}/awards`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/users/${userId}/awards`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -203,7 +203,7 @@ export const getUserAwards = async (userId) => {
     // Process image URLs for each award
     const awardsWithImages = (result.data || []).map(award => ({
       ...award,
-      imagePath: award.image_path ? `http://127.0.0.1:8000/storage/${award.image_path}` : null,
+      imagePath: award.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${award.image_path}` : null,
       imageUrl: award.image_path ? constructCertificateImageUrl(award.image_path) : null
     }));
     
@@ -221,7 +221,7 @@ export const getUserAwards = async (userId) => {
  */
 export const deleteAward = async (awardId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/awards/${awardId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/awards/${awardId}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',
@@ -256,7 +256,7 @@ export const addAwardImage = async (awardId, imageFile, altText = '') => {
       formData.append('alt_text', altText);
     }
     
-    const response = await fetch(`${API_BASE_URL}/awards/image/${awardId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/awards/image/${awardId}`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -278,7 +278,7 @@ export const addAwardImage = async (awardId, imageFile, altText = '') => {
  */
 export const deleteAwardImage = async (imageId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/awards/image/${imageId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/awards/image/${imageId}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',

@@ -13,7 +13,7 @@ import { fetchUserById } from '../../../services/usersApi';
 // Helper to get image URL safely
 const getImageUrl = (imagePath) => {
   if (!imagePath || imagePath.startsWith('http')) return imagePath;
-  const baseUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+  const baseUrl = process.env.REACT_APP_API_URL;
   const cleanBaseUrl = baseUrl.replace('/api', '');
   return `${cleanBaseUrl}/storage/${imagePath}`;
 };

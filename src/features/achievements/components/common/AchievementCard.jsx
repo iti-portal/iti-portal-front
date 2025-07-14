@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+    const baseUrl = process.env.REACT_APP_API_URL;
     const cleanBaseUrl = baseUrl.replace('/api', '');
     return `${cleanBaseUrl}/storage/${path}`;
 };

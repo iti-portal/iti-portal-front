@@ -1,4 +1,4 @@
-const getAllJobApplications = async (jobId, baseUrl = 'http://localhost:8000/api/company/applications') => {
+const getAllJobApplications = async (jobId, baseUrl = `${process.env.REACT_APP_API_URL}/company/applications`) => {
   const token = localStorage.getItem("token");
   try {
     const response = await fetch(`${baseUrl}?job_id=${jobId}`, {

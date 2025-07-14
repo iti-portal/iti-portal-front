@@ -3,7 +3,7 @@
  */
 
 import { 
-  API_BASE_URL, 
+  a, 
   getAuthHeaders, 
   handleApiResponse, 
   handleNetworkError 
@@ -14,7 +14,7 @@ import {
  */
 export const getAllSkills = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/skills`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/skills`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
@@ -30,7 +30,7 @@ export const getAllSkills = async () => {
  */
 export const addUserSkill = async (skillName) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user-skills/`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/user-skills`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({ skill_name: skillName })
@@ -47,7 +47,7 @@ export const addUserSkill = async (skillName) => {
  */
 export const deleteUserSkill = async (skillId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user-skills/${skillId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/user-skills/${skillId}`, {
       method: 'DELETE',
       headers: {
         'Accept': 'application/json',

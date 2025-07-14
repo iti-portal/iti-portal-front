@@ -181,7 +181,7 @@ const DeveloperCard = ({ developer }) => {
           <div className="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center text-red-600">
             {dev.profile?.profile_picture ? (
               <img
-                src={`http://127.0.0.1:8000/storage/${dev.profile.profile_picture}`}
+                src={`${process.env.REACT_APP_API_ASSET_URL}/${dev.profile.profile_picture}`}
                 className="rounded-full w-full h-full object-cover"
               />
             ) : (

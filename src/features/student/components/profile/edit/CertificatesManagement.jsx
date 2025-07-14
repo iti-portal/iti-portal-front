@@ -79,7 +79,7 @@ function CertificatesManagement({
             organization: result.data.organization,
             achievedAt: result.data.achieved_at,
             certificateUrl: result.data.certificate_url,
-            imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+            imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
             createdAt: result.data.created_at,
             updatedAt: result.data.updated_at
           };
@@ -110,7 +110,7 @@ function CertificatesManagement({
             organization: result.data.organization,
             achievedAt: result.data.achieved_at,
             certificateUrl: result.data.certificate_url,
-            imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+            imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
             createdAt: result.data.created_at,
             updatedAt: result.data.updated_at
           };
@@ -202,7 +202,7 @@ function CertificatesManagement({
           cert.id === certificateId 
             ? { 
                 ...cert, 
-                imagePath: result.data.image_path ? `http://127.0.0.1:8000/storage/${result.data.image_path}` : null,
+                imagePath: result.data.image_path ? `${process.env.REACT_APP_API_ASSET_URL}/${result.data.image_path}` : null,
                 updatedAt: result.data.updated_at
               }
             : cert

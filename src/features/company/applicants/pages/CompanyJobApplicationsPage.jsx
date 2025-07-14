@@ -61,7 +61,7 @@ const CompanyJobApplicationsPage = () => {
         setJobDataError(null);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:8000/api/jobs/${jobId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/jobs/${jobId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.data.success && response.data.data) {
@@ -90,7 +90,7 @@ const CompanyJobApplicationsPage = () => {
         try {
             // Fetch applications
             const applicationsResponse = await axios.get(
-                `http://localhost:8000/api/company/applications?job_id=${jobId}&include_match_score=true`,
+                `${process.env.REACT_APP_API_URL}/company/applications?job_id=${jobId}&include_match_score=true`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
@@ -102,7 +102,7 @@ const CompanyJobApplicationsPage = () => {
 
             // Fetch stats
             const statsResponse = await axios.get(
-                `http://localhost:8000/api/jobs/${jobId}/applications/stats`,
+                `${process.env.REACT_APP_API_URL}/jobs/${jobId}/applications/stats`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
@@ -135,7 +135,7 @@ const CompanyJobApplicationsPage = () => {
 
         try {
             const response = await axios.get(
-                `http://localhost:8000/api/job-applications/${applicationId}/download-cv`,
+                `${process.env.REACT_APP_API_URL}/job-applications/${applicationId}/download-cv`,
                 {
                     headers: { 'Authorization': `Bearer ${token}` },
                     responseType: 'blob'
@@ -171,7 +171,7 @@ const CompanyJobApplicationsPage = () => {
 
                 try {
                     await axios.patch(
-                        `http://localhost:8000/api/company/applications/${applicationId}/status`,
+                        `${process.env.REACT_APP_API_URL}/company/applications/${applicationId}/status`,
                         { status: newStatus },
                         { headers: { 'Authorization': `Bearer ${token}` } }
                     );
