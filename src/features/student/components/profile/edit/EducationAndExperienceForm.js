@@ -224,7 +224,7 @@ function EducationAndExperienceForm({ educations = [], workExperiences = [], onU
           setIsEducationModalOpen(false);
         }}
         title={editingEducation ? "Edit Education" : "Add Education"}
-        className="max-w-2xl"
+        className="w-full max-w-3xl"
       >
         <EducationForm
           key={editingEducation ? `edit-${editingEducation.id}-${Date.now()}` : 'add-education'}

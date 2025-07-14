@@ -75,7 +75,7 @@ export const useLogin = () => {
         if (ok && data.success && data.data?.token) {
           const user = data.data.user || data.data;
           const role = user.role;
-
+          console.log('useLogin: User object before login context call:', user);
           login(user, data.data.token); // store user and token in context
 
           if (role !== 'staff' &&role !== 'admin' &&!user.isVerified) {
@@ -94,15 +94,13 @@ export const useLogin = () => {
           setTimeout(() => {
             switch (role) {
               case 'admin':
+              case 'staff':
                 navigate('/admin/dashboard');
                 break;
               case 'student':
               case 'company':
               case 'alumni':
                 navigate('/');
-                break;
-              case 'staff':
-                navigate('/staff/dashboard'); // Make sure this route exists
                 break;
               default:
                 navigate('/unauthorized');

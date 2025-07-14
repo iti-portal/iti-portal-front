@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = 'http://127.0.0.1:8000/api/articles';
+const API_BASE = `${process.env.REACT_APP_API_URL}/articles`;
 
 const getToken = () => localStorage.getItem('token');
 
