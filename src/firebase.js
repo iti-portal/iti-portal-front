@@ -3,14 +3,15 @@ import { getFirestore, collection, onSnapshot } from "firebase/firestore";
 
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBrls7nZFqAqlyl8sOZyEFwkuCm63UPA9k",
-    authDomain: "iti-portal-e0269.firebaseapp.com",
-    projectId: "iti-portal-e0269",
-    storageBucket: "iti-portal-e0269.firebasestorage.app",
-    messagingSenderId: "12611664973",
-    appId: "1:12611664973:web:daac4ba054c94d32eb7004",
-    measurementId: "G-ZKFTFP12HG"
-};
+    apiKey: "AIzaSyAE7jS-usf-lfXB0VKHiGDnkt6s45-NIfE",
+    authDomain: "uniti-77eaa.firebaseapp.com",
+    projectId: "uniti-77eaa",
+    storageBucket: "uniti-77eaa.firebasestorage.app",
+    messagingSenderId: "597114938960",
+    appId: "1:597114938960:web:029ff7e3b48386c75fd355",
+    measurementId: "G-8LZHVZ1GQ3"
+  };
+  
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

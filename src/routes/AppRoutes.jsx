@@ -244,10 +244,21 @@ const AppRoutes = () => {
             path="/my-achievements"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><MyAchievements /></PrivateRoute> }
           />
+          
           <Route
             path="/achievements/create"
             element={ <PrivateRoute isAuthenticated={isAuthenticated}><CreateAchievement /></PrivateRoute> }
           />
+
+          <Route 
+            path="/achievements/:id" 
+            element={
+              <PrivateRoute isAuthenticated={isAuthenticated}>
+                <ViewAchievement />
+              </PrivateRoute>
+            } 
+          />
+ 
 
           {/* Job application routes */}
           <Route
