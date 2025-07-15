@@ -49,7 +49,7 @@ const MyApplicationsPage = () => {
             return;
         }
         try {
-            const response = await axios.get('http://localhost:8000/api/my-applications?include_match_score=true', {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/my-applications?include_match_score=true`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             if (response.data.success) {
@@ -122,7 +122,7 @@ const MyApplicationsPage = () => {
             return;
         }
 
-        const downloadUrl = `http://localhost:8000/api/job-applications/${applicationId}/download-cv`;
+        const downloadUrl = `${process.env.REACT_APP_API_URL}/job-applications/${applicationId}/download-cv`;
 
         try {
             const response = await axios.get(downloadUrl, {
@@ -169,7 +169,7 @@ const MyApplicationsPage = () => {
 
             setIsLoading(true);
             try {
-                const response = await axios.delete(`http://localhost:8000/api/job-applications/${applicationId}`, {
+                const response = await axios.delete(`${process.env.REACT_APP_API_URL}/job-applications/${applicationId}`, {
                     headers: { 'Authorization': `Bearer ${token}` },
                 });
 

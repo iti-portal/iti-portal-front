@@ -14,12 +14,12 @@ const getFullImageUrl = (originalSrc) => {
   if (/^https?:\/\//.test(originalSrc)) return originalSrc;
   if (originalSrc.startsWith('data:image/svg+xml')) return PLACEHOLDERS.AVATAR_USER;
   if (/^(profile_images|cover_photos)/.test(originalSrc)) {
-    return `http://127.0.0.1:8000/storage/${originalSrc.replace(/^\/+/, '')}`;
+    return `${process.env.REACT_APP_API_ASSET_URL}/${originalSrc.replace(/^\/+/, '')}`;
   }
   if (originalSrc.startsWith('/')) {
-    return `http://127.0.0.1:8000${originalSrc}`;
+    return `${process.env.REACT_APP_API_URL_WITHOUT_API}${originalSrc}`;
   }
-  return `http://127.0.0.1:8000/storage/${originalSrc}`;
+  return `${process.env.REACT_APP_API_ASSET_URL}/${originalSrc}`;
 };
 
 // Custom ProfileImage component with fallback URLs
@@ -41,9 +41,9 @@ const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
         const relativePath = path.replace(/^\/(storage|media)\//, '');
         return [
           originalSrc,
-          `${baseUrl}/storage/${relativePath}`,
-          `${baseUrl}/media/${relativePath}`,
-          `${baseUrl}/${relativePath}`
+          `${process.env.REACT_APP_API_ASSET_URL}/${relativePath}`,
+          `${process.env.REACT_APP_API_URL_WITHOUT_API}/media/${relativePath}`,
+          `${process.env.REACT_APP_API_URL_WITHOUT_API}/${relativePath}`
         ];
       } catch {
         // If URL parsing fails, fallback to below
@@ -53,9 +53,9 @@ const ProfileImage = ({ src, alt, className, onLoad, onError }) => {
       // Relative path
       const relativePath = originalSrc.replace(/^\/(storage|media)\//, '');
       return [
-        `${baseUrl}/storage/${relativePath}`,
-        `${baseUrl}/media/${relativePath}`,
-        `${baseUrl}/${relativePath}`
+        `${process.env.REACT_APP_API_ASSET_URL}/${relativePath}`,
+        `${process.env.REACT_APP_API_URL_WITHOUT_API}/media/${relativePath}`,
+        `${process.env.REACT_APP_API_URL_WITHOUT_API}/${relativePath}`
       ];
     }
   };

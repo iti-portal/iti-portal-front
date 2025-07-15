@@ -55,7 +55,7 @@ const ApplicationView = () => {
       setError(null);
       
       const response = await axios.get(
-        `http://localhost:8000/api/company/applications/${applicationId}`,
+        `${process.env.REACT_APP_API_URL}/company/applications/${applicationId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const ApplicationView = () => {
   const handleStatusUpdate = async (newStatus) => {
     try {
       const response = await axios.patch(
-        `http://localhost:8000/api/company/applications/${applicationId}/status`,
+        `${process.env.REACT_APP_API_URL}/company/applications/${applicationId}/status`,
         { status: newStatus },
         {
           headers: {
@@ -124,7 +124,8 @@ const ApplicationView = () => {
     try {
       if (!application.cv_downloaded_at) {
         await axios.get(
-          `http://localhost:8000/api/job-applications/${application.id}/download-cv`,
+          `${process.env.REACT_APP_API_URL}/job-applications/${application.id}/download-cv`,
+          {},
           {
             headers: {
               'Content-Type': 'application/json',
@@ -140,7 +141,7 @@ const ApplicationView = () => {
 
       // Download the CV using blob response
       const response = await axios.get(
-        `http://localhost:8000/api/job-applications/${applicationId}/download-cv`,
+        `${process.env.REACT_APP_API_URL}/job-applications/${applicationId}/download-cv`,
         {
           headers: { 'Authorization': `Bearer ${token}` },
           responseType: 'blob'
@@ -181,7 +182,7 @@ const ApplicationView = () => {
       const path = application.cv_path.split('storage/').pop();
       if (!path) return null;
       
-      return `http://127.0.0.1:8000/storage/${encodeURIComponent(path)}?token=${token}`;
+      return `${process.env.REACT_APP_API_ASSET_URL}/${encodeURIComponent(path)}?token=${token}`;
     } catch (error) {
       console.error("Error generating CV URL:", error);
       return null;

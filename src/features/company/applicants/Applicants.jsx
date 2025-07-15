@@ -26,7 +26,7 @@ function CompanyApplications() {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await axios.get("http://127.0.0.1:8000/api/company/applications", {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/company/applications`, {
         headers: {
           "Authorization": `Bearer ${token}`
         }
@@ -61,7 +61,7 @@ function CompanyApplications() {
       
       if (!application.cv_downloaded_at) {
         await axios.get(
-          `http://127.0.0.1:8000/api/job-applications/${application.id}/download-cv`,
+          `${process.env.REACT_APP_API_URL}/job-applications/${application.id}/download-cv`,
           {},
           {
             headers: {
@@ -73,7 +73,7 @@ function CompanyApplications() {
       }
 
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/job-applications/${application.id}/download-cv`,
+        `${process.env.REACT_APP_API_URL}/job-applications/${application.id}/download-cv`,
         {
           headers: { 
             'Authorization': `Bearer ${token}` 

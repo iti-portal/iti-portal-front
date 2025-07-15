@@ -19,7 +19,7 @@ export const transformAchievementData = (apiAchievement) => {
     user: apiAchievement.user_profile ? {
       name: `${apiAchievement.user_profile.first_name} ${apiAchievement.user_profile.last_name}`,
       avatar: apiAchievement.user_profile.profile_picture 
-        ? `http://localhost:8000/storage/${apiAchievement.user_profile.profile_picture}`
+        ? `${process.env.REACT_APP_API_ASSET_URL}/${apiAchievement.user_profile.profile_picture}`
         : '/avatar.png',
       role: 'Community Member' // Default role since API doesn't provide this
     } : null,

@@ -98,7 +98,7 @@ const JobDetailsView = () => {
             <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center text-red-600 overflow-hidden">
               {application.user?.profile?.profile_picture ? (
                 <img
-                  src={`http://127.0.0.1:8000/storage/${application.user.profile.profile_picture}`}
+                  src={`${process.env.REACT_APP_API_ASSET_URL}/${application.user.profile.profile_picture}`}
                   alt={`${application.user.profile.first_name} ${application.user.profile.last_name}`}
                   className="rounded-full w-full h-full object-cover"
                   onError={(e) => {
@@ -475,7 +475,7 @@ const JobDetailsView = () => {
                 <div className="bg-red-100 rounded-full w-10 h-10 flex items-center justify-center text-red-600 overflow-hidden">
                   {app.user?.profile?.profile_picture ? (
                     <img
-                      src={`http://127.0.0.1:8000/storage/${app.user.profile.profile_picture}`}
+                      src={`${process.env.REACT_APP_API_ASSET_URL}/${app.user.profile.profile_picture}`}
                       alt={`${app.user.profile.first_name} ${app.user.profile.last_name}`}
                       className="rounded-full w-full h-full object-cover"
                     />

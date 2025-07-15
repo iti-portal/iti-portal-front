@@ -277,7 +277,7 @@ export const addUserSkill = async (skillName) => {
       throw new Error('Skill name is required');
     }
 
-    const response = await fetch(`${API_BASE_URL}/user-skills/`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/user-skills/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -324,7 +324,7 @@ export const deleteUserSkill = async (skillId) => {
       throw new Error('Skill ID is required');
     }
 
-    const response = await fetch(`${API_BASE_URL}/user-skills/${skillId}`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/user-skills/${skillId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

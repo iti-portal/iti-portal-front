@@ -33,7 +33,7 @@ function JobCard({ jobData, onSelectJob, isSelected, showScore = false }) {
         <div className="flex-shrink-0">
           {jobData.company?.company_profile?.logo ? (
             <img
-              src={`http://127.0.0.1:8000/storage/${jobData.company.company_profile.logo}`}
+              src={`${process.env.REACT_APP_API_ASSET_URL}/${jobData.company.company_profile.logo}`}
               alt={jobData.company.company_profile.company_name + ' logo'}
               className="w-12 h-12 rounded-lg object-cover border border-gray-100 bg-white"
             />
@@ -210,7 +210,7 @@ export default function AvailableJobs() {
                         {selectedJob.company?.company_profile?.logo ? (
                           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center mr-4">
                             <img
-                              src={`http://127.0.0.1:8000/storage/${selectedJob.company.company_profile.logo}`}
+                              src={`${process.env.REACT_APP_API_ASSET_URL}/${selectedJob.company.company_profile.logo}`}
                               alt={selectedJob.company.company_profile.company_name + ' logo'}
                               className="w-12 h-12 rounded-lg object-cover border border-gray-100 bg-white"
                             />

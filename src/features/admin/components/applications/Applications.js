@@ -84,7 +84,7 @@ function AdminApplications() {
         per_page: itemsPerPage,
       });
 
-      const response = await fetch(`http://localhost:8000/api/admin/applications?${queryParams}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/admin/applications?${queryParams}`, {
         headers: {
           Authorization: `Bearer ${token}`
         },

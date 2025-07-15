@@ -258,7 +258,7 @@ const AdminApplicationsPage = () => {
             if (filter !== 'all') params.status = filter;
             if (query) params.search = query; 
 
-            const response = await axios.get(`http://localhost:8000/api/admin/applications`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/admin/applications`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params
             });
@@ -295,7 +295,7 @@ const AdminApplicationsPage = () => {
         if (!token) return;
 
         try {
-            const response = await axios.get(`http://localhost:8000/api/admin/applications/statistics`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/admin/applications/statistics`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 params: { _t: Date.now() }
             });

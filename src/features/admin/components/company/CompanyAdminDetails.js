@@ -19,7 +19,7 @@ function CompanyDetails() {
   useEffect(() => {
     async function fetchCompany() {
       try {
-        const response = await fetch(`http://127.0.0.1:8000/api/companies/${id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/companies/${id}`, {
           headers: {
             Authorization: "Bearer 3|VT9TjiUAFmzQCfLVAdWjJUdISFfuUzYvG72Cs0fg6331ba53",
             "Content-Type": "application/json",

@@ -84,7 +84,7 @@ const AchievementCard = ({
   const getProfileImageUrl = (profilePicture) => {
     if (!profilePicture) return null;
     if (profilePicture.startsWith('http')) return profilePicture;
-    return `http://localhost:8000/storage/${profilePicture}`;
+    return `${process.env.REACT_APP_API_ASSET_URL}/${profilePicture}`;
   };
 
   return (

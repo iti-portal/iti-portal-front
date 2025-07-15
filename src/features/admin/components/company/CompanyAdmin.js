@@ -35,7 +35,7 @@ function JobAdmin() {
       setLoading(true);
       setError(null);
       const token = localStorage.getItem('token');
-      const response = await fetch(`${process.env.REACT_APP_API_URL}//companies`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/companies`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +201,7 @@ const handleCompanyProfileClick = (companyProfile) => {
           <div className="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center text-red-600 overflow-hidden">
             {companyProfile.logo ? (
               <img
-                src={`http://127.0.0.1:8000/storage/${companyProfile.logo}`}
+                src={`${process.env.REACT_APP_API_ASSET_URL}/${companyProfile.logo}`}
                 alt={companyProfile.company_name}
                 className="rounded-full w-full h-full object-cover"
                 onError={(e) => {

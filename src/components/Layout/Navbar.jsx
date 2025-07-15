@@ -15,9 +15,10 @@ const ProfileDropdown = ({ user, isAdmin, isCompany, onLogout, closeDropdown, lo
   const handleNavigate = (path) => { closeDropdown(); navigate(path); };
   
   let links = [];
+  // FIX: Converted Briefcase icon to a string so it can be used consistently in the mobile menu.
   if (isAdmin) { links = [{ path: '/admin/dashboard', text: 'Admin Dashboard', icon: 'dashboard' }, { path: '/admin/profile', text: 'View Profile', icon: 'person' }]; }
   else if (isCompany) { links = [{ path: '/company/dashboard', text: 'Company Dashboard', icon: 'dashboard' }, { path: '/company/profile', text: 'View Profile', icon: 'person' }]; }
-  else { links = [{ path: '/student/profile', text: 'View Profile', icon: 'person' }, { path: '/my-applications', text: 'My Applications', icon: <Briefcase size={20} /> } ,{ path: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' }, { path: '/my-network', text: 'My Network', icon: 'group' }, { path: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' }]; }
+  else { links = [{ path: '/student/profile', text: 'View Profile', icon: 'person' }, { path: '/my-applications', text: 'My Applications', icon: 'work' } ,{ path: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' }, { path: '/my-network', text: 'My Network', icon: 'group' }, { path: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' }]; }
 
   return (
     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="absolute right-0 mt-2 w-60 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
@@ -26,7 +27,8 @@ const ProfileDropdown = ({ user, isAdmin, isCompany, onLogout, closeDropdown, lo
             {user?.email || 'No email'}
           </div>
         )}</div>
-      {links.map(link => <button key={link.path} onClick={() => handleNavigate(link.path)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><span className="material-icons text-lg mr-3">{link.icon}</span>{link.text}</button>)}
+      {/* FIX: Check if icon is a string (material icon) or a component (lucide-react) */}
+      {links.map(link => <button key={link.path} onClick={() => handleNavigate(link.path)} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><span className="material-icons text-lg mr-3">{typeof link.icon === 'string' ? link.icon : <Briefcase size={20} />}</span>{link.text}</button>)}
       <div className="border-t mt-2 pt-2"><button onClick={() => handleNavigate('/account/settings')} className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"><span className="material-icons text-lg mr-3">settings</span>Account Settings</button><button onClick={onLogout} disabled={logoutLoading} className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"><span className="material-icons text-lg mr-3">{logoutLoading ? 'hourglass_empty' : 'logout'}</span>{logoutLoading ? 'Logging out...' : 'Logout'}</button></div>
     </motion.div>
   );
@@ -55,7 +57,6 @@ const Navbar = () => {
 
   const avatarSrc = companyLogoUrl || user?.profile?.profile_picture || "/avatar.png";
 
-  // --- LINK DEFINITIONS ---
   const publicLinks = [
     { to: '/', text: 'Home', icon: 'home' },
     { to: '/about', text: 'About Us', icon: 'info' },
@@ -67,18 +68,50 @@ const Navbar = () => {
     { to: '/student/availablejobs', text: 'Jobs', icon: 'work', show: isStudentOrAlumni },
     { to: '/network', text: 'Network', icon: 'group' },
     { to: '/achievements', text: 'Achievements', icon: 'emoji_events' },
-    {to:'/my-services', text: 'My Services', icon: 'build', show: isAlumni },
+    { to:'/my-services', text: 'My Services', icon: 'build', show: isAlumni },
     { to: '/student/articles', text: 'Articles', icon: 'article', show: isStudentOrAlumni },
     { to: '/admin/dashboard', text: 'Admin', icon: 'admin_panel_settings', show: isAdmin },
   ];
-  // --- All hooks and handlers are unchanged ---
+
+  // --- FIX: Create a single, unified list of links for the mobile menu ---
+  let mobileNavLinks = [];
+  if (isAuthenticated) {
+    // Start with the standard logged-in links
+    mobileNavLinks = [...loggedInLinks];
+    
+    // Define the links that are normally in the profile dropdown
+    const profileLinks = [];
+    if (isAdmin) {
+      profileLinks.push({ to: '/admin/profile', text: 'View Profile', icon: 'person' });
+    } else if (isCompany) {
+      profileLinks.push({ to: '/company/dashboard', text: 'Company Dashboard', icon: 'dashboard' });
+      profileLinks.push({ to: '/company/profile', text: 'View Profile', icon: 'person' });
+    } else { // Student or Alumni
+      profileLinks.push({ to: '/student/profile', text: 'View Profile', icon: 'person' });
+      profileLinks.push({ to: '/my-applications', text: 'My Applications', icon: 'work' });
+      profileLinks.push({ to: '/my-achievements', text: 'My Achievements', icon: 'emoji_events' });
+      profileLinks.push({ to: '/my-network', text: 'My Network', icon: 'group' });
+      profileLinks.push({ to: '/student/profile/edit', text: 'Edit Profile', icon: 'edit' });
+    }
+
+    // Add profile links and a universal settings link
+    mobileNavLinks.push(...profileLinks);
+    mobileNavLinks.push({ to: '/account/settings', text: 'Account Settings', icon: 'settings' });
+
+  } else {
+    // For logged-out users, just use the public links
+    mobileNavLinks = publicLinks;
+  }
+  
+  // Remove duplicate links (e.g., 'My Achievements' might be in both lists)
+  const uniqueMobileNavLinks = Array.from(new Map(mobileNavLinks.map(link => [link.to, link])).values());
+  // --- END OF FIX ---
+
   useEffect(() => { const handleClickOutside = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setProfileDropdownOpen(false); }; document.addEventListener('mousedown', handleClickOutside); return () => document.removeEventListener('mousedown', handleClickOutside); }, []);
   useEffect(() => { setMenuOpen(false); }, [location.pathname]);
   const handleLogout = async () => { try { setLogoutLoading(true); await logout(); navigate('/login'); } catch (e) { console.error(e); navigate('/login'); } finally { setLogoutLoading(false); setProfileDropdownOpen(false); setMenuOpen(false); } };
   useEffect(() => { const showAlert = async () => { /* ... */ }; showAlert(); }, [isAuthenticated, user, location.pathname, isStudentOrAlumni]);
   const getLinkClasses = (path, isMobile = false) => { const isActive = location.pathname === path || (path !== '/' && location.pathname.startsWith(path)); if (isMobile) { return `flex items-center text-lg w-full ${isActive ? "text-[#901b20] font-semibold py-3 px-4 bg-red-50 border-l-4 border-[#901b20]" : "text-gray-700 py-3 px-4 hover:bg-gray-100 border-l-4 border-transparent"}`; } return `text-sm font-medium transition-all duration-200 ${isActive ? "text-[#901b20] border-b-2 border-[#901b20]" : "text-gray-600 hover:text-[#901b20] border-b-2 border-transparent"}`; };
-
-  // FIX: The line `if (!isAuthenticated) return null;` has been removed.
 
   return (
     <>
@@ -89,6 +122,7 @@ const Navbar = () => {
             <span className="font-bold text-xl hidden sm:inline">UnITI</span>
           </Link>
 
+          {/* Desktop navigation remains unchanged */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 mx-auto">
             {(isAuthenticated ? loggedInLinks : publicLinks).map(link => (
               (link.show === undefined || link.show) &&
@@ -136,7 +170,8 @@ const Navbar = () => {
                 </div>
               )}
               <nav className="flex-1 py-4 overflow-y-auto">
-                {(isAuthenticated ? loggedInLinks : publicLinks).map(link => ((link.show === undefined || link.show) && <Link key={link.text} to={link.to} className={getLinkClasses(link.to, true)}><span className="material-icons mr-4">{link.icon}</span>{link.text}</Link>))}
+                {/* FIX: Use the new unified and de-duplicated list of links for the mobile menu */}
+                {uniqueMobileNavLinks.map(link => ((link.show === undefined || link.show) && <Link key={link.to} to={link.to} className={getLinkClasses(link.to, true)}><span className="material-icons mr-4">{link.icon}</span>{link.text}</Link>))}
               </nav>
               <div className="p-4 border-t">
                 {isAuthenticated ? (

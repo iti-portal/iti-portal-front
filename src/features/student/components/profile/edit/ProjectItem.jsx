@@ -52,7 +52,7 @@ function ProjectItem({ project, onEdit, onDelete, onImageAdd, onImageDelete }) {
                 {project.project_images.map((img, index) => (
                   <div key={img.id || index} className="relative group">
                     <img 
-                      src={`http://127.0.0.1:8000/storage/${img.image_path}`}
+                      src={`${process.env.REACT_APP_API_ASSET_URL}/${img.image_path}`}
                       alt={img.alt_text || `${project.title} image ${index + 1}`} 
                       className="w-16 h-16 object-cover rounded-lg border border-gray-200 group-hover:opacity-75 transition-opacity"
                       onError={(e) => {

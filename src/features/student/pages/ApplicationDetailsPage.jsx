@@ -31,7 +31,7 @@ const ApplicationDetailsPage = () => {
             return;
         }
         try {
-            const response = await axios.get(`http://localhost:8000/api/job-applications/${applicationId}`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/job-applications/${applicationId}`, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
             if (response.data.success && response.data.data) {
@@ -81,7 +81,7 @@ const ApplicationDetailsPage = () => {
             return;
         }
         try {
-            const response = await axios.get(`http://localhost:8000/api/job-applications/${appId}/download-cv`, {
+            const response = await axios.get(`${process.env.REACT_APP_API_URL}/job-applications/${appId}/download-cv`, {
                 headers: { 'Authorization': `Bearer ${token}` },
                 responseType: 'blob'
             });

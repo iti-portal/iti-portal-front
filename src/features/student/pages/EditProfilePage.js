@@ -23,7 +23,6 @@ function EditProfilePage() {
   const [profileData, setProfileData] = useState({});
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
-  // Updated tabs array with icons for the new design
   const tabs = [
     { id: 'personal', name: 'Personal Info', icon: <User size={18} /> },
     { id: 'contact', name: 'Contact & Socials', icon: <LinkIcon size={18} /> },
@@ -32,7 +31,6 @@ function EditProfilePage() {
     { id: 'projects-portfolio', name: 'Projects', icon: <Lightbulb size={18} /> },
   ];
 
-  // (Unchanged) Initialize form data when profile loads
   useEffect(() => {
     if (profile?.user) {
       const user = profile.user;
@@ -66,15 +64,12 @@ function EditProfilePage() {
     }
   }, [profile]);
 
-  // (Unchanged) Get user ID for API calls
   const userId = profile?.user?.id;
 
-  // (Unchanged) Update profile data helper
   const handleProfileDataChange = (field, value) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
-  // (Unchanged) Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -108,7 +103,6 @@ function EditProfilePage() {
     }
   };
 
-  // (Unchanged) Loading state UI
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -120,7 +114,6 @@ function EditProfilePage() {
     );
   }
 
-  // (Unchanged) Error state UI
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -140,7 +133,6 @@ function EditProfilePage() {
     );
   }
 
-  // Helper function to render tab content, making the main JSX cleaner
   const renderTabContent = () => {
     switch (activeTab) {
       case 'personal':
@@ -148,7 +140,6 @@ function EditProfilePage() {
       case 'contact':
         return <ContactInfoForm data={profileData} onUpdateAll={(newData) => setProfileData(p => ({...p, ...newData}))} />;
       case 'education-experience':
-        // Ensure this handler only updates state and does NOT reload or navigate
         return <EducationAndExperienceForm 
           educations={profileData.educations} 
           workExperiences={profileData.workExperiences} 
@@ -168,7 +159,6 @@ function EditProfilePage() {
     <>
       <Navbar />
 
-      {/* (Unchanged) Success Notification Logic */}
       <Alert
         show={showSuccessNotification}
         type="success"
@@ -177,7 +167,6 @@ function EditProfilePage() {
       />
 
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-red-50 relative overflow-hidden">
-        {/* Decorative background elements */}
         <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-[#901b20]/10 to-[#203947]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-gradient-to-tr from-[#203947]/10 to-[#901b20]/10 rounded-full blur-3xl opacity-50 -z-0"></div>
 
@@ -195,14 +184,18 @@ function EditProfilePage() {
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/30 p-4 md:p-6">
             <div className="flex flex-col md:flex-row gap-6 md:gap-8">
               
-              {/* Left Sidebar Navigation */}
               <aside className="md:w-1/4">
-                <nav className="sticky top-24 flex flex-row md:flex-col gap-1">
+                {/* FIX #1: Added 'overflow-x-auto' to allow horizontal scrolling on mobile, and padding for aesthetics. */}
+                <nav className="sticky top-24 flex flex-row md:flex-col gap-2 md:gap-1 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
                   {tabs.map(tab => (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`relative w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg text-left transition-colors ${
+                      /* FIX #2: Replaced 'w-full' with 'flex-shrink-0 md:w-full'
+                         - 'flex-shrink-0' prevents buttons from shrinking on mobile.
+                         - 'md:w-full' applies full width only on medium screens and up.
+                      */
+                      className={`relative flex-shrink-0 md:w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg text-left transition-colors ${
                         activeTab === tab.id ? 'text-white' : 'text-gray-600 hover:bg-gray-200/50'
                       }`}
                     >
@@ -214,15 +207,13 @@ function EditProfilePage() {
                         />
                       )}
                       <span className="relative z-10">{tab.icon}</span>
-                      <span className="relative z-10">{tab.name}</span>
+                      <span className="relative z-10 whitespace-nowrap">{tab.name}</span> {/* Added whitespace-nowrap here to be safe */}
                     </button>
                   ))}
                 </nav>
               </aside>
 
-              {/* Right Content Area */}
               <div className="md:w-3/4">
-                {/* Only wrap the tabs that need to submit the main profile in the form */}
                 {activeTab === 'personal' || activeTab === 'contact' || activeTab === 'skills-certs' || activeTab === 'projects-portfolio' ? (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <AnimatePresence mode="wait">
@@ -233,7 +224,6 @@ function EditProfilePage() {
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                       >
-                        {/* Render the active form component */}
                         {renderTabContent()}
                       </motion.div>
                     </AnimatePresence>
@@ -259,7 +249,6 @@ function EditProfilePage() {
                     </div>
                   </form>
                 ) : (
-                  // For education-experience, render outside the form so it never triggers a page reload
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={activeTab}
