@@ -3,7 +3,7 @@
 const API_TOKEN = localStorage.getItem('token') ;
 const BASE_API_URL = `${process.env.REACT_APP_API_URL}/jobs`;
 
-export async function fetchAllJobs() {
+export async function fetchAllJobs(API_TOKEN) {
   let allJobs = [];
   let currentPage = 1;
   let hasMorePages = true;
